@@ -1,0 +1,7 @@
+{
+  "name": "Gestion des Voyageurs Aéroportuaires",
+  "description": "Une application de tableau de bord pour la gestion des voyageurs, des vols, et de la sécurité dans les aéroports. Ce système permet de suivre les enregistrements, gérer les utilisateurs, les compagnies aériennes, et surveiller les listes noires.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

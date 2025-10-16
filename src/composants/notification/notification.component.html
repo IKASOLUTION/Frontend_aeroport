@@ -1,0 +1,14 @@
+<div class="fixed top-8 right-8 z-[100] space-y-3 w-80">
+  @for (notification of notificationService.notifications(); track notification.id) {
+    <div 
+      class="flex items-center text-white text-sm font-bold px-4 py-3 rounded-lg shadow-xl relative animate-fade-in-right"
+      [class]="getContainerClass(notification.type)"
+      role="alert">
+      <i [class]="getIconClass(notification.type)" class="mr-3 text-lg"></i>
+      <p class="flex-1">{{ notification.message }}</p>
+      <button (click)="notificationService.remove(notification.id)" class="ml-4 text-white/70 hover:text-white focus:outline-none">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+  }
+</div>

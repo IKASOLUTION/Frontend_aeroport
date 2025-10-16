@@ -1,0 +1,262 @@
+<div class="flex justify-between items-center mb-6">
+  <h3 class="text-3xl font-semibold text-gray-800">Gestion des Voyages</h3>
+  <div class="flex space-x-2">
+    <button (click)="openPdfModal(voyagesFiltres(), 'Liste des Voyages')" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 flex items-center">
+        <i class="fa-solid fa-file-pdf mr-2"></i>
+        Exporter en PDF
+    </button>
+  </div>
+</div>
+
+<!-- Section Filtres -->
+<div class="mb-6 bg-white shadow-md rounded-lg p-6">
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+    <div class="md:col-span-12 lg:col-span-3">
+      <label for="search" class="block text-sm font-medium text-gray-700">Recherche</label>
+      <input type="text" id="search" name="search" [(ngModel)]="filtreRecherche" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm bg-white text-gray-900" placeholder="N° vol, nom, destination...">
+    </div>
+    <div class="md:col-span-6 lg:col-span-3">
+      <label for="etat-voyage" class="block text-sm font-medium text-gray-700">État du voyage</label>
+      <select id="etat-voyage" name="etat-voyage" [(ngModel)]="filtreEtatVoyage" class="mt-1 block w-full pl-3 pr-10 py-2 border border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md shadow-sm bg-white text-gray-900">
+        <option value="">Tous les états</option>
+        @for(etat of etatsVoyage; track etat) {
+          <option [value]="etat">{{etat}}</option>
+        }
+      </select>
+    </div>
+    <div class="md:col-span-6 lg:col-span-3">
+      <label for="date-debut" class="block text-sm font-medium text-gray-700">Date début du voyage</label>
+      <input type="date" id="date-debut" name="date-debut" [(ngModel)]="filtreDateDebut" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm bg-white text-gray-900">
+    </div>
+    <div class="md:col-span-6 lg:col-span-3">
+      <label for="date-fin" class="block text-sm font-medium text-gray-700">Date fin du voyage</label>
+      <input type="date" id="date-fin" name="date-fin" [(ngModel)]="filtreDateFin" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm bg-white text-gray-900">
+    </div>
+  </div>
+</div>
+
+<div class="bg-white shadow-lg rounded-lg overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-100">
+        <tr>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">N° Vol</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Passager</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">État/Date</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Itinéraire</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Motif</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Durée</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+          <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        @for (voyage of voyagesPagines(); track voyage.id) {
+          <tr class="hover:bg-emerald-50 transition-colors duration-200">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ voyage.numero_vol }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <div class="font-medium text-gray-900">{{ voyage.prenom_passager }} {{ voyage.nom_passager }}</div>
+                <div class="text-gray-500">N° Enreg: {{ voyage.numero_enregistrement }}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <div class="font-medium text-gray-900">{{ voyage.etat_voyage }}</div>
+                <div class="text-gray-500">{{ voyage.date_voyage }} à {{ voyage.heure_voyage }}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ voyage.ville_depart }} <i class="fa-solid fa-arrow-right mx-1 text-gray-400"></i> {{ voyage.ville_destination }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ voyage.motif_voyage }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ voyage.duree_sejour }} jours</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="relative inline-block px-3 py-1 font-semibold leading-tight rounded-full text-xs" [class]="getStatusClass(voyage.statut)">
+                {{ voyage.statut }}
+              </span>
+               <div class="text-xs text-gray-500 mt-1">{{ voyage.date_creation }}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <div class="flex items-center justify-center space-x-2">
+                <button (click)="openDetailsModal(voyage)" class="p-2 rounded-full text-gray-400 hover:bg-green-100 hover:text-green-600 transition-colors duration-200" title="Détails"><i class="fa-solid fa-eye text-base"></i></button>
+                <button (click)="openDeleteModal(voyage)" class="p-2 rounded-full text-gray-400 hover:bg-red-100 hover:text-red-600 transition-colors duration-200" title="Supprimer"><i class="fa-solid fa-trash-can text-base"></i></button>
+                <button (click)="openPdfModal(voyage, 'Fiche Voyage - ' + voyage.prenom_passager + ' ' + voyage.nom_passager)" class="p-2 rounded-full text-gray-400 hover:bg-red-100 hover:text-red-600 transition-colors duration-200" title="Exporter en PDF"><i class="fa-solid fa-file-pdf text-base"></i></button>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+              <div class="flex flex-col items-center">
+                <i class="fa-solid fa-route text-4xl text-gray-300 mb-4"></i>
+                <h4 class="text-lg font-semibold text-gray-600">Aucun voyage trouvé</h4>
+                <p class="text-sm">Essayez de modifier vos filtres.</p>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <!-- Pagination -->
+  <div class="px-5 py-5 bg-white border-t flex flex-col xs:flex-row items-center xs:justify-between">
+    <span class="text-xs xs:text-sm text-gray-900">{{ paginationText() }}</span>
+    <div class="inline-flex mt-2 xs:mt-0 space-x-2">
+      <button (click)="pagePrecedente()" [disabled]="currentPage() === 1" class="text-sm font-semibold py-2 px-4 rounded transition duration-150 ease-in-out" [class]="currentPage() === 1 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-gray-300 hover:bg-gray-400 text-gray-800'">Précédent</button>
+      <button (click)="pageSuivante()" [disabled]="currentPage() === totalPages() || totalPages() === 0" class="text-sm font-semibold py-2 px-4 rounded transition duration-150 ease-in-out" [class]="(currentPage() === totalPages() || totalPages() === 0) ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-gray-300 hover:bg-gray-400 text-gray-800'">Suivant</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modale Détails Voyage -->
+@if (isDetailsModalOpen() && selectedVoyage(); as voyage) {
+  <div class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" (click)="closeModals()">
+    <div class="bg-white rounded-lg shadow-2xl p-8 max-w-4xl w-full" (click)="$event.stopPropagation()">
+      <div class="flex justify-between items-center mb-6 pb-4 border-b">
+        <h3 class="text-2xl font-bold text-gray-800">Détails du Voyage</h3>
+        <div class="flex items-center space-x-3">
+          <button type="button" (click)="closeModals()" class="text-sm font-medium text-green-600 hover:text-green-800"><i class="fa-solid fa-arrow-left mr-2"></i>Retour à la liste</button>
+          <button (click)="openPdfModal(voyage, 'Fiche Voyage - ' + voyage.prenom_passager + ' ' + voyage.nom_passager)" class="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm flex items-center">
+            <i class="fa-solid fa-print mr-2"></i>Imprimer PDF
+          </button>
+        </div>
+      </div>
+
+      <div class="space-y-8">
+        <!-- Informations du Vol -->
+        <section>
+          <h4 class="text-lg font-semibold text-gray-700 border-b pb-2 mb-4">Informations du Vol</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4 text-sm">
+            <div class="space-y-1"><p class="text-gray-500">Numéro de Vol:</p><p class="font-medium text-gray-900">{{ voyage.numero_vol }}</p></div>
+            <div class="space-y-1"><p class="text-gray-500">État du Voyage:</p><p class="font-medium text-gray-900">{{ voyage.etat_voyage }}</p></div>
+            <div class="space-y-1"><p class="text-gray-500">Date du Voyage:</p><p class="font-medium text-gray-900">{{ voyage.date_voyage }}</p></div>
+            <div class="space-y-1"><p class="text-gray-500">Heure du Voyage:</p><p class="font-medium text-gray-900">{{ voyage.heure_voyage }}</p></div>
+            <div class="space-y-1"><p class="text-gray-500">Durée du Séjour:</p><p class="font-medium text-gray-900">{{ voyage.duree_sejour }} jours</p></div>
+          </div>
+        </section>
+
+        <!-- Informations du Passager -->
+        <section>
+          <h4 class="text-lg font-semibold text-gray-700 border-b pb-2 mb-4">Informations du Passager</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4 text-sm">
+            <div class="space-y-1"><p class="text-gray-500">Nom:</p><p class="font-medium text-gray-900">{{ voyage.nom_passager }}</p></div>
+            <div class="space-y-1"><p class="text-gray-500">Prénom:</p><p class="font-medium text-gray-900">{{ voyage.prenom_passager }}</p></div>
+            <div class="space-y-1"><p class="text-gray-500">Motif du Voyage:</p><p class="font-medium text-gray-900">{{ voyage.motif_voyage }}</p></div>
+            <div class="sm:col-span-2 md:col-span-3 space-y-1"><p class="text-gray-500">Numéro identifiant unique:</p><p class="font-mono text-gray-900 font-medium">{{ voyage.id_unique_passager }}</p></div>
+          </div>
+        </section>
+
+        <!-- Détails du Trajet -->
+        <section>
+          <h4 class="text-lg font-semibold text-gray-700 border-b pb-2 mb-4">Détails du Trajet</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-sm">
+            <div class="space-y-1"><p class="text-gray-500">Départ</p><p class="font-medium text-gray-900 text-base">{{ voyage.ville_depart }}</p></div>
+            <div class="space-y-1"><p class="text-gray-500">Arrivée</p><p class="font-medium text-gray-900 text-base">{{ voyage.ville_destination }}</p></div>
+          </div>
+        </section>
+
+        <!-- Informations Supplémentaires -->
+        <section>
+          <h4 class="text-lg font-semibold text-gray-700 border-b pb-2 mb-4">Informations Supplémentaires</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4 text-sm">
+            <div class="space-y-1"><p class="text-gray-500">Statut:</p><p class="font-medium text-gray-900"><span class="px-3 py-1 text-xs rounded-full" [class]="getStatusClass(voyage.statut)">{{ voyage.statut }}</span></p></div>
+            <div class="space-y-1"><p class="text-gray-500">Date de Création:</p><p class="font-medium text-gray-900">{{ voyage.date_creation }}</p></div>
+            <div class="space-y-1"><p class="text-gray-500">Aéroport:</p><p class="font-medium text-gray-900">{{ voyage.nom_aeroport }}</p></div>
+          </div>
+        </section>
+      </div>
+
+       <div class="mt-8 flex justify-end border-t pt-6">
+          <button type="button" (click)="closeModals()" class="px-6 py-2 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300">Fermer</button>
+       </div>
+    </div>
+  </div>
+}
+
+<!-- Modale Confirmation Suppression -->
+@if (isDeleteModalOpen() && selectedVoyage(); as voyage) {
+  <div class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" (click)="closeModals()">
+    <div class="bg-white rounded-lg shadow-2xl p-8 max-w-md w-full text-center" (click)="$event.stopPropagation()">
+      <div class="bg-red-100 p-4 rounded-full mb-4 inline-block"><i class="fa-solid fa-trash-can text-red-600 text-3xl"></i></div>
+      <h3 class="text-2xl font-bold text-gray-800 mb-2">Confirmer la suppression</h3>
+      <p class="text-gray-600 mb-6">Êtes-vous sûr de vouloir supprimer le voyage de <strong>{{voyage.prenom_passager}} {{voyage.nom_passager}}</strong> ?</p>
+      <div class="flex justify-center space-x-4">
+        <button type="button" (click)="closeModals()" class="px-6 py-2 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300">Annuler</button>
+        <button type="button" (click)="confirmDelete()" class="px-6 py-2 bg-red-600 text-white font-semibold rounded-md hover:bg-red-700">Supprimer</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modale PDF -->
+@if (isPdfModalOpen()) {
+  <div class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-fade-in" (click)="closePdfModal()">
+    <div class="bg-gray-200 rounded-lg shadow-2xl p-4 max-w-5xl w-full h-[90vh] flex flex-col" (click)="$event.stopPropagation()">
+      <div class="flex justify-between items-center mb-4 pb-2 border-b">
+        <h3 class="text-xl font-bold text-gray-800">{{ pdfContentTitle() }}</h3>
+        <div class="flex items-center space-x-2">
+            <button class="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm flex items-center"><i class="fa-solid fa-print mr-2"></i>Imprimer</button>
+            <button (click)="closePdfModal()" class="text-gray-400 hover:text-gray-600 transition-colors rounded-full p-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+      </div>
+      <div class="flex-grow bg-white shadow-inner overflow-y-auto p-8 font-serif text-gray-800">
+        <!-- Contenu du PDF simulé -->
+        <div class="w-full">
+            <header class="flex justify-between items-center pb-4 border-b">
+                <div>
+                    <h1 class="text-2xl font-bold">Aéroport</h1>
+                    <p class="text-sm">Gestion des Voyageurs Aéroportuaires</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm">Généré le: {{ generatedDate }}</p>
+                </div>
+            </header>
+
+            <main class="mt-8">
+                <h2 class="text-xl font-semibold mb-4">{{ pdfContentTitle() }}</h2>
+                
+                @if (isPdfDataArray()) {
+                    <!-- Table for list export -->
+                    <table class="min-w-full text-xs border-collapse border border-gray-300">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="border border-gray-300 p-2 text-left">N° Vol</th>
+                                <th class="border border-gray-300 p-2 text-left">Passager</th>
+                                <th class="border border-gray-300 p-2 text-left">Date</th>
+                                <th class="border border-gray-300 p-2 text-left">Itinéraire</th>
+                                <th class="border border-gray-300 p-2 text-left">Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for(item of pdfData(); track item.id) {
+                                <tr>
+                                    <td class="border border-gray-300 p-2">{{ item.numero_vol }}</td>
+                                    <td class="border border-gray-300 p-2">{{ item.prenom_passager }} {{ item.nom_passager }}</td>
+                                    <td class="border border-gray-300 p-2">{{ item.date_voyage }}</td>
+                                    <td class="border border-gray-300 p-2">{{ item.ville_depart }} -> {{ item.ville_destination }}</td>
+                                    <td class="border border-gray-300 p-2">{{ item.statut }}</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                } @else {
+                    <!-- Details for single item export -->
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4 p-4 border rounded">
+                            <div class="col-span-2"><strong class="font-semibold text-gray-600">Passager:</strong> {{ pdfData().prenom_passager }} {{ pdfData().nom_passager }}</div>
+                            <div><strong class="font-semibold text-gray-600">N° Vol:</strong> {{ pdfData().numero_vol }}</div>
+                            <div><strong class="font-semibold text-gray-600">N° Enregistrement:</strong> {{ pdfData().numero_enregistrement }}</div>
+                            <div><strong class="font-semibold text-gray-600">Date:</strong> {{ pdfData().date_voyage }} à {{ pdfData().heure_voyage }}</div>
+                            <div><strong class="font-semibold text-gray-600">Itinéraire:</strong> {{ pdfData().ville_depart }} -> {{ pdfData().ville_destination }}</div>
+                            <div><strong class="font-semibold text-gray-600">Motif:</strong> {{ pdfData().motif_voyage }}</div>
+                            <div><strong class="font-semibold text-gray-600">Statut:</strong> {{ pdfData().statut }}</div>
+                        </div>
+                    </div>
+                }
+            </main>
+
+            <footer class="mt-16 pt-4 border-t text-center text-xs text-gray-500">
+                <p>Document confidentiel généré par le système Aéroport.</p>
+            </footer>
+        </div>
+      </div>
+    </div>
+  </div>
+}

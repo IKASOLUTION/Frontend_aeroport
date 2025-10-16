@@ -1,0 +1,348 @@
+<h3 class="text-3xl font-semibold text-gray-800">Tableau de Bord</h3>
+
+<!-- Section Filtres -->
+<div class="mt-6 bg-white shadow-md rounded-lg p-6">
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+    <!-- Aéroport -->
+    <div class="md:col-span-12 lg:col-span-4">
+      <label for="aeroport-filtre" class="block text-sm font-medium text-gray-700">Aéroport</label>
+      <select id="aeroport-filtre" name="aeroport-filtre" [(ngModel)]="filtreAeroportId" class="mt-1 block w-full pl-3 pr-10 py-2 border border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md shadow-sm bg-white text-gray-900">
+        <option value="">Tous les aéroports</option>
+        @for(aeroport of aeroports(); track aeroport.id) {
+          <option [value]="aeroport.id">{{aeroport.nom_aeroport}}</option>
+        }
+      </select>
+    </div>
+    <!-- Date de début -->
+    <div class="md:col-span-6 lg:col-span-3">
+        <label for="date-debut" class="block text-sm font-medium text-gray-700">Date de début</label>
+        <input type="date" id="date-debut" name="date-debut" [(ngModel)]="filtreDateDebut" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm bg-white text-gray-900">
+    </div>
+    <!-- Date de fin -->
+    <div class="md:col-span-6 lg:col-span-3">
+        <label for="date-fin" class="block text-sm font-medium text-gray-700">Date de fin</label>
+        <input type="date" id="date-fin" name="date-fin" [(ngModel)]="filtreDateFin" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm bg-white text-gray-900">
+    </div>
+    <!-- Bouton Appliquer -->
+    <div class="md:col-span-12 lg:col-span-2">
+      <button (click)="appliquerFiltres()" class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 flex items-center justify-center">
+        <i class="fa-solid fa-filter mr-2"></i>
+        <span>Appliquer</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="mt-6">
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+    <!-- Total Rôles -->
+    <div class="group relative">
+      <div class="absolute -inset-0.5 bg-gradient-to-br from-[#EF3340] via-[#FCD116] to-[#009E49] rounded-lg blur opacity-0 group-hover:opacity-75 transition duration-300"></div>
+      <div class="relative bg-white rounded-lg p-6 shadow-lg h-full">
+        <div class="flex items-center">
+          <div class="bg-fuchsia-500 rounded-full p-3 text-white flex items-center justify-center h-12 w-12">
+            <i class="fa-solid fa-user-shield text-2xl"></i>
+          </div>
+          <div class="ml-4">
+            <p class="text-lg font-semibold text-gray-700">Total Rôles</p>
+            <p class="text-3xl font-bold text-gray-900">{{ stats().roles }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Total Utilisateurs -->
+    <div class="group relative">
+      <div class="absolute -inset-0.5 bg-gradient-to-br from-[#EF3340] via-[#FCD116] to-[#009E49] rounded-lg blur opacity-0 group-hover:opacity-75 transition duration-300"></div>
+      <div class="relative bg-white rounded-lg p-6 shadow-lg h-full">
+        <div class="flex items-center">
+          <div class="bg-green-500 rounded-full p-3 text-white flex items-center justify-center h-12 w-12">
+            <i class="fa-solid fa-users text-2xl"></i>
+          </div>
+          <div class="ml-4">
+            <p class="text-lg font-semibold text-gray-700">Total Utilisateurs</p>
+            <p class="text-3xl font-bold text-gray-900">{{ stats().utilisateurs }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Total Aéroports -->
+    <div class="group relative">
+      <div class="absolute -inset-0.5 bg-gradient-to-br from-[#EF3340] via-[#FCD116] to-[#009E49] rounded-lg blur opacity-0 group-hover:opacity-75 transition duration-300"></div>
+      <div class="relative bg-white rounded-lg p-6 shadow-lg h-full">
+        <div class="flex items-center">
+          <div class="bg-teal-500 rounded-full p-3 text-white flex items-center justify-center h-12 w-12">
+            <i class="fa-solid fa-plane-departure text-2xl"></i>
+          </div>
+          <div class="ml-4">
+            <p class="text-lg font-semibold text-gray-700">Total Aéroports</p>
+            <p class="text-3xl font-bold text-gray-900">{{ stats().aeroports }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Total Compagnies -->
+    <div class="group relative">
+      <div class="absolute -inset-0.5 bg-gradient-to-br from-[#EF3340] via-[#FCD116] to-[#009E49] rounded-lg blur opacity-0 group-hover:opacity-75 transition duration-300"></div>
+      <div class="relative bg-white rounded-lg p-6 shadow-lg h-full">
+        <div class="flex items-center">
+          <div class="bg-cyan-500 rounded-full p-3 text-white flex items-center justify-center h-12 w-12">
+            <i class="fa-solid fa-building text-2xl"></i>
+          </div>
+          <div class="ml-4">
+            <p class="text-lg font-semibold text-gray-700">Total Compagnies</p>
+            <p class="text-3xl font-bold text-gray-900">{{ stats().compagnies }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Total Vols -->
+    <div class="group relative">
+      <div class="absolute -inset-0.5 bg-gradient-to-br from-[#EF3340] via-[#FCD116] to-[#009E49] rounded-lg blur opacity-0 group-hover:opacity-75 transition duration-300"></div>
+      <div class="relative bg-white rounded-lg p-6 shadow-lg h-full">
+        <div class="flex items-center">
+          <div class="bg-yellow-500 rounded-full p-3 text-white flex items-center justify-center h-12 w-12">
+            <i class="fa-solid fa-plane text-2xl"></i>
+          </div>
+          <div class="ml-4">
+            <p class="text-lg font-semibold text-gray-700">Total Vols</p>
+            <p class="text-3xl font-bold text-gray-900">{{ stats().vols }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Total Passagers -->
+    <div class="group relative">
+      <div class="absolute -inset-0.5 bg-gradient-to-br from-[#EF3340] via-[#FCD116] to-[#009E49] rounded-lg blur opacity-0 group-hover:opacity-75 transition duration-300"></div>
+      <div class="relative bg-white rounded-lg p-6 shadow-lg h-full">
+        <div class="flex items-center">
+          <div class="bg-emerald-500 rounded-full p-3 text-white flex items-center justify-center h-12 w-12">
+             <i class="fa-solid fa-address-card text-2xl"></i>
+          </div>
+          <div class="ml-4">
+            <p class="text-lg font-semibold text-gray-700">Passagers Enregistrés</p>
+            <p class="text-3xl font-bold text-gray-900">{{ stats().enregistrements }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Voyageurs en Attente -->
+    <div class="group relative">
+      <div class="absolute -inset-0.5 bg-gradient-to-br from-[#EF3340] via-[#FCD116] to-[#009E49] rounded-lg blur opacity-0 group-hover:opacity-75 transition duration-300"></div>
+      <div class="relative bg-white rounded-lg p-6 shadow-lg h-full">
+        <div class="flex items-center">
+          <div class="bg-amber-500 rounded-full p-3 text-white flex items-center justify-center h-12 w-12">
+            <i class="fa-solid fa-user-clock text-2xl"></i>
+          </div>
+          <div class="ml-4">
+            <p class="text-lg font-semibold text-gray-700">Voyageurs en Attente</p>
+            <p class="text-3xl font-bold text-gray-900">{{ stats().voyageursEnAttente }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Total Liste Noire -->
+    <div class="group relative">
+      <div class="absolute -inset-0.5 bg-gradient-to-br from-[#EF3340] via-[#FCD116] to-[#009E49] rounded-lg blur opacity-0 group-hover:opacity-75 transition duration-300"></div>
+      <div class="relative bg-white rounded-lg p-6 shadow-lg h-full">
+        <div class="flex items-center">
+          <div class="bg-red-500 rounded-full p-3 text-white flex items-center justify-center h-12 w-12">
+            <i class="fa-solid fa-user-slash text-2xl"></i>
+          </div>
+          <div class="ml-4">
+            <p class="text-lg font-semibold text-gray-700">Sur Liste Noire</p>
+            <p class="text-3xl font-bold text-gray-900">{{ stats().listeNoire }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <div class="group relative">
+    <div class="absolute -inset-0.5 bg-gradient-to-br from-[#EF3340] via-[#FCD116] to-[#009E49] rounded-lg blur opacity-0 group-hover:opacity-75 transition duration-300"></div>
+    <div class="relative bg-white p-6 rounded-lg shadow-lg h-full">
+      <h4 class="text-xl font-semibold text-gray-800 mb-4">Statut des Enregistrements de Passagers</h4>
+      <div class="space-y-4">
+          <div class="flex items-center gap-4">
+              <div class="w-1/4 text-gray-600">Validé</div>
+              <div class="w-2/4 bg-gray-200 rounded-full h-4">
+                  <div class="bg-green-500 h-4 rounded-full" [style.width.%]="statutEnregistrements().valides"></div>
+              </div>
+              <div class="w-1/4 text-right font-semibold text-gray-700">{{ statutEnregistrements().valides.toFixed(0) }}%</div>
+          </div>
+          <div class="flex items-center gap-4">
+              <div class="w-1/4 text-gray-600">En attente</div>
+              <div class="w-2/4 bg-gray-200 rounded-full h-4">
+                  <div class="bg-yellow-400 h-4 rounded-full" [style.width.%]="statutEnregistrements().enAttente"></div>
+              </div>
+              <div class="w-1/4 text-right font-semibold text-gray-700">{{ statutEnregistrements().enAttente.toFixed(0) }}%</div>
+          </div>
+          <div class="flex items-center gap-4">
+              <div class="w-1/4 text-gray-600">Rejeté</div>
+              <div class="w-2/4 bg-gray-200 rounded-full h-4">
+                  <div class="bg-red-500 h-4 rounded-full" [style.width.%]="statutEnregistrements().rejetes"></div>
+              </div>
+              <div class="w-1/4 text-right font-semibold text-gray-700">{{ statutEnregistrements().rejetes.toFixed(0) }}%</div>
+          </div>
+           <div class="flex items-center gap-4">
+              <div class="w-1/4 text-gray-600">Annulé</div>
+              <div class="w-2/4 bg-gray-200 rounded-full h-4">
+                  <div class="bg-gray-400 h-4 rounded-full" [style.width.%]="statutEnregistrements().annules"></div>
+              </div>
+              <div class="w-1/4 text-right font-semibold text-gray-700">{{ statutEnregistrements().annules.toFixed(0) }}%</div>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="group relative">
+    <div class="absolute -inset-0.5 bg-gradient-to-br from-[#EF3340] via-[#FCD116] to-[#009E49] rounded-lg blur opacity-0 group-hover:opacity-75 transition duration-300"></div>
+    <div class="relative bg-white p-6 rounded-lg shadow-lg h-full">
+      <h4 class="text-xl font-semibold text-gray-800 mb-4">Statut des Vols</h4>
+      <div class="flex items-end justify-around h-48 space-x-4">
+          <!-- Programmé -->
+          <div class="flex flex-col items-center w-1/4 h-full">
+            <div class="relative w-10 flex-grow flex items-end">
+                <div class="absolute bottom-0 w-full bg-cyan-500 rounded-t-md transition-all duration-500" [style.height.%]="statutVols().programmes.percent"></div>
+            </div>
+            <span class="text-sm text-gray-500 mt-2 text-center">Programmé ({{ statutVols().programmes.count }})</span>
+          </div>
+      
+          <!-- Confirmé -->
+          <div class="flex flex-col items-center w-1/4 h-full">
+            <div class="relative w-10 flex-grow flex items-end">
+                <div class="absolute bottom-0 w-full bg-green-500 rounded-t-md transition-all duration-500" [style.height.%]="statutVols().confirmes.percent"></div>
+            </div>
+            <span class="text-sm text-gray-500 mt-2 text-center">Confirmé ({{ statutVols().confirmes.count }})</span>
+          </div>
+      
+          <!-- Retardé -->
+          <div class="flex flex-col items-center w-1/4 h-full">
+            <div class="relative w-10 flex-grow flex items-end">
+                <div class="absolute bottom-0 w-full bg-yellow-500 rounded-t-md transition-all duration-500" [style.height.%]="statutVols().retardes.percent"></div>
+            </div>
+            <span class="text-sm text-gray-500 mt-2 text-center">Retardé ({{ statutVols().retardes.count }})</span>
+          </div>
+      
+          <!-- Annulé -->
+          <div class="flex flex-col items-center w-1/4 h-full">
+            <div class="relative w-10 flex-grow flex items-end">
+                <div class="absolute bottom-0 w-full bg-red-500 rounded-t-md transition-all duration-500" [style.height.%]="statutVols().annules.percent"></div>
+            </div>
+            <span class="text-sm text-gray-500 mt-2 text-center">Annulé ({{ statutVols().annules.count }})</span>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Nouvelle Ligne de Diagrammes -->
+<div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Répartition des Motifs de Voyage -->
+    <div class="group relative">
+        <div class="absolute -inset-0.5 bg-gradient-to-br from-[#EF3340] via-[#FCD116] to-[#009E49] rounded-lg blur opacity-0 group-hover:opacity-75 transition duration-300"></div>
+        <div class="relative bg-white p-6 rounded-lg shadow-lg h-full">
+            <h4 class="text-xl font-semibold text-gray-800 mb-4">Répartition des Motifs de Voyage</h4>
+            @if(motifsRepartition().data.length > 0) {
+                <div class="flex items-center justify-around flex-wrap gap-4">
+                    <div class="relative w-40 h-40 rounded-full" [style.background]="motifsRepartition().gradient">
+                        <div class="absolute inset-2 bg-white rounded-full flex items-center justify-center">
+                            <span class="text-2xl font-bold text-gray-800">{{ voyages().length }}</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        @for(item of motifsRepartition().data; track item.motif) {
+                            <div class="flex items-center text-sm">
+                                <span class="w-3 h-3 rounded-full mr-2" [style.backgroundColor]="item.color"></span>
+                                <span class="text-gray-700">{{ item.motif }} ({{ item.percent.toFixed(0) }}%)</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            } @else {
+                <p class="text-center text-gray-500 py-10">Aucune donnée de voyage disponible.</p>
+            }
+        </div>
+    </div>
+
+    <!-- Passagers par Aéroport de Départ -->
+    <div class="group relative">
+        <div class="absolute -inset-0.5 bg-gradient-to-br from-[#EF3340] via-[#FCD116] to-[#009E49] rounded-lg blur opacity-0 group-hover:opacity-75 transition duration-300"></div>
+        <div class="relative bg-white p-6 rounded-lg shadow-lg h-full">
+            <h4 class="text-xl font-semibold text-gray-800 mb-4">Passagers par Aéroport de Départ</h4>
+            @if(passagersParAeroport().length > 0) {
+                <div class="flex items-end justify-around h-48 space-x-2">
+                    @for(item of passagersParAeroport(); track item.aeroport) {
+                        <div class="flex flex-col items-center flex-1 min-w-0 h-full">
+                          <div class="relative w-10 h-full flex items-end">
+                              <div class="absolute bottom-0 w-full bg-teal-500 rounded-t-md transition-all duration-500" [style.height.%]="item.percent"></div>
+                          </div>
+                          <span class="text-xs text-gray-500 mt-2 text-center break-words">
+                              {{ item.aeroport }} ({{ item.count }})
+                          </span>
+                        </div>
+                    }
+                </div>
+            } @else {
+                <p class="text-center text-gray-500 py-10">Aucune donnée de passager pour la sélection.</p>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Nouvelle Ligne de Diagrammes -->
+<div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Répartition sur la Liste Noire -->
+    <div class="group relative">
+        <div class="absolute -inset-0.5 bg-gradient-to-br from-[#EF3340] via-[#FCD116] to-[#009E49] rounded-lg blur opacity-0 group-hover:opacity-75 transition duration-300"></div>
+        <div class="relative bg-white p-6 rounded-lg shadow-lg h-full">
+            <h4 class="text-xl font-semibold text-gray-800 mb-4">Répartition sur la Liste Noire</h4>
+            @if(listeNoireRepartition().data.length > 0) {
+                <div class="flex items-center justify-around flex-wrap gap-4">
+                    <div class="relative w-40 h-40 rounded-full" [style.background]="listeNoireRepartition().gradient">
+                        <div class="absolute inset-2 bg-white rounded-full flex items-center justify-center">
+                            <span class="text-2xl font-bold text-gray-800">{{ listeNoire().length }}</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        @for(item of listeNoireRepartition().data; track item.statut) {
+                            <div class="flex items-center text-sm">
+                                <span class="w-3 h-3 rounded-full mr-2" [style.backgroundColor]="item.color"></span>
+                                <span class="text-gray-700">{{ item.statut }} ({{ item.percent.toFixed(0) }}%)</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            } @else {
+                <p class="text-center text-gray-500 py-10">Aucune donnée sur la liste noire.</p>
+            }
+        </div>
+    </div>
+
+    <!-- Statut des Compagnies Aériennes -->
+    <div class="group relative">
+        <div class="absolute -inset-0.5 bg-gradient-to-br from-[#EF3340] via-[#FCD116] to-[#009E49] rounded-lg blur opacity-0 group-hover:opacity-75 transition duration-300"></div>
+        <div class="relative bg-white p-6 rounded-lg shadow-lg h-full">
+            <h4 class="text-xl font-semibold text-gray-800 mb-4">Statut des Compagnies Aériennes</h4>
+            @if(compagniesStatutRepartition().data.length > 0) {
+                <div class="flex items-center justify-around flex-wrap gap-4">
+                    <div class="relative w-40 h-40 rounded-full" [style.background]="compagniesStatutRepartition().gradient">
+                        <div class="absolute inset-2 bg-white rounded-full flex items-center justify-center">
+                            <span class="text-2xl font-bold text-gray-800">{{ compagnies().length }}</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        @for(item of compagniesStatutRepartition().data; track item.statut) {
+                            <div class="flex items-center text-sm">
+                                <span class="w-3 h-3 rounded-full mr-2" [style.backgroundColor]="item.color"></span>
+                                <span class="text-gray-700">{{ item.statut }} ({{ item.percent.toFixed(0) }}%)</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            } @else {
+                <p class="text-center text-gray-500 py-10">Aucune compagnie aérienne enregistrée.</p>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,420 @@
+<div class="flex justify-between items-center mb-6">
+  <h3 class="text-3xl font-semibold text-gray-800">Effectuer un Enregistrement</h3>
+</div>
+
+<form (ngSubmit)="submitEnregistrement()" #enregistrementForm="ngForm" novalidate>
+  <div class="bg-white shadow-lg rounded-lg p-8 space-y-8">
+    
+    <!-- Section 1: Document d'Identité -->
+    <section class="border-b pb-6">
+      <div class="flex items-center mb-4">
+        <i class="fa-solid fa-address-card text-xl text-green-600"></i>
+        <h4 class="text-xl font-semibold text-gray-800 ml-3">Document d'Identité</h4>
+      </div>
+      
+      <!-- Section de capture photo en premier -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <!-- Capture Document Recto -->
+        <div class="flex flex-col items-center justify-start space-y-2 p-3 bg-gray-50 rounded-lg border" [class]="formErrors()['image_recto'] ? 'border-red-500' : 'border-gray-200'">
+            <label class="text-sm font-medium text-gray-700">Image recto du document <span class="text-red-500">*</span></label>
+            <div class="w-full h-32 bg-gray-200 flex items-center justify-center overflow-hidden border-2 rounded-md" [class]="formData().image_recto ? 'border-green-500' : 'border-gray-300'">
+                @if (formData().image_recto; as photo) {
+                    <img [src]="photo" alt="Aperçu document recto" class="w-full h-full object-contain">
+                } @else {
+                    <i class="fa-solid fa-id-card text-5xl text-gray-400"></i>
+                }
+            </div>
+            <button type="button" class="px-3 py-1 bg-gray-600 text-white rounded-md text-sm hover:bg-gray-700 flex items-center">
+                <i class="fa-solid fa-camera mr-2"></i>
+                <span>Scanner</span>
+            </button>
+            @if (formErrors()['image_recto']) { <p class="text-red-500 text-xs mt-1 text-center">{{ formErrors()['image_recto'] }}</p> }
+        </div>
+        <!-- Capture Document Verso -->
+        <div class="flex flex-col items-center justify-start space-y-2 p-3 bg-gray-50 rounded-lg border" [class]="formErrors()['image_verso'] ? 'border-red-500' : 'border-gray-200'">
+            <label class="text-sm font-medium text-gray-700">Image verso du document <span class="text-red-500">*</span></label>
+            <div class="w-full h-32 bg-gray-200 flex items-center justify-center overflow-hidden border-2 rounded-md" [class]="formData().image_verso ? 'border-green-500' : 'border-gray-300'">
+                @if (formData().image_verso; as photo) {
+                    <img [src]="photo" alt="Aperçu document verso" class="w-full h-full object-contain">
+                } @else {
+                    <i class="fa-solid fa-id-card-clip text-5xl text-gray-400"></i>
+                }
+            </div>
+            <button type="button" class="px-3 py-1 bg-gray-600 text-white rounded-md text-sm hover:bg-gray-700 flex items-center">
+                <i class="fa-solid fa-camera mr-2"></i>
+                <span>Scanner</span>
+            </button>
+            @if (formErrors()['image_verso']) { <p class="text-red-500 text-xs mt-1 text-center">{{ formErrors()['image_verso'] }}</p> }
+        </div>
+        <!-- Capture Photo Profil -->
+        <div class="flex flex-col items-center justify-start space-y-2 p-3 bg-gray-50 rounded-lg border" [class]="formErrors()['photo_profil'] ? 'border-red-500' : 'border-gray-200'">
+            <label class="text-sm font-medium text-gray-700">Photo de profil <span class="text-red-500">*</span></label>
+            <div class="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border-2" [class]="formData().photo_profil ? 'border-green-500' : 'border-gray-300'">
+                @if (formData().photo_profil; as photo) {
+                    <img [src]="photo" alt="Aperçu Photo de profil" class="w-full h-full object-cover">
+                } @else {
+                    <i class="fa-solid fa-user-tie text-5xl text-gray-400"></i>
+                }
+            </div>
+            @if (formErrors()['photo_profil']) { <p class="text-red-500 text-xs mt-1 text-center">{{ formErrors()['photo_profil'] }}</p> }
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Type de document -->
+        <div>
+          <label for="type_document" class="block text-sm font-medium text-gray-700">Type de document <span class="text-red-500">*</span></label>
+          <select id="type_document" name="type_document" [ngModel]="formData().type_document" (ngModelChange)="updateFormDataField('type_document', $event)" required
+                  class="mt-1 block w-full pl-3 pr-10 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-green-500 sm:text-sm bg-white text-gray-900 border-gray-300">
+            @for(type of typesDocument; track type) { <option [value]="type">{{ type }}</option> }
+          </select>
+        </div>
+        <!-- Numéro de document -->
+        <div>
+          <label for="numero_document" class="block text-sm font-medium text-gray-700">Numéro de document <span class="text-red-500">*</span></label>
+          <input type="text" id="numero_document" name="numero_document" [ngModel]="formData().numero_document" (ngModelChange)="updateFormDataField('numero_document', $event)" required
+                 class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 sm:text-sm bg-white text-gray-900"
+                 [class]="formErrors()['numero_document'] ? 'border-red-500' : 'border-gray-300'">
+          @if (formErrors()['numero_document']) { <p class="text-red-500 text-xs mt-1">{{ formErrors()['numero_document'] }}</p> }
+        </div>
+        <!-- Numéro NIP -->
+        <div>
+          <label for="numero_nip" class="block text-sm font-medium text-gray-700">Numéro NIP (Optionnel)</label>
+          <input type="text" id="numero_nip" name="numero_nip" [ngModel]="formData().numero_nip" (ngModelChange)="updateFormDataField('numero_nip', $event)"
+                 class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 sm:text-sm bg-white text-gray-900 border-gray-300">
+        </div>
+        <!-- Date de délivrance -->
+        <div>
+          <label for="date_delivrance" class="block text-sm font-medium text-gray-700">Date de délivrance <span class="text-red-500">*</span></label>
+          <input type="date" id="date_delivrance" name="date_delivrance" [ngModel]="formData().date_delivrance" (ngModelChange)="updateFormDataField('date_delivrance', $event)" required
+                 class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 sm:text-sm bg-white text-gray-900"
+                 [class]="formErrors()['date_delivrance'] ? 'border-red-500' : 'border-gray-300'">
+          @if (formErrors()['date_delivrance']) { <p class="text-red-500 text-xs mt-1">{{ formErrors()['date_delivrance'] }}</p> }
+        </div>
+        <!-- Lieu de délivrance -->
+        <div class="lg:col-span-2">
+          <label for="lieu_delivrance" class="block text-sm font-medium text-gray-700">Lieu de délivrance <span class="text-red-500">*</span></label>
+          <input type="text" id="lieu_delivrance" name="lieu_delivrance" [ngModel]="formData().lieu_delivrance" (ngModelChange)="updateFormDataField('lieu_delivrance', $event)" required
+                 class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 sm:text-sm bg-white text-gray-900"
+                 [class]="formErrors()['lieu_delivrance'] ? 'border-red-500' : 'border-gray-300'">
+          @if (formErrors()['lieu_delivrance']) { <p class="text-red-500 text-xs mt-1">{{ formErrors()['lieu_delivrance'] }}</p> }
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Informations Personnelles -->
+    <section class="border-b pb-6">
+      <div class="flex items-center mb-4">
+        <i class="fa-solid fa-user text-xl text-green-600"></i>
+        <h4 class="text-xl font-semibold text-gray-800 ml-3">Informations Personnelles</h4>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Prénom -->
+        <div>
+          <label for="prenom" class="block text-sm font-medium text-gray-700">Prénom <span class="text-red-500">*</span></label>
+          <input type="text" id="prenom" name="prenom" [ngModel]="formData().prenom" (ngModelChange)="updateFormDataField('prenom', $event)" required
+                 class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 sm:text-sm bg-white text-gray-900"
+                 [class]="formErrors()['prenom'] ? 'border-red-500' : 'border-gray-300'">
+          @if (formErrors()['prenom']) { <p class="text-red-500 text-xs mt-1">{{ formErrors()['prenom'] }}</p> }
+        </div>
+        <!-- Nom de famille -->
+        <div>
+          <label for="nom_famille" class="block text-sm font-medium text-gray-700">Nom de famille <span class="text-red-500">*</span></label>
+          <input type="text" id="nom_famille" name="nom_famille" [ngModel]="formData().nom_famille" (ngModelChange)="updateFormDataField('nom_famille', $event)" required
+                 class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 sm:text-sm bg-white text-gray-900"
+                 [class]="formErrors()['nom_famille'] ? 'border-red-500' : 'border-gray-300'">
+          @if (formErrors()['nom_famille']) { <p class="text-red-500 text-xs mt-1">{{ formErrors()['nom_famille'] }}</p> }
+        </div>
+        <!-- Date de naissance -->
+        <div>
+          <label for="date_naissance" class="block text-sm font-medium text-gray-700">Date de naissance <span class="text-red-500">*</span></label>
+          <input type="date" id="date_naissance" name="date_naissance" [ngModel]="formData().date_naissance" (ngModelChange)="updateFormDataField('date_naissance', $event)" required
+                 class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 sm:text-sm bg-white text-gray-900"
+                 [class]="formErrors()['date_naissance'] ? 'border-red-500' : 'border-gray-300'">
+          @if (formErrors()['date_naissance']) { <p class="text-red-500 text-xs mt-1">{{ formErrors()['date_naissance'] }}</p> }
+        </div>
+        <!-- Lieu de naissance -->
+        <div>
+          <label for="lieu_naissance" class="block text-sm font-medium text-gray-700">Lieu de naissance <span class="text-red-500">*</span></label>
+          <input type="text" id="lieu_naissance" name="lieu_naissance" [ngModel]="formData().lieu_naissance" (ngModelChange)="updateFormDataField('lieu_naissance', $event)" required
+                 class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 sm:text-sm bg-white text-gray-900"
+                 [class]="formErrors()['lieu_naissance'] ? 'border-red-500' : 'border-gray-300'">
+          @if (formErrors()['lieu_naissance']) { <p class="text-red-500 text-xs mt-1">{{ formErrors()['lieu_naissance'] }}</p> }
+        </div>
+        <!-- Nationalité -->
+        <div>
+          <label for="nationalite" class="block text-sm font-medium text-gray-700">Nationalité <span class="text-red-500">*</span></label>
+          <input type="text" id="nationalite" name="nationalite" [ngModel]="formData().nationalite" (ngModelChange)="updateFormDataField('nationalite', $event)" required
+                 class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 sm:text-sm bg-white text-gray-900"
+                 [class]="formErrors()['nationalite'] ? 'border-red-500' : 'border-gray-300'">
+          @if (formErrors()['nationalite']) { <p class="text-red-500 text-xs mt-1">{{ formErrors()['nationalite'] }}</p> }
+        </div>
+        <!-- Profession -->
+        <div>
+          <label for="profession" class="block text-sm font-medium text-gray-700">Profession <span class="text-red-500">*</span></label>
+          <input type="text" id="profession" name="profession" [ngModel]="formData().profession" (ngModelChange)="updateFormDataField('profession', $event)" required
+                 class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 sm:text-sm bg-white text-gray-900"
+                 [class]="formErrors()['profession'] ? 'border-red-500' : 'border-gray-300'">
+          @if (formErrors()['profession']) { <p class="text-red-500 text-xs mt-1">{{ formErrors()['profession'] }}</p> }
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Coordonnées -->
+    <section class="border-b pb-6">
+      <div class="flex items-center mb-4">
+        <i class="fa-solid fa-map-location-dot text-xl text-green-600"></i>
+        <h4 class="text-xl font-semibold text-gray-800 ml-3">Coordonnées</h4>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Pays de résidence -->
+        <div>
+          <label for="pays_residence" class="block text-sm font-medium text-gray-700">Pays de résidence <span class="text-red-500">*</span></label>
+          <input type="text" id="pays_residence" name="pays_residence" [ngModel]="formData().pays_residence" (ngModelChange)="updateFormDataField('pays_residence', $event)" required
+                 class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 sm:text-sm bg-white text-gray-900"
+                 [class]="formErrors()['pays_residence'] ? 'border-red-500' : 'border-gray-300'">
+          @if (formErrors()['pays_residence']) { <p class="text-red-500 text-xs mt-1">{{ formErrors()['pays_residence'] }}</p> }
+        </div>
+        <!-- Email -->
+        <div>
+          <label for="email_contact" class="block text-sm font-medium text-gray-700">Email (Optionnel)</label>
+          <input type="email" id="email_contact" name="email_contact" [ngModel]="formData().email_contact" (ngModelChange)="updateFormDataField('email_contact', $event)"
+                 class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 sm:text-sm bg-white text-gray-900"
+                 [class]="formErrors()['email_contact'] ? 'border-red-500' : 'border-gray-300'">
+           @if (formErrors()['email_contact']) { <p class="text-red-500 text-xs mt-1">{{ formErrors()['email_contact'] }}</p> }
+        </div>
+        <!-- Téléphone Burkina -->
+        <div>
+          <label for="telephone_burkina" class="block text-sm font-medium text-gray-700">Téléphone Burkina (Optionnel)</label>
+          <input type="tel" id="telephone_burkina" name="telephone_burkina" [ngModel]="formData().telephone_burkina" (ngModelChange)="updateFormDataField('telephone_burkina', $event)" placeholder="+226 XXXXXXXX"
+                 class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 sm:text-sm bg-white text-gray-900"
+                 [class]="formErrors()['telephone_burkina'] ? 'border-red-500' : 'border-gray-300'">
+          @if (formErrors()['telephone_burkina']) { <p class="text-red-500 text-xs mt-1">{{ formErrors()['telephone_burkina'] }}</p> }
+        </div>
+        <!-- Téléphone Étranger -->
+        <div>
+          <label for="telephone_etranger" class="block text-sm font-medium text-gray-700">Téléphone Étranger (Optionnel)</label>
+          <input type="tel" id="telephone_etranger" name="telephone_etranger" [ngModel]="formData().telephone_etranger" (ngModelChange)="updateFormDataField('telephone_etranger', $event)"
+                 class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 sm:text-sm bg-white text-gray-900 border-gray-300">
+        </div>
+        <!-- Adresse Burkina -->
+        <div class="md:col-span-2">
+          <label for="adresse_burkina" class="block text-sm font-medium text-gray-700">Adresse au Burkina <span class="text-red-500">*</span></label>
+          <textarea id="adresse_burkina" name="adresse_burkina" [ngModel]="formData().adresse_burkina" (ngModelChange)="updateFormDataField('adresse_burkina', $event)" rows="2"
+                    class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 sm:text-sm bg-white text-gray-900"
+                    [class]="formErrors()['adresse_burkina'] ? 'border-red-500' : 'border-gray-300'"></textarea>
+           @if (formErrors()['adresse_burkina']) { <p class="text-red-500 text-xs mt-1">{{ formErrors()['adresse_burkina'] }}</p> }
+        </div>
+        <!-- Adresse Étranger -->
+        <div class="md:col-span-2">
+          <label for="adresse_etranger" class="block text-sm font-medium text-gray-700">Adresse à l'étranger <span class="text-red-500">*</span></label>
+          <textarea id="adresse_etranger" name="adresse_etranger" [ngModel]="formData().adresse_etranger" (ngModelChange)="updateFormDataField('adresse_etranger', $event)" rows="2"
+                    class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 sm:text-sm bg-white text-gray-900"
+                    [class]="formErrors()['adresse_etranger'] ? 'border-red-500' : 'border-gray-300'"></textarea>
+           @if (formErrors()['adresse_etranger']) { <p class="text-red-500 text-xs mt-1">{{ formErrors()['adresse_etranger'] }}</p> }
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Informations de Voyage -->
+    <section>
+      <div class="flex items-center mb-4">
+        <i class="fa-solid fa-plane-departure text-xl text-green-600"></i>
+        <h4 class="text-xl font-semibold text-gray-800 ml-3">Informations de Voyage</h4>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Vol ID -->
+        <div class="lg:col-span-3">
+          <label for="vol_id" class="block text-sm font-medium text-gray-700">Vol <span class="text-red-500">*</span></label>
+          <select id="vol_id" name="vol_id" [ngModel]="formData().vol_id" (ngModelChange)="onVolSelectionChange($event)" required
+                  class="mt-1 block w-full pl-3 pr-10 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-green-500 sm:text-sm bg-white text-gray-900"
+                  [class]="formErrors()['vol_id'] ? 'border-red-500' : 'border-gray-300'">
+            <option [ngValue]="null" disabled>Sélectionner un vol</option>
+            @for(vol of vols(); track vol.id) {
+              <option [ngValue]="vol.id">{{ vol.numero_vol }} ({{ vol.ville_depart }} -> {{ vol.ville_arrivee }})</option>
+            }
+          </select>
+          @if (formErrors()['vol_id']) { <p class="text-red-500 text-xs mt-1">{{ formErrors()['vol_id'] }}</p> }
+        </div>
+        <!-- Détails du vol (readonly) -->
+        @if (selectedVolInfo(); as volInfo) {
+          <div class="p-4 bg-gray-50 rounded-lg lg:col-span-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+              <div><p class="text-gray-500">Départ</p><p class="font-medium text-gray-900">{{ volInfo.ville_depart }}</p></div>
+              <div><p class="text-gray-500">Destination</p><p class="font-medium text-gray-900">{{ volInfo.ville_arrivee }}</p></div>
+              <div><p class="text-gray-500">Date</p><p class="font-medium text-gray-900">{{ formData().date_voyage }}</p></div>
+              <div><p class="text-gray-500">Heure</p><p class="font-medium text-gray-900">{{ formData().heure_voyage }}</p></div>
+          </div>
+        }
+        
+        <!-- Motif de voyage -->
+        <div>
+          <label for="motif_voyage" class="block text-sm font-medium text-gray-700">Motif du voyage <span class="text-red-500">*</span></label>
+          <select id="motif_voyage" name="motif_voyage" [ngModel]="formData().motif_voyage" (ngModelChange)="updateFormDataField('motif_voyage', $event)" required
+                  class="mt-1 block w-full pl-3 pr-10 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-green-500 sm:text-sm bg-white text-gray-900"
+                  [class]="formErrors()['motif_voyage'] ? 'border-red-500' : 'border-gray-300'">
+            <option value="" disabled>Sélectionner un motif</option>
+            @for(motif of motifs(); track motif.id) { <option [value]="motif.libelle">{{ motif.libelle }}</option> }
+          </select>
+          @if (formErrors()['motif_voyage']) { <p class="text-red-500 text-xs mt-1">{{ formErrors()['motif_voyage'] }}</p> }
+        </div>
+        <!-- État du voyage -->
+        <div>
+          <label for="etat_voyage" class="block text-sm font-medium text-gray-700">État du voyage <span class="text-red-500">*</span></label>
+          <select id="etat_voyage" name="etat_voyage" [ngModel]="formData().etat_voyage" (ngModelChange)="updateFormDataField('etat_voyage', $event)" required
+                  class="mt-1 block w-full pl-3 pr-10 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-green-500 sm:text-sm bg-white text-gray-900 border-gray-300">
+            @for(etat of etatsVoyage; track etat) { <option [value]="etat">{{ etat }}</option> }
+          </select>
+        </div>
+        <!-- Durée du séjour -->
+        <div>
+          <label for="duree_sejour" class="block text-sm font-medium text-gray-700">Durée du séjour (jours) <span class="text-red-500">*</span></label>
+          <input type="number" id="duree_sejour" name="duree_sejour" [ngModel]="formData().duree_sejour" (ngModelChange)="updateFormDataField('duree_sejour', $event)" required min="1"
+                 class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 sm:text-sm bg-white text-gray-900"
+                 [class]="formErrors()['duree_sejour'] ? 'border-red-500' : 'border-gray-300'">
+           @if (formErrors()['duree_sejour']) { <p class="text-red-500 text-xs mt-1">{{ formErrors()['duree_sejour'] }}</p> }
+        </div>
+      </div>
+    </section>
+
+    <!-- Boutons -->
+    <div class="flex justify-end space-x-4 pt-6 border-t">
+      <button type="button" (click)="resetForm()" class="px-6 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 font-semibold">
+        Réinitialiser
+      </button>
+      <button type="submit" [disabled]="isSaving()" 
+              class="min-w-[220px] px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 flex justify-center items-center font-semibold disabled:bg-green-400 disabled:cursor-not-allowed">
+        @if (isSaving()) {
+          <i class="fa-solid fa-spinner fa-spin mr-2"></i>
+          <span>Soumission en cours...</span>
+        } @else {
+          <i class="fa-solid fa-paper-plane mr-2"></i>
+          <span>Soumettre l'Enregistrement</span>
+        }
+      </button>
+    </div>
+  </div>
+</form>
+
+<!-- Modale de Capture Biométrique -->
+@if (isCaptureBiometriqueModalOpen() && passagerPourBiometrie(); as passager) {
+  <div class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" (click)="closeBiometricModal()">
+    <div class="bg-white rounded-lg shadow-2xl p-8 max-w-3xl w-full" (click)="$event.stopPropagation()">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h3 class="text-2xl font-bold text-gray-800">Capturer les Données Biométriques</h3>
+          <p class="text-gray-600">Pour : <span class="font-semibold">{{ passager.nom_complet }}</span> ({{passager.numero_document}})</p>
+        </div>
+        <button (click)="closeBiometricModal()" class="text-gray-400 hover:text-gray-600 transition-colors rounded-full p-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+          <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+      </div>
+      
+      <form (submit)="$event.preventDefault(); validerAvecBiometrie()">
+        <div class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Main Gauche -->
+            <div class="p-4 border rounded-lg flex items-center justify-between bg-gray-50">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-hand-paper fa-flip-horizontal text-3xl text-cyan-500 mr-4"></i>
+                    <div>
+                        <p class="font-semibold text-gray-700">4 doigts main gauche</p>
+                        <p class="text-xs" [class]="empreinteGaucheCapturee() ? 'text-green-600' : 'text-gray-500'">{{ empreinteGaucheCapturee() ? 'Capturé' : 'Prêt pour la capture' }}</p>
+                    </div>
+                </div>
+                <button type="button" (click)="empreinteGaucheCapturee.set(true)" class="px-3 py-1 bg-cyan-500 text-white rounded-md text-sm hover:bg-cyan-600">{{ empreinteGaucheCapturee() ? 'Recapturer' : 'Capturer' }}</button>
+            </div>
+             <!-- Main Droite -->
+            <div class="p-4 border rounded-lg flex items-center justify-between bg-gray-50">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-hand-paper text-3xl text-cyan-500 mr-4"></i>
+                    <div>
+                        <p class="font-semibold text-gray-700">4 doigts main droite</p>
+                         <p class="text-xs" [class]="empreinteDroiteCapturee() ? 'text-green-600' : 'text-gray-500'">{{ empreinteDroiteCapturee() ? 'Capturé' : 'Prêt pour la capture' }}</p>
+                    </div>
+                </div>
+                <button type="button" (click)="empreinteDroiteCapturee.set(true)" class="px-3 py-1 bg-cyan-500 text-white rounded-md text-sm hover:bg-cyan-600">{{ empreinteDroiteCapturee() ? 'Recapturer' : 'Capturer' }}</button>
+            </div>
+             <!-- Pouces -->
+            <div class="p-4 border rounded-lg flex items-center justify-between bg-gray-50">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-thumbs-up text-3xl text-purple-500 mr-4"></i>
+                    <div>
+                        <p class="font-semibold text-gray-700">Les deux pouces</p>
+                        <p class="text-xs" [class]="empreintePoucesCapturee() ? 'text-green-600' : 'text-gray-500'">{{ empreintePoucesCapturee() ? 'Capturé' : 'Prêt pour la capture' }}</p>
+                    </div>
+                </div>
+                <button type="button" (click)="empreintePoucesCapturee.set(true)" class="px-3 py-1 bg-purple-500 text-white rounded-md text-sm hover:bg-purple-600">{{ empreintePoucesCapturee() ? 'Recapturer' : 'Capturer' }}</button>
+            </div>
+             <!-- Photo -->
+            <div class="p-4 border rounded-lg flex items-center justify-between bg-gray-50">
+                <div class="flex items-center">
+                    @if (capturedPhotoPourBiometrie(); as photo) {
+                        <img [src]="photo" alt="Aperçu" class="w-12 h-12 rounded-full object-cover mr-3 border-2 border-green-500">
+                    } @else {
+                        <i class="fa-solid fa-camera-retro text-3xl text-green-500 mr-4"></i>
+                    }
+                    <div>
+                        <p class="font-semibold text-gray-700">Photo d'identité</p>
+                        @if (capturedPhotoPourBiometrie()) {
+                           <p class="text-xs text-green-600">Photo capturée</p>
+                        } @else {
+                           <p class="text-xs text-gray-500">Prêt pour la capture</p>
+                        }
+                    </div>
+                </div>
+                <button type="button" (click)="demarrerCamera('biometrique')" class="px-3 py-1 bg-green-500 text-white rounded-md text-sm hover:bg-green-600">
+                    {{ capturedPhotoPourBiometrie() ? 'Reprendre' : 'Prendre' }}
+                </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8 flex justify-end space-x-3">
+          <button type="button" (click)="closeBiometricModal()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400">Annuler</button>
+          <button type="submit" [disabled]="isSaving()" class="min-w-[180px] px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 flex justify-center items-center disabled:bg-green-400 disabled:cursor-not-allowed">
+            @if (isSaving()) {
+              <i class="fa-solid fa-spinner fa-spin mr-2"></i>
+              <span>Validation...</span>
+            } @else {
+              <i class="fa-solid fa-save mr-2"></i>
+              <span>Sauvegarder et Valider</span>
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Modale de capture Webcam -->
+@if (isCameraModalOpen()) {
+  <div class="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center p-4" (click)="arreterCamera()">
+    <div class="bg-white rounded-lg shadow-2xl p-6 max-w-3xl w-full" (click)="$event.stopPropagation()">
+      <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">Capture Photo</h3>
+      <div class="relative w-full aspect-[4/3] bg-gray-900 rounded-md overflow-hidden">
+        @if (!capturedPhotoBase64()) {
+          <video #videoElement playsinline autoplay class="w-full h-full object-cover"></video>
+        } @else {
+          <img [src]="capturedPhotoBase64()" alt="Aperçu de la capture" class="w-full h-full object-contain">
+        }
+        <canvas #canvasElement class="hidden"></canvas>
+      </div>
+       <div class="mt-6 flex justify-center space-x-4">
+        @if (!capturedPhotoBase64()) {
+           <button (click)="capturerPhoto()" class="px-6 py-3 bg-green-600 text-white rounded-full hover:bg-green-700 text-lg">
+              <i class="fa-solid fa-camera mr-2"></i>
+              Capturer
+           </button>
+        } @else {
+           <button (click)="reprendrePhoto()" class="px-5 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
+              <i class="fa-solid fa-arrow-rotate-left mr-2"></i>
+              Reprendre
+           </button>
+           <button (click)="confirmerPhoto()" class="px-5 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+              <i class="fa-solid fa-check mr-2"></i>
+              Confirmer
+           </button>
+        }
+      </div>
+    </div>
+  </div>
+}

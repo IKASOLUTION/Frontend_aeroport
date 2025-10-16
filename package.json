@@ -1,0 +1,33 @@
+{
+  "name": "gestion-des-voyageurs-aéroportuaires",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "ng serve",
+    "build": "ng build",
+    "preview": "ng serve --configuration=production"
+  },
+  "dependencies": {
+    "@angular/build": "^20.1.0",
+    "@angular/cli": "^20.1.0",
+    "@angular/common": "^20.1.0",
+    "@angular/compiler": "^20.1.0",
+    "@angular/compiler-cli": "^20.1.0",
+    "@angular/core": "^20.1.0",
+    "@angular/forms": "^20.1.6-0",
+    "@angular/platform-browser": "^20.1.0",
+    "@angular/router": "^20.1.6-0",
+    "@fortawesome/fontawesome-free": "^7.1.0",
+    "rxjs": "^7.8.2",
+    "tailwindcss": "^3.4.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/oxide": "^4.1.14",
+    "@types/node": "^22.14.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0"
+  }
+}
