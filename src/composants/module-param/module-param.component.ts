@@ -31,6 +31,7 @@ export class ModuleParamComponent {
   // Signals pour l'état du composant
   deleteModuleParamDialog = signal(false);
   deleteModuleParamsDialog = signal(false);
+  detailsDialog = signal(false);
   creeMenu = signal(false);
   creeMod = signal(false);
   submitted = signal(false);
@@ -283,11 +284,29 @@ export class ModuleParamComponent {
         currentModuleParam.moduleParamCode && 
         currentMenuActions) {
       
-      const updatedModuleParam = { 
-        ...currentModuleParam, 
-        menuActions: currentMenuActions 
-      };
-      
+      // Prepare payload: when creating a new ModuleParam, backend typically expects
+      // menuActions without client-generated ids or moduleParamId set to 0.
+      // Remove/omit id fields for newly created items to avoid server errors.
+      const cleanedMenuActions = currentMenuActions.map(m => {
+        // If menu action has a real id (>0), keep it (update case). Otherwise omit id.
+        const base: any = {
+          menuActionCode: m.menuActionCode,
+          menuActionLibelle: m.menuActionLibelle,
+          deleted: !!m.deleted
+        };
+        if (m.id && m.id > 0) {
+          base.id = m.id;
+        }
+        return base as MenuAction;
+      });
+
+      const updatedModuleParam = {
+        ...currentModuleParam,
+        // If this is a create (no id), ensure we don't send id:0 for moduleParam
+        id: currentModuleParam.id && currentModuleParam.id > 0 ? currentModuleParam.id : undefined,
+        menuActions: cleanedMenuActions
+      } as ModuleParam;
+
       if (currentModuleParam.id) {
         this.subscribeToSaveResponse(
           this.moduleParamService.update(updatedModuleParam)
@@ -373,25 +392,39 @@ export class ModuleParamComponent {
     this.creeMenu.set(false);
   }
 
-  showDetailsDialog(moduleParam: ModuleParam): void {
-    // Pour implémenter les détails, vous pouvez créer une modale personnalisée
-    // ou utiliser un service de dialogue personnalisé
-    console.log('Afficher les détails de:', moduleParam);
-    this.addMessage('info', 'Détails', `Module: ${moduleParam.moduleParamLibelle}`);
-  }
+  
 
+    showDetailsDialog(moduleParam: ModuleParam): void {
+      // debug: log invocation and payload
+      console.log('[ModuleParam] showDetailsDialog called with', moduleParam);
+      this.moduleParam.set({ ...moduleParam });
+      // si les menuActions sont présents dans l'objet reçu, on les met dans le signal menuActions
+      if (moduleParam.menuActions && moduleParam.menuActions.length > 0) {
+        this.menuActions.set(moduleParam.menuActions);
+      } else {
+        this.menuActions.set([]);
+      }
+      // use a microtask to avoid potential event-timing issues that could immediately close the dialog
+      Promise.resolve().then(() => this.detailsDialog.set(true));
+  }
   // --- Response Handlers ---
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ModuleParam>>): void {
     result.subscribe({
       next: (res: HttpResponse<ModuleParam>) => this.onSaveSuccess(),
-      error: (res: HttpErrorResponse) => this.onSaveError()
+      error: (res: HttpErrorResponse) => {
+        console.error('[ModuleParam] save error', res);
+        this.onSaveError();
+      }
     });
   }
 
   protected subscribeToSaveResponseList(result: Observable<HttpResponse<ModuleParam[]>>): void {
     result.subscribe({
       next: (res: HttpResponse<ModuleParam[]>) => this.onSaveSuccess(),
-      error: (res: HttpErrorResponse) => this.onSaveError()
+      error: (res: HttpErrorResponse) => {
+        console.error('[ModuleParam] save list error', res);
+        this.onSaveError();
+      }
     });
   }
 
