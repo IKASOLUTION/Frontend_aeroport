@@ -18,6 +18,7 @@ import { ConnexionComponent } from './composants/connexion/connexion.component';
 import { InscriptionComponent } from './composants/inscription/inscription.component';
 import { EnregistrementsComponent } from './composants/enregistrements/enregistrements.component';
 import { ConnexionSdkComponent } from './composants/connexion-sdk/connexion-sdk.component';
+import { ModuleParamComponent } from './composants/module-param/module-param.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'connexion', pathMatch: 'full' },
@@ -27,6 +28,7 @@ export const routes: Routes = [
   
   // Gestion des Accès
   { path: 'gestion-roles', component: RolesComponent, title: 'Gestion des Rôles' },
+  { path: 'module-param', component: ModuleParamComponent, title: 'Gestion des modules' },
   { path: 'gestion-utilisateurs', component: UtilisateursComponent, title: 'Gestion des Utilisateurs' },
   { path: 'profil', component: ProfilComponent, title: 'Profil Utilisateur' },
   
