@@ -1,0 +1,42 @@
+<div class="layout-topbar">
+    <div class="layout-topbar-start">
+        
+        <a class="layout-topbar-logo" routerLink="/">
+        <i class="pi pi-send text-green-500 text-3xl"></i>
+            <span class="text-2xl font-bold ml-3 " style="color: rgb(255 255 255 );">Aéroport</span>
+        </a>
+        <a #menuButton class="layout-menu-button" (click)="onMenuButtonClick()" pRipple>
+            <i class="pi pi-chevron-right"></i>
+        </a>
+
+        <a #mobileMenuButton class="layout-topbar-mobile-button" (click)="onMobileTopbarMenuButtonClick()" pRipple>
+            <i class="pi pi-ellipsis-v"></i>
+        </a>
+    </div>
+
+    <div class="layout-topbar-end">
+        <div class="layout-topbar-actions-start">
+            <!-- <p-megaMenu [model]="model" styleClass="layout-megamenu"></p-megaMenu> -->
+        </div>
+        <div class="layout-topbar-actions-end">
+            <ul class="layout-topbar-items">
+
+                <li>
+                    <a pStyleClass="@next" enterFromClass="ng-hidden" enterActiveClass="px-scalein" leaveToClass="ng-hidden" leaveActiveClass="px-fadeout" [hideOnOutsideClick]="true" pRipple>
+                        <!-- Avatar supprimé ou laissé vide -->
+                    </a>
+                    <div class="ng-hidden">
+                        <ul class="list-none p-0 m-0">
+                            <!-- ❌ Supprimé : Settings -->
+                            <!-- ❌ Supprimé : Terms of Usage -->
+                            <!-- ❌ Supprimé : Support -->
+
+                            <!-- ✅ Conservé : Logout -->
+                            
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,41 @@
+/* Image de fond plein écran */
+.section-authentication-signin {
+  position: relative;
+  background-image: url('/assets/images/dgi-siege.jpg'); /* 🔄 change le chemin si nécessaire */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh; /* occupe tout l'écran */
+}
+
+/* Optionnel : assombrir légèrement l'image pour que le formulaire ressorte mieux */
+.section-authentication-signin::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4); /* 🔄 ajuste l'opacité */
+  z-index: 0;
+}
+
+/* Assurer que ton formulaire reste au-dessus de l'image */
+.section-authentication-signin > div {
+  position: relative;
+  z-index: 1;
+}
+
+
+
+
+.login-container {
+  position: absolute;
+  .card {
+    .card-header {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto;
+      margin-top: -40px;
+      border-radius: 50%;
+      font-size: 36px;
+    }
+  }
+}

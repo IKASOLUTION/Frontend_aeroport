@@ -1,0 +1,9 @@
+import {props, createAction} from '@ngrx/store';
+import { User } from './model';
+export const createUser = createAction('[App Init] Create User', props<User>());
+export const updateUser = createAction('[App Init] update User', props<User>());
+export const deleteUser = createAction('[App Init] delete User', props<User>());
+export const activerDesactiver = createAction('[App Init] active or desactive User', props<User>());
+export const loadUser = createAction('[App Init] load Users');
+export const setUser = createAction('[App Init] set User',  props<{users: User[]}>());
+export const deleteAllUser = createAction('[App Init] delete Profils', props<{users: Array<User>}>());

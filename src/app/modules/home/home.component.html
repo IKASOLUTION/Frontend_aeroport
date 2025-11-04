@@ -1,0 +1,213 @@
+<!-- home.component.html -->
+<div class="layout-main-container">
+  <!-- Header Dashboard -->
+  <div class="grid mb-3">
+    <div class="col-12">
+      <div class="card">
+        <div class="flex justify-content-between align-items-center">
+          <div>
+            <h2 class="text-primary mb-2">Dashboard Analytics</h2>
+            <p class="text-color-secondary m-0">Vue d'ensemble des performances du service</p>
+          </div>
+          <div class="flex gap-2">
+            <button 
+              pButton
+              type="button"
+              icon="pi pi-refresh" 
+              class="p-button-outlined p-button-secondary"
+              [loading]="isLoading">
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="grid mb-3">
+    <div class="col-12 lg:col-3 md:col-6">
+      <div class="card text-center border-left-3 border-primary">
+        <div class="card-body p-4">
+          <div class="text-primary mb-3">
+            <i class="pi pi-check-circle text-4xl"></i>
+          </div>
+          <h3 class="text-primary mb-1 text-3xl font-bold">{{ totalTasksTermine }}</h3>
+          <p class="text-color-secondary m-0 text-sm">Tâches terminées</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 lg:col-3 md:col-6">
+      <div class="card text-center border-left-3 border-orange-500">
+        <div class="card-body p-4">
+          <div class="text-orange-500 mb-3">
+            <i class="pi pi-clock text-4xl"></i>
+          </div>
+          <h3 class="text-orange-500 mb-1 text-3xl font-bold">{{ totalTasksEnCours }}</h3>
+          <p class="text-color-secondary m-0 text-sm">En cours</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 lg:col-3 md:col-6">
+      <div class="card text-center border-left-3 border-blue-500">
+        <div class="card-body p-4">
+          <div class="text-blue-500 mb-3">
+            <i class="pi pi-users text-4xl"></i>
+          </div>
+          <h3 class="text-blue-500 mb-1 text-3xl font-bold">{{ agents.length }}</h3>
+          <p class="text-color-secondary m-0 text-sm">Agents actifs</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 lg:col-3 md:col-6">
+      <div class="card text-center border-left-3 border-green-500">
+        <div class="card-body p-4">
+          <div class="text-green-500 mb-3">
+            <i class="pi pi-chart-line text-4xl"></i>
+          </div>
+          <h3 class="text-green-500 mb-1 text-3xl font-bold">{{ performanceRate }}%</h3>
+          <p class="text-color-secondary m-0 text-sm">Performance</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Graphiques -->
+  <!-- <div class="grid mb-3"> -->
+    <!-- Histogramme -->
+    <!-- <div class="col-12 xl:col-8">
+      <div class="card">
+        <div class="flex justify-content-between align-items-center mb-4">
+          <div>
+            <h3 class="m-0 text-xl font-semibold">Histogramme des tâches terminées</h3>
+            <p class="text-color-secondary mt-1 mb-0 text-sm">Évolution par période</p>
+          </div>
+        </div>
+        
+        <div *ngIf="!isLoading && histogrammeChartData; else loadingChart">
+          <div class="chart-wrapper" style="position: relative; height: 350px;">
+            <p-chart 
+              type="bar" 
+              [data]="histogrammeChartData" 
+              [options]="getBarChartOptions()">
+            </p-chart>
+          </div>
+        </div>
+
+        <ng-template #loadingChart>
+          <div class="flex justify-content-center align-items-center" style="height: 350px;">
+            <p-progressSpinner strokeWidth="4" animationDuration="1s"></p-progressSpinner>
+          </div>
+        </ng-template>
+      </div>
+    </div> -->
+
+    <!-- Camembert -->
+    <!-- <div class="col-12 xl:col-4">
+      <div class="card h-full">
+        <div class="flex justify-content-between align-items-center mb-4">
+          <div>
+            <h3 class="m-0 text-xl font-semibold">Répartition des statuts</h3>
+            <p class="text-color-secondary mt-1 mb-0 text-sm">État actuel des tâches</p>
+          </div>
+        </div>
+        
+        <div *ngIf="!isLoading && camembertChartData; else loadingPie">
+          <div class="chart-wrapper" style="position: relative; height: 280px;">
+            <p-chart 
+              type="pie" 
+              [data]="camembertChartData"
+              [options]="getPieChartOptions()">
+            </p-chart>
+          </div>
+          
+          <div class="flex flex-column gap-3 mt-4">
+            <div *ngFor="let item of getStatusLegend()" 
+                 class="flex align-items-center justify-content-between">
+              <div class="flex align-items-center gap-2">
+                <div 
+                  class="w-1rem h-1rem border-round"
+                  [style.background-color]="item.color">
+                </div>
+                <span class="text-sm font-medium">{{ item.label }}</span>
+              </div>
+              <span class="font-semibold text-lg">{{ item.value }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <ng-template #loadingPie>
+          <div class="flex justify-content-center align-items-center" style="height: 280px;">
+            <p-progressSpinner strokeWidth="4" animationDuration="1s"></p-progressSpinner>
+          </div>
+        </ng-template>
+      </div>
+    </div> -->
+  <!-- </div> -->
+
+  <!-- Section Agents -->
+  <div class="grid">
+    <div class="col-12">
+      <p-card header="Agents du service">
+        <div *ngIf="!isLoading">
+          <div *ngIf="agents.length > 0; else noAgents">
+            <!-- Tableau des agents -->
+            <p-table 
+              [value]="agents" 
+              [paginator]="true" 
+              [rows]="10"
+              responsiveLayout="scroll">
+              
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Avatar</th>
+                  <th>Nom</th>
+                  <th>Prénom</th>
+                  <th>Matricule</th>
+                  <th>Email</th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-agent>
+                <tr>
+                  <td>
+                    <p-avatar 
+                      [label]="getInitials(agent.nom, agent.prenom)" 
+                      size="normal" 
+                      shape="circle"
+                      styleClass="bg-primary text-white">
+                    </p-avatar>
+                  </td>
+                  <td>{{ agent.nom }}</td>
+                  <td>{{ agent.prenom }}</td>
+                  <td>{{ agent.matricule }}</td>
+                  <td>{{ agent.email || 'N/A' }}</td>
+                  <!-- <td>
+                    <p-tag 
+                      [value]="agent.service?.nom || 'Non assigné'" 
+                      severity="info">
+                    </p-tag>
+                  </td> -->
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+
+          <ng-template #noAgents>
+            <div class="text-center py-8">
+              <i class="pi pi-users text-6xl text-color-secondary mb-3"></i>
+              <h4 class="text-color-secondary mb-2">Aucun agent dans ce service</h4>
+            </div>
+          </ng-template>
+        </div>
+
+        <div *ngIf="isLoading" class="text-center py-8">
+          <p-progressSpinner strokeWidth="4" animationDuration="1s"></p-progressSpinner>
+          <p class="text-color-secondary mt-3">Chargement...</p>
+        </div>
+      </p-card>
+    </div>
+  </div>
+</div>

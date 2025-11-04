@@ -1,0 +1,153 @@
+<div class="min-h-screen bg-gray-50 flex flex-column justify-content-center py-6 px-3">
+  <div class="mx-auto w-full" style="max-width: 28rem;">
+    <!-- Logo et Titre -->
+    <div class="flex align-items-center justify-content-center">
+      <i class="pi pi-send text-green-600 text-4xl"></i>
+      <h1 class="text-4xl font-bold ml-3 text-gray-800">Aéroport</h1>
+    </div>
+    <h2 class="mt-6 text-center text-3xl font-bold text-gray-900">
+      Connectez-vous à votre compte
+    </h2>
+  </div>
+
+  <div class="mt-5 mx-auto w-full" style="max-width: 28rem;">
+    <div class="surface-card py-5 px-4 shadow-4 border-round-lg relative">
+      <!-- Liseré décoratif aux couleurs du Burkina Faso -->
+      <div class="absolute top-0 left-0 right-0 border-round-top-lg" style="height: 0.5rem; background: linear-gradient(to right, #EF3340, #FCD116, #009E49);"></div>
+      
+      <!-- Message d'erreur global -->
+      <div *ngIf="authenticationError" class="mb-4 p-3 bg-red-50 border-left-4 border-red-500 border-round">
+        <div class="flex align-items-center">
+          <i class="pi pi-exclamation-circle text-red-500 mr-3"></i>
+          <p class="text-sm text-red-700 m-0">Nom d'utilisateur ou mot de passe incorrect</p>
+        </div>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="login()" class="flex flex-column gap-4">
+        <!-- Champ Username/Email -->
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+            Nom d'utilisateur ou Email
+          </label>
+          <span class="p-input-icon-left w-full">
+            <i class="pi pi-user text-gray-400"></i>
+            <input 
+              id="username" 
+              formControlName="username"
+              type="text" 
+              pInputText
+              class="w-full"
+              placeholder="votre.nom@exemple.com">
+          </span>
+        </div>
+
+        <!-- Champ Mot de passe -->
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+            Mot de passe
+          </label>
+          <span class="p-input-icon-left w-full">
+            <i class="pi pi-lock text-gray-400"></i>
+            <input 
+              id="password" 
+              formControlName="password"
+              type="password" 
+              pInputText
+              class="w-full"
+              placeholder="••••••••">
+          </span>
+        </div>
+
+        <!-- Remember me et Mot de passe oublié -->
+        <div class="flex align-items-center justify-content-between">
+          <div class="flex align-items-center">
+            <p-checkbox 
+              inputId="remember-me"
+              [binary]="true"
+              styleClass="mr-2">
+            </p-checkbox>
+            <label for="remember-me" class="text-sm text-gray-900 cursor-pointer m-0">
+              Se souvenir de moi
+            </label>
+          </div>
+          <div class="text-sm">
+            <button 
+              type="button" 
+              class="p-0 border-none bg-transparent font-medium text-green-600 hover:text-green-500 cursor-pointer"
+              (click)="ouvrirModal()">
+              Mot de passe oublié?
+            </button>
+          </div>
+        </div>
+
+        <!-- Bouton de connexion -->
+        <div>
+          <button 
+            pButton
+            pRipple
+            type="submit"
+            label="Se connecter"
+            class="w-full p-button-success">
+          </button>
+        </div>
+      </form>
+      
+      <!-- Lien d'inscription -->
+      <div class="mt-4 text-center">
+        <p class="text-sm text-gray-600 m-0">
+          Pas encore de compte? 
+          <a routerLink="/inscription" class="font-medium text-green-600 hover:text-green-500 no-underline">
+            Inscrivez-vous ici
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modale Mot de Passe Oublié -->
+<p-dialog 
+  [visible]="modalMotDePasseOublieOuvert()" 
+  (visibleChange)="modalMotDePasseOublieOuvert.set($event)"
+  [modal]="true" 
+  [closable]="true"
+  [style]="{width: '28rem'}"
+  styleClass="border-round-xl">
+  
+  <ng-template pTemplate="header">
+    <div class="flex flex-column align-items-center text-center w-full">
+      <div class="bg-green-100 p-3 border-round-circle mb-3">
+        <i class="pi pi-key text-green-600 text-2xl"></i>
+      </div>
+      <h3 class="text-2xl font-bold text-gray-800 m-0">Mot de passe oublié ?</h3>
+    </div>
+  </ng-template>
+  
+  <p class="text-gray-600 text-center mb-4">
+    Pas de soucis. Entrez votre adresse e-mail ci-dessous et nous vous enverrons un lien pour le réinitialiser.
+  </p>
+
+  <form class="flex flex-column gap-4" (submit)="$event.preventDefault(); fermerModal()">
+    <div>
+      <label for="reset-email" class="block text-sm font-medium text-gray-700 mb-2">Adresse e-mail</label>
+      <span class="p-input-icon-left w-full">
+        <i class="pi pi-envelope text-gray-400"></i>
+        <input 
+          id="reset-email" 
+          type="email" 
+          pInputText
+          class="w-full"
+          placeholder="vous@exemple.com">
+      </span>
+    </div>
+    <div>
+      <button 
+        pButton
+        pRipple
+        type="submit" 
+        label="Envoyer le lien de réinitialisation"
+        class="w-full p-button-success">
+      </button>
+    </div>
+  </form>
+</p-dialog>
