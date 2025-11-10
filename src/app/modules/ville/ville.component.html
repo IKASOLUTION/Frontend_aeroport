@@ -1,0 +1,157 @@
+
+
+<div class="grid">
+
+    <div class="col-12 md:col-12">
+        <p-table #dt 
+         styleClass="p-datatable-gridlines p-datatable-sm p-datatable"
+         [value]="villes"
+         [columns]="cols"
+         [rows]="5"
+         [paginator]="true"
+         [rowsPerPageOptions]="[10,20,30]"
+         [showCurrentPageReport]="true"
+         [globalFilterFields]="['nom', 'pays']"
+         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+         [(selection)]="selectedVille"
+         selectionMode="multiple"
+         [rowHover]="true" 
+         dataKey="id">
+                 <ng-template pTemplate="caption">
+					<div class="flex justify-content-between flex-column sm:flex-row">
+                        <div>
+                        <button pButton label="Nouvelle Ville" class="p-button-success mr-2 mb-2" icon="pi pi-plus" (click)="addVille()" ></button>
+                    </div>
+                        <h5 class="p-button-outlined mb-2"></h5>
+						<span class="p-input-icon-left mb-2">
+							<i class="pi pi-search"></i>
+							<input pInputText type="text" #filter (input)="onGlobalFilter(dt, $event)" placeholder="Rechercher" class="w-full"/>
+						</span>
+					</div>
+				</ng-template>
+
+            <ng-template pTemplate="header">
+        <tr>
+            <th style="font-weight: bold;">Ville
+                <p-columnFilter type="text" display="menu" field="nom"></p-columnFilter>
+            </th>
+            <th style="font-weight: bold;">Pays
+                <p-columnFilter type="text" display="menu" field="pays"></p-columnFilter>
+            </th>
+            <th style="font-weight: bold;">Action</th>
+        </tr>
+    </ng-template>
+<ng-template pTemplate="body" let-ville>
+        <tr [pSelectableRow]="ville">
+            <td class="table-separator">{{ville.nom}}</td>
+            <td class="table-separator">{{ville.pays || 'N/A'}}</td>
+            <td class="text-right">
+                <button
+                    pButton
+                    icon="pi pi-pencil"
+                    class="p-button-rounded p-button-info mr-2"
+                    pTooltip="Modifier"
+                    (click)="update(ville)"
+                ></button>
+
+                <button
+                    pButton
+                    icon="pi pi-trash"
+                    class="p-button-rounded p-button-danger"
+                    pTooltip="Supprimer"
+                    (click)="deleteVille(ville)"
+                ></button>
+            </td>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td colspan="3" style="text-align: center; font-size: 1.2em; color: red; font-weight: bold;">
+                <span class="text-danger">Aucune ville trouvée !</span>
+            </td>
+        </tr>
+    </ng-template>
+        </p-table>
+</div>
+
+
+
+
+<p-dialog
+  [(visible)]="villeDialog"
+  [modal]="true"
+  [closable]="false"
+  [style]="{ width: '700px', maxHeight: '90vh' }"
+  [header]="popupHeader"
+>
+  <form [formGroup]="villeFormGroup" (ngSubmit)="onSave()">
+    <div class="p-fluid">
+      <div class="field">
+        <label for="nom">Ville <span class="required" style="color: red !important;">*</span></label>
+        <input
+          id="nom"
+          type="text"
+          pInputText
+          formControlName="nom"
+          placeholder="Ex: Ouagadougou"
+        />
+      </div>
+
+      <div class="field">
+        <label for="pays">Pays <span class="required" style="color: red !important;">*</span></label>
+        <p-dropdown
+          id="pays"
+          [options]="countries"
+          [ngModelOptions]="{standalone: true}"
+          [(ngModel)]="selectedCountry"
+          [showClear]="true"
+          [filter]="true"
+          (onChange)="findPays(selectedCountry)"
+          filterBy="name"
+          placeholder="Sélectionnez un pays"
+          optionLabel="name"
+          [style]="{'width': '100%'}"
+          display="chip"
+           appendTo="body" 
+        >
+          <ng-template let-country pTemplate="item">
+            <div class="flex align-items-center">
+              <img src="assets/demo/images/flag/flag_placeholder.png"
+                   [class]="'flag flag-' + country.code.toLowerCase()" 
+                   style="width:21px" />
+              <span class="ml-2">{{country.name}}</span>
+            </div>
+          </ng-template>
+        </p-dropdown>
+
+
+
+
+
+        
+      </div>
+    </div>
+
+    <div class="flex justify-content-end gap-2 mt-3">
+      <button
+        pButton
+        label="Annuler"
+        icon="pi pi-times"
+        class="p-button-secondary"
+        type="button"
+        (click)="cancel()"
+      ></button>
+
+      <button
+        pButton
+        label="Enregistrer"
+        icon="pi pi-check"
+        class="p-button-success"
+        type="submit"
+        [disabled]="villeFormGroup.invalid || !selectedCountry"
+      ></button>
+    </div>
+  </form>
+</p-dialog>
+  <p-toast [style]="{marginTop: '80px'}" position="top-center"></p-toast>
+  <p-confirmDialog></p-confirmDialog>

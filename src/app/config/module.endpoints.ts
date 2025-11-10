@@ -28,5 +28,30 @@ export class Endpoints {
         prod: `${SERVICE_PREFIX}/donneeBiometriques`,
         mock: `assets/mock/donneeBiometrique.mock.json`
     };
-     
+
+     static readonly PAYS = {
+        prod: `${SERVICE_PREFIX}/pays`,
+        mock: `assets/mock/pays.mock.json`
+    };
+
+      static readonly VILLE = {
+        prod: `${SERVICE_PREFIX}/ville`,
+        mock: `assets/mock/ville.mock.json`
+    };
+
+      static readonly AEROPORT = {
+        prod: `${SERVICE_PREFIX}/aeroports`,
+        mock: `assets/mock/aeroport.mock.json`
+    };
+
+
+    
+      static readonly COMPAGNIE = {
+        prod: `${SERVICE_PREFIX}/compagnies`,
+        mock: `assets/mock/aeroport.mock.json`
+    };
+
+
+
+
 }

@@ -29,6 +29,14 @@ import { Enregistrementreducer } from './store/enregistrement/reducer';
 import { EnregistrementEffects } from './store/enregistrement/effect';
 import { DonneeBiometriqueEffects } from './store/biometric/effect';
 import { biometricReducer } from './store/biometric/reducer';
+import { PaysReducer } from './store/pays/reducer';
+import { PaysEffects } from './store/pays/effect';
+import { VilleReducer } from './store/ville/reducer';
+import { VilleEffects } from './store/ville/effect';
+import { AeroportEffects } from './store/aeroport/effect';
+import { AeroportReducer } from './store/aeroport/reducer';
+import { CompagnieReducer } from './store/compagnie/reducer';
+import { CompagnieEffects } from './store/compagnie/effect';
 
 
 
@@ -47,10 +55,10 @@ export const appConfig: ApplicationConfig = {
     ),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideAnimations(),
-    provideStore({globalState: GlobalConfigreducer, profilState: reducer , userState: UserReducer, menuActionState: Menureducer, moduleParamState: Modulereducer,
+    provideStore({globalState: GlobalConfigreducer, profilState: reducer , userState: UserReducer, menuActionState: Menureducer, moduleParamState: Modulereducer, villeState: VilleReducer, paysState: PaysReducer, aeroportState: AeroportReducer,compagnieState: CompagnieReducer,
     enregistrementState: Enregistrementreducer, donneeBiometriqueState: biometricReducer
     }),
-    provideEffects([ProfilEffects, UserEffects, MenuActionEffects, ModuleParamEffects, EnregistrementEffects,DonneeBiometriqueEffects]),
+    provideEffects([ProfilEffects, UserEffects, MenuActionEffects, ModuleParamEffects, EnregistrementEffects,DonneeBiometriqueEffects, PaysEffects, VilleEffects, AeroportEffects, CompagnieEffects]),
     provideRouter(routes),
     provideStoreDevtools({
       maxAge: 25,

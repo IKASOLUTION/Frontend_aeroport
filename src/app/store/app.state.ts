@@ -6,6 +6,11 @@ import { UserState } from "./user/state";
 
 import { EnregistrementState } from "./enregistrement/state";
 import { DonneeBiometriqueState } from "./biometric/state";
+import { DashboardState } from "./dashboard/state";
+import { PaysState } from "./pays/state";
+import { VilleState } from "./ville/state";
+import { AeroportState } from "./aeroport/state";
+import { CompagnieState } from "./compagnie/state";
 
 
 
@@ -18,5 +23,10 @@ export interface AppState {
   moduleParamState: ModuleParamState;
   enregistrementState: EnregistrementState;
   donneeBiometriqueState: DonneeBiometriqueState;
+  dashboardState: DashboardState;
+  paysState: PaysState;
+  villeState: VilleState;
+  aeroportState: AeroportState;
+  compagnieState: CompagnieState;
 
 }
