@@ -23,9 +23,9 @@
   <li pTooltip="Mon Profil" [tooltipDisabled]="isTooltipDisabled">
     <a class="cursor-pointer flex align-items-center justify-content-start gap-2 px-3 py-2 hover:surface-hover transition-all transition-duration-150"
        pRipple
-       [routerLink]="['/agent/profile']">
+       [routerLink]="['/admin/profile']">
       <i class="pi pi-user text-primary"></i>
-      <span class="font-medium text-900">Mon Profil</span>
+      <span class="font-medium text-900" style="color: #FFFF !important;">Mon Profil</span>
     </a>
   </li>
 
@@ -34,7 +34,7 @@
        pRipple
        (click)="logout()">
       <i class="pi pi-power-off text-danger"></i>
-      <span class="font-medium text-900">Logout</span>
+      <span class="font-medium text-900" style="color: #FFFF !important;">Logout</span>
     </a>
   </li>
 </ul>

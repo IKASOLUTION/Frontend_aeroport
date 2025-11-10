@@ -25,6 +25,7 @@ export const routes: Routes = [
             { path: 'login', title:'Login', loadComponent: () => import('./modules/login/login.component').then(c => c.LoginComponent) },
             { path: 'module-param', data: { breadcrumb: 'Gestion des modules' }, loadComponent: () => import('./modules/securite/module-param/module-param.component').then(m => m.ModuleParamComponent) },
             { path: 'user', data: { breadcrumb: 'Utilisateurs'}, loadComponent: () => import('./modules/securite/user/user.component').then(m => m.UserComponent) },
+            { path: 'gestion-enregistrements', data: { breadcrumb: 'Gestion des enreistrements'}, loadComponent: () => import('./modules/enregistrement/enregistrement.component').then(m => m.EnregistrementComponent) },
             
 
         ]

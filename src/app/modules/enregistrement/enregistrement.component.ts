@@ -1,0 +1,623 @@
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, signal, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Store, select } from '@ngrx/store';
+import { Subject, takeUntil } from 'rxjs';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import * as enregistrementAction from '../../store/enregistrement/action';
+import * as enregistrementSelector from '../../store/enregistrement/selector';
+import * as biometricAction from '../../store/biometric/action';
+import * as biometricSelector from '../../store/biometric/selector';
+import * as globalSelector from '../../store/global-config/selector';
+
+
+// PrimeNG Imports
+import { CardModule } from 'primeng/card';
+import { FieldsetModule } from 'primeng/fieldset';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { InputMaskModule } from 'primeng/inputmask';
+import { DropdownModule } from 'primeng/dropdown';
+import { CalendarModule } from 'primeng/calendar';
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
+import { PanelModule } from 'primeng/panel';
+import { ToastModule } from 'primeng/toast';
+import { Enregistrement, MotifVoyage, TypeDocument } from 'src/app/store/enregistrement/model';
+import { DonneeBiometrique } from 'src/app/store/biometric/model';
+import { co } from '@fullcalendar/core/internal-common';
+import { LoadingSpinnerComponent } from '../loading-spinner.component';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+
+
+
+interface Vol {
+  id: number;
+  numero_vol: string;
+  villeDepart: string;
+  ville_arrivee: string;
+  date_vol: string;
+  heure_depart: string;
+}
+
+interface Motif {
+  id: number;
+  libelle: string;
+}
+
+interface Passager {
+  id: number;
+  nom_complet: string;
+  numeroDocument: string;
+}
+
+@Component({
+  selector: 'app-gestion-enregistrements',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    CardModule,
+    FieldsetModule,
+    InputTextModule,
+    InputTextareaModule,
+    InputNumberModule,
+    InputMaskModule,
+    DropdownModule,
+    CalendarModule,
+    ButtonModule,
+    DialogModule,
+    PanelModule,
+    ToastModule,
+    ConfirmDialogModule,
+    LoadingSpinnerComponent
+  ],
+  providers: [MessageService,ConfirmationService],
+  templateUrl: './enregistrement.component.html'
+})
+export class EnregistrementComponent implements OnInit, OnDestroy {
+  @ViewChild('videoElement') videoElement!: ElementRef<HTMLVideoElement>;
+  @ViewChild('canvasElement') canvasElement!: ElementRef<HTMLCanvasElement>;
+
+  private store = inject(Store);
+  private messageService = inject(MessageService);
+  private destroy$ = new Subject<void>();
+
+  // Signals pour la gestion de l'état local
+  formData = signal<Enregistrement>({
+    typeDocument: TypeDocument.PASSEPORT,
+    etatVoyage: 'ALLER'
+  });
+
+  formErrors = signal<Record<string, string>>({});
+  isSaving = signal<boolean>(false);
+  loading = signal<boolean>(true);
+  
+  vols = signal<Vol[]>([]);
+  motifs = signal<{ libelle: string; value: MotifVoyage }[]>([]);
+  enregistrementList = signal<Enregistrement[]>([]);
+  
+  selectedVolInfo = signal<Vol | null>(null);
+  
+  // Modale Biométrique
+  isCaptureBiometriqueModalOpen = signal<boolean>(false);
+  passagerPourBiometrie = signal<Passager | null>(null);
+  empreinteGaucheCapturee = signal<boolean>(false);
+  empreinteDroiteCapturee = signal<boolean>(false);
+  empreintePoucesCapturee = signal<boolean>(false);
+  capturedPhotoPourBiometrie = signal<string | null>(null);
+  biometric = signal<DonneeBiometrique | null>(null);
+  enregistrementSelect = signal<Enregistrement | null>(null);
+
+  // Modale Caméra
+  isCameraModalOpen = signal<boolean>(false);
+  capturedPhotoBase64 = signal<string | null>(null);
+  currentCameraTarget = signal<'recto' | 'verso' | 'profil' | 'biometrique' | null>(null);
+  private mediaStream: MediaStream | null = null;
+
+  // Options pour les dropdowns
+  typesDocument: Array<'PASSEPORT' | 'CNI' | 'PERMIS_CONDUIRE'> = ['PASSEPORT', 'CNI', 'PERMIS_CONDUIRE'];
+  etatsVoyage: Array<'ALLER' | 'RETOUR' | 'ALLER_RETOUR'> = ['ALLER', 'RETOUR', 'ALLER_RETOUR'];
+
+  ngOnInit(): void {
+    this.initializeFormData();
+   // this.loadEnregistrements();
+    this.subscribeToStoreUpdates();
+    this.loadVols();
+    this.loadMotifs();
+  }
+
+  private loadEnregistrements(): void {
+    this.store.dispatch(enregistrementAction.loadEnregistrement());
+  }
+
+  private subscribeToStoreUpdates(): void {
+    // Écouter la liste des enregistrements
+    this.store.pipe(
+      select(enregistrementSelector.enregistrementList),
+      takeUntil(this.destroy$)
+    ).subscribe(value => {
+      if (value) {
+        this.loading.set(false);
+        this.enregistrementList.set(value);
+      }
+    });
+
+    // Écouter les statuts globaux (succès/erreur)
+    this.store.pipe(
+      select(globalSelector.status),
+      takeUntil(this.destroy$)
+    ).subscribe(status => {
+      if (status && status.message) {
+        this.showToast(status.status, status.message);
+      }
+    });
+
+    // // Écouter l'état de chargement
+    // this.store.pipe(
+    //   select(enregistrementSelector.loading),
+    //   takeUntil(this.destroy$)
+    // ).subscribe(loading => {
+    //   this.isSaving.set(loading);
+    // });
+
+    // // Écouter les erreurs
+    // this.store.pipe(
+    //   select(enregistrementSelector.error),
+    //   takeUntil(this.destroy$)
+    // ).subscribe(error => {
+    //   if (error) {
+    //     this.showToast('error', error);
+    //   }
+    // });
+  }
+
+  private showToast(severity: string, message: string): void {
+    const severityMap: Record<string, 'success' | 'info' | 'warn' | 'error'> = {
+      'success': 'success',
+      'error': 'error',
+      'warning': 'warn',
+      'info': 'info'
+    };
+
+    this.messageService.add({
+      severity: severityMap[severity] || 'info',
+      summary: this.getSummaryBySeverity(severity),
+      detail: message,
+      life: 5000
+    });
+  }
+
+  private getSummaryBySeverity(severity: string): string {
+    const summaries: Record<string, string> = {
+      'success': 'Succès',
+      'error': 'Erreur',
+      'warning': 'Attention',
+      'info': 'Information'
+    };
+    return summaries[severity] || 'Notification';
+  }
+
+  initializeFormData(): void {
+    this.formData.set({
+      typeDocument: undefined,
+      etatVoyage: 'ALLER',
+      numeroDocument: '',
+      numeroNip: null,
+      dateDelivrance: '',
+      lieuDelivrance: '',
+      photoProfil: null,
+      imageRecto: null,
+      imageVerso: null,
+      nomFamille: '',
+      prenom: '',
+      dateNaissance: '',
+      lieuNaissance: '',
+      nationalite: '',
+      profession: '',
+      paysResidence: '',
+      emailContact: null,
+      telephoneBurkina: null,
+      telephoneEtranger: null,
+      adresseBurkina: null,
+      adresseEtranger: null,
+      vol_id: null,
+      villeDepart: '',
+      villeDestination: '',
+      dateVoyage: '',
+      heureVoyage: '',
+      motifVoyage: undefined,
+      dureeSejour: null
+    });
+  }
+
+  loadVols(): void {
+    // Dispatch action pour charger les vols depuis le store
+    // this.store.dispatch(volAction.loadVols());
+    
+    // Ou simuler temporairement
+    this.vols.set([
+      {
+        id: 1,
+        numero_vol: 'AF1234',
+        villeDepart: 'Ouagadougou',
+        ville_arrivee: 'Paris',
+        date_vol: '2025-11-15',
+        heure_depart: '10:30'
+      },
+      {
+        id: 2,
+        numero_vol: 'ET5678',
+        villeDepart: 'Addis-Abeba',
+        ville_arrivee: 'Ouagadougou',
+        date_vol: '2025-11-16',
+        heure_depart: '14:45'
+      },
+      {
+        id: 3,
+        numero_vol: 'TK9012',
+        villeDepart: 'Ouagadougou',
+        ville_arrivee: 'Istanbul',
+        date_vol: '2025-11-17',
+        heure_depart: '08:15'
+      }
+    ]);
+  }
+
+  loadMotifs(): void {
+    // Dispatch action pour charger les motifs depuis le store
+    // this.store.dispatch(motifAction.loadMotifs());
+    
+    // Ou simuler temporairement
+    this.motifs.set([
+     
+      { libelle: 'Affaires', value: MotifVoyage.AFFAIRES },
+      { libelle: 'Tourisme', value: MotifVoyage.TOURISME },
+      { libelle: 'Famille', value: MotifVoyage.FAMILLE },
+      { libelle: 'Études', value: MotifVoyage.ETUDES },
+      { libelle: 'Médical', value: MotifVoyage.MEDICAL },
+    ]);
+  }
+
+  updateFormDataField(field: keyof Enregistrement, value: any): void {
+    this.formData.update(data => ({ ...data, [field]: value }));
+    
+    // Effacer l'erreur pour ce champ si elle existe
+    if (this.formErrors()[field]) {
+      this.formErrors.update(errors => {
+        const newErrors = { ...errors };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
+  }
+
+  onVolSelectionChange(volId: number): void {
+    const selectedVol = this.vols().find(v => v.id === volId);
+    if (selectedVol) {
+      this.selectedVolInfo.set(selectedVol);
+      this.formData.update(data => ({
+        ...data,
+        vol_id: volId,
+        villeDepart: selectedVol.villeDepart,
+        villeDestination: selectedVol.ville_arrivee,
+        dateVoyage: selectedVol.date_vol,
+        heureVoyage: selectedVol.heure_depart
+      }));
+    }
+  }
+
+  validateForm(): boolean {
+    const errors: Record<string, string> = {};
+    const data = this.formData();
+
+    // Validation Document
+    if (!data.numeroDocument?.trim()) {
+      errors['numeroDocument'] = 'Le numéro de document est requis';
+    }
+    if (!data.dateDelivrance) {
+      errors['dateDelivrance'] = 'La date de délivrance est requise';
+    }
+    if (!data.lieuDelivrance?.trim()) {
+      errors['lieuDelivrance'] = 'Le lieu de délivrance est requis';
+    }
+    if (!data.imageRecto) {
+      errors['imageRecto'] = 'L\'image recto est requise';
+    }
+    if (!data.imageVerso) {
+      errors['imageVerso'] = 'L\'image verso est requise';
+    }
+    if (!data.photoProfil) {
+      errors['photoProfil'] = 'La photo de enregistrement est requise';
+    }
+
+    // Validation Informations Personnelles
+    if (!data.prenom?.trim()) {
+      errors['prenom'] = 'Le prénom est requis';
+    }
+    if (!data.nomFamille?.trim()) {
+      errors['nomFamille'] = 'Le nom de famille est requis';
+    }
+    if (!data.dateNaissance) {
+      errors['dateNaissance'] = 'La date de naissance est requise';
+    }
+    if (!data.lieuNaissance?.trim()) {
+      errors['lieuNaissance'] = 'Le lieu de naissance est requis';
+    }
+    if (!data.nationalite?.trim()) {
+      errors['nationalite'] = 'La nationalité est requise';
+    }
+    if (!data.profession?.trim()) {
+      errors['profession'] = 'La profession est requise';
+    }
+
+    // Validation Coordonnées
+    if (!data.paysResidence?.trim()) {
+      errors['paysResidence'] = 'Le pays de résidence est requis';
+    }
+    if (!data.adresseBurkina?.trim()) {
+      errors['adresseBurkina'] = 'L\'adresse au Burkina est requise';
+    }
+    if (!data.adresseEtranger?.trim()) {
+      errors['adresseEtranger'] = 'L\'adresse à l\'étranger est requise';
+    }
+
+    // Validation email si fourni
+    if (data.emailContact && !this.isValidEmail(data.emailContact)) {
+      errors['emailContact'] = 'L\'email n\'est pas valide';
+    }
+
+    // Validation Voyage
+    if (!data.vol_id) {
+      errors['vol_id'] = 'Le vol est requis';
+    }
+    if (data.motifVoyage === undefined) {
+      errors['motifVoyage'] = 'Le motif du voyage est requis';
+    }
+    if (!data.dureeSejour || data.dureeSejour < 1) {
+      errors['dureeSejour'] = 'La durée du séjour doit être d\'au moins 1 jour';
+    }
+
+    this.formErrors.set(errors);
+    return Object.keys(errors).length === 0;
+  }
+
+  isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  submitEnregistrement(): void {
+    // Dispatch action pour créer l'enregistrement
+    const enregistrementData = this.prepareEnregistrementData();
+    this.store.dispatch(enregistrementAction.createEnregistrement( enregistrementData 
+    ));
+    if (!this.validateForm()) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur de validation',
+        detail: 'Veuillez corriger les erreurs dans le formulaire',
+        life: 5000
+      });
+      return;
+    }
+
+    
+ 
+    // Ouvrir la modale biométrique après succès (géré via subscription au store)
+     this.store.pipe(
+      select(enregistrementSelector.selectedEnregistrement),
+      takeUntil(this.destroy$)
+    ).subscribe(created => {
+      if (created && created.id) {
+        this.enregistrementSelect.set(created);
+        this.passagerPourBiometrie.set({
+          id: created.id,
+          nom_complet: `${created.prenom} ${created.nomFamille}`,
+          numeroDocument: created.numeroDocument || ''
+        });
+        this.isCaptureBiometriqueModalOpen.set(true);
+      }
+    }); 
+  }
+
+  private prepareEnregistrementData(): Enregistrement {
+    const data = this.formData();
+    
+    // Convertir les dates si nécessaire
+    return {
+      ...data,
+      dateDelivrance: this.formatDate(data.dateDelivrance),
+      dateNaissance: this.formatDate(data.dateNaissance),
+      dateVoyage: this.formatDate(data.dateVoyage)
+    };
+  }
+
+  private formatDate(date: any): string {
+    if (!date) return '';
+    
+    if (date instanceof Date) {
+      return date.toISOString().split('T')[0];
+    }
+    
+    return date;
+  }
+
+  resetForm(): void {
+    this.initializeFormData();
+    this.formErrors.set({});
+    this.selectedVolInfo.set(null);
+    
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Formulaire réinitialisé',
+      detail: 'Le formulaire a été réinitialisé',
+      life: 2000
+    });
+  }
+
+  // Gestion de la caméra
+  async demarrerCamera(target: 'recto' | 'verso' | 'profil' | 'biometrique'): Promise<void> {
+    this.currentCameraTarget.set(target);
+    this.capturedPhotoBase64.set(null);
+    this.isCameraModalOpen.set(true);
+
+    try {
+      await this.waitForView();
+      
+      this.mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: 1280, height: 720 }
+      });
+
+      if (this.videoElement && this.videoElement.nativeElement) {
+        this.videoElement.nativeElement.srcObject = this.mediaStream;
+      }
+    } catch (error) {
+      console.error('Erreur d\'accès à la caméra:', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur caméra',
+        detail: 'Impossible d\'accéder à la caméra',
+        life: 3000
+      });
+      this.isCameraModalOpen.set(false);
+    }
+  }
+
+  private waitForView(): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  capturerPhoto(): void {
+    if (!this.videoElement || !this.canvasElement) return;
+
+    const video = this.videoElement.nativeElement;
+    const canvas = this.canvasElement.nativeElement;
+    const context = canvas.getContext('2d');
+
+    if (!context) return;
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const photoBase64 = canvas.toDataURL('image/jpeg', 0.8);
+    this.capturedPhotoBase64.set(photoBase64);
+  }
+
+  reprendrePhoto(): void {
+    this.capturedPhotoBase64.set(null);
+  }
+
+  confirmerPhoto(): void {
+    const photo = this.capturedPhotoBase64();
+    const target = this.currentCameraTarget();
+
+    if (!photo || !target) return;
+
+    if (target === 'biometrique') {
+      this.capturedPhotoPourBiometrie.set(photo);
+    } else {
+      this.formData.update(data => ({
+        ...data,
+        [target === 'recto' ? 'imageRecto' : target === 'verso' ? 'imageVerso' : 'photoProfil']: photo
+      }));
+    }
+
+    this.arreterCamera();
+  }
+
+  arreterCamera(): void {
+    if (this.mediaStream) {
+      this.mediaStream.getTracks().forEach(track => track.stop());
+      this.mediaStream = null;
+    }
+    this.isCameraModalOpen.set(false);
+    this.capturedPhotoBase64.set(null);
+    this.currentCameraTarget.set(null);
+  }
+
+  // Gestion de la modale biométrique
+  closeBiometricModal(): void {
+    this.isCaptureBiometriqueModalOpen.set(false);
+    this.passagerPourBiometrie.set(null);
+    this.empreinteGaucheCapturee.set(false);
+    this.empreinteDroiteCapturee.set(false);
+    this.empreintePoucesCapturee.set(false);
+    this.capturedPhotoPourBiometrie.set(null);
+  }
+
+  validerAvecBiometrie(): void {
+    if (!this.empreinteGaucheCapturee() || !this.empreinteDroiteCapturee() || 
+        !this.empreintePoucesCapturee() || !this.capturedPhotoPourBiometrie()) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Données incomplètes',
+        detail: 'Veuillez capturer toutes les données biométriques',
+        life: 3000
+      });
+      return;
+    }
+
+    const passager = this.passagerPourBiometrie();
+    if (!passager) return;
+
+    this.biometric.set({
+  enregistrementId: this.enregistrementSelect()?.id || 0,
+  empreinteGauche: true,
+  empreinteDroite: true,
+  empreintePouces: true,
+  photoBiometrique: this.convertBase64ToFile(this.capturedPhotoPourBiometrie())
+});
+     const biometricData = this.biometric();
+if (biometricData) {
+  this.store.dispatch(biometricAction.createDonneeBiometrique(biometricData));
+} else {
+  console.error('Données biométriques invalides');
+}
+
+    // Fermer la modale et réinitialiser après succès (géré via subscription)
+    /* this.store.pipe(
+      select(globalSelector.status),
+      takeUntil(this.destroy$)
+    ).subscribe(status => {
+      console.log('Statut global reçu dans la modale biométrique:', status);
+      if (status && status.status === 'success') {
+        
+      }
+    }); */
+    this.closeBiometricModal();
+        this.resetForm();
+  }
+
+
+  private convertBase64ToFile(base64String: string | null, filename: string = 'photo.jpg'): File | undefined {
+  if (!base64String) return undefined;
+  
+  try {
+    // Supprimer le préfixe data:image/...;base64, si présent
+    const base64Data = base64String.split(',')[1] || base64String;
+    const byteString = atob(base64Data);
+    const arrayBuffer = new ArrayBuffer(byteString.length);
+    const uint8Array = new Uint8Array(arrayBuffer);
+    
+    for (let i = 0; i < byteString.length; i++) {
+      uint8Array[i] = byteString.charCodeAt(i);
+    }
+    
+    const blob = new Blob([uint8Array], { type: 'image/jpeg' });
+    return new File([blob], filename, { type: 'image/jpeg' });
+  } catch (error) {
+    console.error('Erreur conversion base64 vers File:', error);
+    return undefined;
+  }
+}
+
+
+  ngOnDestroy(): void {
+    this.arreterCamera();
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+}

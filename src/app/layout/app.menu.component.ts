@@ -19,15 +19,15 @@ export class AppMenuComponent implements OnInit {
             {
                 items: [
                     {
-                label: 'Dashboard',
+                        label: 'Dashboard',
                         icon: 'pi pi-fw pi-home',
                         routerLink: ['/admin/dashboard']
                     }
                 ]
             },
 
-            
-           
+
+
             {
                 label: 'Administration',
                 icon: 'pi pi-fw pi-user',
@@ -42,10 +42,22 @@ export class AppMenuComponent implements OnInit {
                         icon: 'pi pi-fw pi-user',
                         routerLink: ['/admin/module-param']
                     },
-                    
-                                    
+
+
                 ]
-            },       
-         ];
+            },
+            {
+                label: 'Passagers',
+                icon: 'pi  pi-fw pi-plane',
+                items: [
+                    {
+                        label: 'Enregistrement',
+                        icon: 'pi pi-fw pi-id-card',
+                        routerLink: ['/admin/gestion-enregistrements']
+                    },
+                ]
+
+            },
+        ];
     }
 }

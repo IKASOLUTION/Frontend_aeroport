@@ -20,12 +20,15 @@ import { GlobalConfigreducer } from './store/global-config/reducer';
 
 
 
-import { dashboardReducer } from './store/dashboard/reducer';
-import { DashboardEffects } from './store/dashboard/effect';
+
 import { Modulereducer } from './store/module-param/reducer';
 import { ModuleParamEffects } from './store/module-param/effect';
 import { MenuActionEffects } from './store/menu/effect';
 import { Menureducer } from './store/menu/reducer';
+import { Enregistrementreducer } from './store/enregistrement/reducer';
+import { EnregistrementEffects } from './store/enregistrement/effect';
+import { DonneeBiometriqueEffects } from './store/biometric/effect';
+import { biometricReducer } from './store/biometric/reducer';
 
 
 
@@ -45,9 +48,9 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideAnimations(),
     provideStore({globalState: GlobalConfigreducer, profilState: reducer , userState: UserReducer, menuActionState: Menureducer, moduleParamState: Modulereducer,
-    dashboard: dashboardReducer
+    enregistrementState: Enregistrementreducer, donneeBiometriqueState: biometricReducer
     }),
-    provideEffects([ProfilEffects, UserEffects, MenuActionEffects, ModuleParamEffects,DashboardEffects]),
+    provideEffects([ProfilEffects, UserEffects, MenuActionEffects, ModuleParamEffects, EnregistrementEffects,DonneeBiometriqueEffects]),
     provideRouter(routes),
     provideStoreDevtools({
       maxAge: 25,
