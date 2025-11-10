@@ -1,0 +1,391 @@
+<div class="grid">
+  <div class="col-12 md:col-12">
+   <p-table #dt 
+             styleClass="p-datatable-gridlines p-datatable-sm p-datatable"
+             [value]="compagnies"
+             [columns]="cols"
+             [rows]="5"
+             [paginator]="true"
+             [rowsPerPageOptions]="[5, 10, 20, 30]"
+             [showCurrentPageReport]="true"
+             [globalFilterFields]="['nomCompagine', 'groupe', 'pays', 'statut']"
+             currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+             [(selection)]="selectedCompagnie"
+             selectionMode="single"
+             [rowHover]="true" 
+             dataKey="id"
+             [loading]="loading">
+            
+      <ng-template pTemplate="caption">
+        <div class="flex justify-content-between flex-column sm:flex-row">
+          <div>
+            <button pButton 
+                    label="Nouvelle Compagnie" 
+                    class="p-button-success mr-2 mb-2" 
+                    icon="pi pi-plus" 
+                    (click)="openNew()">
+            </button>
+          </div>
+          <h5 class="p-button-outlined mb-2"></h5>
+          <span class="p-input-icon-left mb-2">
+            <i class="pi pi-search"></i>
+            <input pInputText 
+                   type="text" 
+                   #filter 
+                   (input)="onGlobalFilter(dt, $event)" 
+                   placeholder="Rechercher" 
+                   class="w-full"/>
+          </span>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="font-weight: bold;">Nom de la compagnie
+            <p-columnFilter type="text" display="menu" field="nomCompagine"></p-columnFilter>
+          </th>
+          <th style="font-weight: bold;">Groupe
+            <p-columnFilter type="text" display="menu" field="groupe"></p-columnFilter>
+          </th>
+          <th style="font-weight: bold;">Pays
+            <p-columnFilter type="text" display="menu" field="pays"></p-columnFilter>
+          </th>
+          <th style="font-weight: bold;">Statut
+            <p-columnFilter type="text" display="menu" field="statut"></p-columnFilter>
+          </th>
+          <th style="font-weight: bold;" class="text-center">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-compagnie>
+        <tr [pSelectableRow]="compagnie">
+          <td class="table-separator">{{compagnie.nomCompagine}}</td>
+          <td class="table-separator">{{compagnie.groupe || 'N/A'}}</td>
+          <td class="table-separator">{{compagnie.pays || 'N/A'}}</td>
+          <td class="table-separator">
+            <span [class]="'badge ' + (compagnie.statut === 'ACTIF' ? 'badge-success' : 'badge-danger')">
+              {{compagnie.statut || 'N/A'}}
+            </span>
+          </td>
+          <td class="text-center">
+            <button pButton 
+                    icon="pi pi-pencil" 
+                    class="p-button-rounded p-button-info mr-2" 
+                    pTooltip="Modifier" 
+                    tooltipPosition="top"
+                    (click)="update(compagnie)">
+            </button>
+
+            <button pButton 
+                    [icon]="compagnie.statut === 'ACTIF' ? 'pi pi-ban' : 'pi pi-check-circle'" 
+                    [class]="'p-button-rounded mr-2 ' + (compagnie.statut === 'ACTIF' ? 'p-button-warning' : 'p-button-success')"
+                    [pTooltip]="compagnie.statut === 'ACTIF' ? 'Désactiver' : 'Activer'" 
+                    tooltipPosition="top"
+                    (click)="confirmChangeStatus(compagnie)">
+            </button>
+
+            <button pButton 
+                    icon="pi pi-trash" 
+                    class="p-button-rounded p-button-danger" 
+                    pTooltip="Supprimer" 
+                    tooltipPosition="top"
+                    (click)="confirmDelete(compagnie)">
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="5" style="text-align: center; font-size: 1.2em; color: red; font-weight: bold;">
+            <span class="text-danger">Aucune compagnie trouvée !</span>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<p-dialog
+  [(visible)]="compagnieDialog"
+  [modal]="true"
+  [closable]="false"
+  [style]="{ width: '95vw', maxWidth: '1100px', maxHeight: '95vh' }"
+  [header]="popupHeader"
+  [contentStyle]="{ 'overflow': 'auto', 'padding': '1.5rem' }"
+  styleClass="custom-dialog">
+  
+  <form [formGroup]="compagnieForm" (ngSubmit)="onSave()">
+    <div class="p-fluid">
+      <div class="grid">
+        <!-- Colonne Gauche -->
+        <div class="col-12 lg:col-6">
+          <!-- Section: Informations de la Compagnie -->
+          <p-fieldset legend="Informations de la Compagnie" [toggleable]="false" styleClass="mb-3">
+            <div class="grid">
+              <!-- Nom de la compagnie -->
+              <div class="col-12">
+                <div class="field">
+                  <label for="nomCompagine">
+                    Nom de la compagnie 
+                    <span class="required" style="color: red !important;">*</span>
+                  </label>
+                  <input id="nomCompagine"
+                         type="text"
+                         pInputText
+                         formControlName="nomCompagine"
+                         placeholder="Ex: Air Burkina"
+                         [class.ng-invalid]="compagnieForm.get('nomCompagine')?.invalid && compagnieForm.get('nomCompagine')?.touched"/>
+                  <small class="p-error" 
+                         *ngIf="compagnieForm.get('nomCompagine')?.invalid && compagnieForm.get('nomCompagine')?.touched">
+                    Le nom de la compagnie est requis
+                  </small>
+                </div>
+              </div>
+
+              <!-- Groupe -->
+              <div class="col-12 md:col-6">
+                <div class="field">
+                  <label for="groupe">Groupe</label>
+                  <input id="groupe"
+                         type="text"
+                         pInputText
+                         formControlName="groupe"
+                         placeholder="Ex: Air France-KLM"/>
+                </div>
+              </div>
+
+              <!-- Pays -->
+              <div class="col-12 md:col-6">
+                <div class="field">
+                  <label for="pays">
+                    Pays 
+                    <span class="required" style="color: red !important;">*</span>
+                  </label>
+                  <p-dropdown
+                    id="pays"
+                    [options]="countries"
+                    formControlName="pays"
+                    optionLabel="name"
+                    optionValue="name"
+                    placeholder="Sélectionnez un pays"
+                    [filter]="true"
+                    [showClear]="true"
+                    [style]="{'width': '100%'}"
+                    [class.ng-invalid]="compagnieForm.get('pays')?.invalid && compagnieForm.get('pays')?.touched">
+                    <ng-template let-country pTemplate="item">
+                      <div class="flex align-items-center">
+                        <img src="assets/demo/images/flag/flag_placeholder.png"
+                             [class]="'flag flag-' + country.code.toLowerCase()" 
+                             style="width:21px" />
+                        <span class="ml-2">{{country.name}}</span>
+                      </div>
+                    </ng-template>
+                  </p-dropdown>
+                  <small class="p-error" 
+                         *ngIf="compagnieForm.get('pays')?.invalid && compagnieForm.get('pays')?.touched">
+                    Le pays est requis
+                  </small>
+                </div>
+              </div>
+
+              <!-- Statut -->
+              <div class="col-12">
+                <div class="field">
+                  <label for="statut">
+                    Statut 
+                    <span class="required" style="color: red !important;">*</span>
+                  </label>
+                  <p-dropdown
+                    id="statut"
+                    [options]="[
+                      { label: 'Actif', value: 'ACTIF' },
+                      { label: 'Inactif', value: 'INACTIF' }
+                    ]"
+                    formControlName="statut"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Sélectionnez un statut"
+                    [style]="{'width': '100%'}"
+                    [class.ng-invalid]="compagnieForm.get('statut')?.invalid && compagnieForm.get('statut')?.touched">
+                  </p-dropdown>
+                  <small class="p-error" 
+                         *ngIf="compagnieForm.get('statut')?.invalid && compagnieForm.get('statut')?.touched">
+                    Le statut est requis
+                  </small>
+                </div>
+              </div>
+            </div>
+          </p-fieldset>
+
+          <!-- Section: Siège Social -->
+          <p-fieldset legend="Siège Social" [toggleable]="false" styleClass="mb-3">
+            <div class="grid">
+              <!-- Siège -->
+              <div class="col-12">
+                <div class="field">
+                  <label for="siege">Ville du siège</label>
+                  <input id="siege"
+                         type="text"
+                         pInputText
+                         formControlName="siege"
+                         placeholder="Ex: Ouagadougou"/>
+                </div>
+              </div>
+
+              <!-- Adresse du siège -->
+              <div class="col-12">
+                <div class="field">
+                  <label for="adresseSiege">Adresse complète</label>
+                  <textarea id="adresseSiege"
+                            pInputTextarea
+                            formControlName="adresseSiege"
+                            placeholder="Ex: Avenue de l'Indépendance, BP 1234"
+                            rows="2"></textarea>
+                </div>
+              </div>
+
+              <!-- Contact -->
+              <div class="col-12 md:col-6">
+                <div class="field">
+                  <label for="contact">Téléphone</label>
+                  <input id="contact"
+                         type="tel"
+                         pInputText
+                         formControlName="contact"
+                         placeholder="Ex: +226 25 30 61 25"/>
+                </div>
+              </div>
+
+              <!-- Email -->
+              <div class="col-12 md:col-6">
+                <div class="field">
+                  <label for="email">Email</label>
+                  <input id="email"
+                         type="email"
+                         pInputText
+                         formControlName="email"
+                         placeholder="Ex: contact@compagnie.bf"
+                         [class.ng-invalid]="compagnieForm.get('email')?.invalid && compagnieForm.get('email')?.touched"/>
+                  <small class="p-error" 
+                         *ngIf="compagnieForm.get('email')?.invalid && compagnieForm.get('email')?.touched">
+                    Email invalide
+                  </small>
+                </div>
+              </div>
+            </div>
+          </p-fieldset>
+        </div>
+
+        <!-- Colonne Droite -->
+        <div class="col-12 lg:col-6">
+          <!-- Section: Responsable -->
+          <p-fieldset legend="Responsable de la Compagnie" [toggleable]="false" styleClass="mb-3">
+            <div class="grid">
+              <!-- Nom du responsable -->
+              <div class="col-12 md:col-6">
+                <div class="field">
+                  <label for="nomResponsable">Nom</label>
+                  <input id="nomResponsable"
+                         type="text"
+                         pInputText
+                         formControlName="nomResponsable"
+                         placeholder="Ex: KABORE"/>
+                </div>
+              </div>
+
+              <!-- Prénom du responsable -->
+              <div class="col-12 md:col-6">
+                <div class="field">
+                  <label for="prenomResponsable">Prénom</label>
+                  <input id="prenomResponsable"
+                         type="text"
+                         pInputText
+                         formControlName="prenomResponsable"
+                         placeholder="Ex: Paul"/>
+                </div>
+              </div>
+
+              <!-- Nationalité du responsable -->
+              <div class="col-12">
+                <div class="field">
+                  <label for="nationaliteResponsable">Nationalité</label>
+                  <p-dropdown
+                    id="nationaliteResponsable"
+                    [options]="countries"
+                    formControlName="nationaliteResponsable"
+                    optionLabel="name"
+                    optionValue="name"
+                    placeholder="Sélectionnez une nationalité"
+                    [filter]="true"
+                    [showClear]="true"
+                    [style]="{'width': '100%'}">
+                    <ng-template let-country pTemplate="item">
+                      <div class="flex align-items-center">
+                        <img src="assets/demo/images/flag/flag_placeholder.png"
+                             [class]="'flag flag-' + country.code.toLowerCase()" 
+                             style="width:21px" />
+                        <span class="ml-2">{{country.name}}</span>
+                      </div>
+                    </ng-template>
+                  </p-dropdown>
+                </div>
+              </div>
+
+              <!-- Téléphone du responsable -->
+              <div class="col-12 md:col-6">
+                <div class="field">
+                  <label for="telephoneResponsable">Téléphone</label>
+                  <input id="telephoneResponsable"
+                         type="tel"
+                         pInputText
+                         formControlName="telephoneResponsable"
+                         placeholder="Ex: +226 70 12 34 56"/>
+                </div>
+              </div>
+
+              <!-- Email du responsable -->
+              <div class="col-12 md:col-6">
+                <div class="field">
+                  <label for="mailResponsable">Email</label>
+                  <input id="mailResponsable"
+                         type="email"
+                         pInputText
+                         formControlName="mailResponsable"
+                         placeholder="Ex: paul.kabore@compagnie.bf"
+                         [class.ng-invalid]="compagnieForm.get('mailResponsable')?.invalid && compagnieForm.get('mailResponsable')?.touched"/>
+                  <small class="p-error" 
+                         *ngIf="compagnieForm.get('mailResponsable')?.invalid && compagnieForm.get('mailResponsable')?.touched">
+                    Email invalide
+                  </small>
+                </div>
+              </div>
+            </div>
+          </p-fieldset>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-content-end gap-2 mt-3 pt-3" style="border-top: 2px solid #dee2e6;">
+      <button
+        pButton
+        label="Annuler"
+        icon="pi pi-times"
+        class="p-button-secondary"
+        type="button"
+        (click)="cancel()">
+      </button>
+      <button
+        pButton
+        label="Enregistrer"
+        icon="pi pi-check"
+        class="p-button-success"
+        type="submit"
+        [disabled]="compagnieForm.invalid">
+      </button>
+    </div>
+  </form>
+</p-dialog>
+
+<p-toast position="top-center"></p-toast>
+<p-confirmDialog></p-confirmDialog>

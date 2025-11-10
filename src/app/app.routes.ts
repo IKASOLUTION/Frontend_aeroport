@@ -25,6 +25,14 @@ export const routes: Routes = [
             { path: 'login', title:'Login', loadComponent: () => import('./modules/login/login.component').then(c => c.LoginComponent) },
             { path: 'module-param', data: { breadcrumb: 'Gestion des modules' }, loadComponent: () => import('./modules/securite/module-param/module-param.component').then(m => m.ModuleParamComponent) },
             { path: 'user', data: { breadcrumb: 'Utilisateurs'}, loadComponent: () => import('./modules/securite/user/user.component').then(m => m.UserComponent) },
+            { path: 'pays', data: { breadcrumb: 'Pays'}, loadComponent: () => import('./modules/pays/pays.component').then(m => m.PaysComponent) },
+            { path: 'ville', data: { breadcrumb: 'Ville'}, loadComponent: () => import('./modules/ville/ville.component').then(m => m.VilleComponent) },
+            { path: 'aeroport', data: { breadcrumb: 'Aeroport'}, loadComponent: () => import('./modules/aeroport/aeroport.component').then(m => m.AeroportComponent) },
+            { path: 'compagnie', data: { breadcrumb: 'Compagnie'}, loadComponent: () => import('./modules/compagnie/compagnie.component').then(m => m.CompagnieComponent) },
+
+
+
+
             
 
         ]

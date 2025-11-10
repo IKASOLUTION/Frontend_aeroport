@@ -45,7 +45,45 @@ export class AppMenuComponent implements OnInit {
                     
                                     
                 ]
-            },       
+            },     
+             {
+                label: 'Infrastructure',
+                icon: 'pi pi-fw pi-user',
+                items: [
+                //    {
+                //         label: 'Gestion des Pays',
+                //         icon: 'pi pi-building',
+                //         routerLink: ['/admin/pays']
+                //     },
+                     {
+                        label: 'Gestion des Villes',
+                        icon: 'pi pi-building',
+                        routerLink: ['/admin/ville']
+                    },
+
+                     {
+                        label: 'Gestion des Aeroports',
+                        icon: 'pi pi-building',
+                        routerLink: ['/admin/aeroport']
+                    },
+
+                      {
+                        label: 'Gestion des Compagnies',
+                        icon: 'pi pi-building',
+                        routerLink: ['/admin/compagnie']
+                    },
+                  
+                     {
+                        label: 'Gestion des Vols',
+                        icon: 'pi pi-send',
+                       
+                    },
+                    
+                                    
+                ]
+            },   
+            
+            
          ];
     }
 }

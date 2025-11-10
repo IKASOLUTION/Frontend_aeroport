@@ -26,6 +26,14 @@ import { Modulereducer } from './store/module-param/reducer';
 import { ModuleParamEffects } from './store/module-param/effect';
 import { MenuActionEffects } from './store/menu/effect';
 import { Menureducer } from './store/menu/reducer';
+import { PaysReducer } from './store/pays/reducer';
+import { PaysEffects } from './store/pays/effect';
+import { VilleReducer } from './store/ville/reducer';
+import { VilleEffects } from './store/ville/effect';
+import { AeroportEffects } from './store/aeroport/effect';
+import { AeroportReducer } from './store/aeroport/reducer';
+import { CompagnieReducer } from './store/compagnie/reducer';
+import { CompagnieEffects } from './store/compagnie/effect';
 
 
 
@@ -44,10 +52,10 @@ export const appConfig: ApplicationConfig = {
     ),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideAnimations(),
-    provideStore({globalState: GlobalConfigreducer, profilState: reducer , userState: UserReducer, menuActionState: Menureducer, moduleParamState: Modulereducer,
+    provideStore({globalState: GlobalConfigreducer, profilState: reducer , userState: UserReducer, villeState: VilleReducer, paysState: PaysReducer, aeroportState: AeroportReducer,compagnieState: CompagnieReducer, menuActionState: Menureducer, moduleParamState: Modulereducer,
     dashboard: dashboardReducer
     }),
-    provideEffects([ProfilEffects, UserEffects, MenuActionEffects, ModuleParamEffects,DashboardEffects]),
+    provideEffects([ProfilEffects, UserEffects, MenuActionEffects, ModuleParamEffects,DashboardEffects, PaysEffects, VilleEffects, AeroportEffects, CompagnieEffects]),
     provideRouter(routes),
     provideStoreDevtools({
       maxAge: 25,

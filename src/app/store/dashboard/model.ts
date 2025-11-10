@@ -5,3 +5,5 @@ export interface HistogrammeTacheDto {
 export interface CamembertTacheDto {
   tachesParStatut: Record<string, number>;
 }
+
+

@@ -10,5 +10,19 @@ export interface Status {
     reset?: boolean;
     params?: any;
   }
+
+export enum StatutAeroport {
+    ACTIF = 'ACTIF',
+    INACTIF = 'INACTIF',
+    MAINTENANCE = 'MAINTENANCE'
+}
+
+export enum Statut {
+
+      ACTIF= 'ACTIF',
+      INACTIF= 'INACTIF',
+      SUSPENDU= 'SUSPENDU',
+       LEVEE= 'LEVEE'
+}
   
   
