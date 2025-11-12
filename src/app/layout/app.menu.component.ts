@@ -30,7 +30,7 @@ export class AppMenuComponent implements OnInit {
            
             {
                 label: 'Administration',
-                icon: 'pi pi-fw pi-user',
+                icon: 'fa-solid fa-users',
                 items: [
                     {
                         label: 'Utilisateurs',
@@ -79,6 +79,29 @@ export class AppMenuComponent implements OnInit {
                        
                     },
                     
+                                    
+                ]
+            },   
+
+
+             {
+                label: 'Sécurité',
+                icon: 'pi pi-fw pi-user',
+                items: [
+               
+
+                     {
+                        label: 'Gestion de la liste Noire',
+                        icon: 'pi pi-building',
+                        routerLink: ['/admin/listeNoire']
+                    },
+
+                      {
+                        label: 'Motifs de Voyage',
+                        icon: 'pi pi-building',
+                        routerLink: ['/admin/motifVoyage']
+                    },
+ 
                                     
                 ]
             },   

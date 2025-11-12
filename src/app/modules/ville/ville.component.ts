@@ -204,23 +204,25 @@ export class VilleComponent implements OnInit, OnDestroy {
         this.villeDialog = true;
     }
 
- update(form: Ville) {
-        this.popupHeader = 'Modifier une Ville';
-        
-        // Retrouver l'objet pays complet
-        this.selectedCountry = form.pays ? 
-            this.countries.find(c => c.name === form.pays) : 
-            null;
-        
-        this.villeFormGroup.patchValue({
-            id: form.id,
-            nom: form.nom
-        });
-        
-        this.ville = { ...form }; // Pour avoir l'objet complet
-        this.villeDialog = true;
-        this.isUpdate = true;
-    }
+update(form: Ville) {
+    this.popupHeader = 'Modifier une Ville';
+    
+    // Retrouver l'objet pays complet
+    this.selectedCountry = form.pays ? 
+        this.countries.find(c => c.name === form.pays) : 
+        null;
+    
+    this.villeFormGroup.patchValue({
+        id: form.id,
+        nom: form.nom
+    });
+    
+    this.ville = { ...form }; // Pour avoir l'objet complet avec l'ID
+    this.villeDialog = true;
+    this.isUpdate = true;
+}
+
+
 
     onSave() {
         const formValue = this.villeFormGroup.value;
@@ -231,6 +233,13 @@ export class VilleComponent implements OnInit, OnDestroy {
             nom: formValue.nom,
             pays: this.ville.pays // Le pays a été mis à jour par findPays()
         };
+
+         if (this.isUpdate && formValue.id) {
+        toSave.id = formValue.id;
+       }
+    
+    console.log("Final object to save:", toSave);
+    console.log("Has ID?", !!toSave.id);
         
         console.log("===============Ville à sauvegarder=====================", toSave);
 

@@ -34,6 +34,10 @@ import { AeroportEffects } from './store/aeroport/effect';
 import { AeroportReducer } from './store/aeroport/reducer';
 import { CompagnieReducer } from './store/compagnie/reducer';
 import { CompagnieEffects } from './store/compagnie/effect';
+import { ListeNoireReducer } from './store/listeNoir/reducer';
+import { ListeNoireEffects } from './store/listeNoir/effect';
+import { MotifVoyageReducer } from './store/motifVoyage/reducer';
+import { MotifVoyageEffects } from './store/motifVoyage/effect';
 
 
 
@@ -52,10 +56,10 @@ export const appConfig: ApplicationConfig = {
     ),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideAnimations(),
-    provideStore({globalState: GlobalConfigreducer, profilState: reducer , userState: UserReducer, villeState: VilleReducer, paysState: PaysReducer, aeroportState: AeroportReducer,compagnieState: CompagnieReducer, menuActionState: Menureducer, moduleParamState: Modulereducer,
+    provideStore({globalState: GlobalConfigreducer, profilState: reducer , userState: UserReducer, villeState: VilleReducer, paysState: PaysReducer, aeroportState: AeroportReducer,compagnieState: CompagnieReducer, menuActionState: Menureducer, motifVoyageState: MotifVoyageReducer, listeNoireState: ListeNoireReducer, moduleParamState: Modulereducer,
     dashboard: dashboardReducer
     }),
-    provideEffects([ProfilEffects, UserEffects, MenuActionEffects, ModuleParamEffects,DashboardEffects, PaysEffects, VilleEffects, AeroportEffects, CompagnieEffects]),
+    provideEffects([ProfilEffects, UserEffects, MenuActionEffects, ModuleParamEffects,DashboardEffects, PaysEffects, VilleEffects, AeroportEffects, CompagnieEffects, ListeNoireEffects, MotifVoyageEffects,]),
     provideRouter(routes),
     provideStoreDevtools({
       maxAge: 25,

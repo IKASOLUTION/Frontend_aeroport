@@ -9,6 +9,9 @@ import { PaysState } from "./pays/state";
 import { VilleState } from "./ville/state";
 import { AeroportState } from "./aeroport/state";
 import { CompagnieState } from "./compagnie/state";
+import { ListeNoireState } from "./listeNoir/state";
+import { M } from "@fullcalendar/core/internal-common";
+import { MotifVoyageState } from "./motifVoyage/state";
 
 
 
@@ -24,5 +27,7 @@ export interface AppState {
   villeState: VilleState;
   aeroportState: AeroportState;
   compagnieState: CompagnieState;
+  listeNoireState: ListeNoireState;
+  motifVoyageState: MotifVoyageState;
 
 }
