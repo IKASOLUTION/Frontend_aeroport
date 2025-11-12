@@ -1,0 +1,380 @@
+<p-toast></p-toast>
+<div class="flex justify-between items-center mb-6">
+  <h3 class="text-3xl font-semibold text-gray-800">Effectuer un Enregistrement</h3>
+</div>
+
+<form (ngSubmit)="submitEnregistrement()" #enregistrementForm="ngForm" novalidate>
+  <p-card styleClass="shadow-lg">
+
+    <!-- Section 1: Document d'Identité -->
+    <p-fieldset legend="Document d'Identité" class="pi pi-id-card text-xl text-green-600 mr-3" styleClass="mb-6">
+      
+
+      <!-- Section de capture photo -->
+      <div class="grid">
+
+        <!-- Capture Document Recto -->
+        <div class="col-12 md:col-4">
+          <label class="text-sm font-medium text-gray-700">Image recto du document <span class="text-red-500">*</span></label>
+          <div class="w-full h-32 bg-gray-200 flex items-center justify-center overflow-hidden border-2 rounded-md" [class]="formData().imageRecto ? 'border-green-500' : 'border-gray-300'">
+            <img *ngIf="formData().imageRecto" [src]="formData().imageRecto" alt="Aperçu document recto" class="w-full h-full object-contain">
+            <i *ngIf="!formData().imageRecto" class="pi pi-id-card text-5xl text-gray-400"></i>
+          </div>
+          <p-button label="Scanner" icon="pi pi-camera" severity="secondary" size="small" (onClick)="demarrerCamera('recto')"></p-button>
+          <small *ngIf="formErrors()['imageRecto']" class="p-error block text-center">{{ formErrors()['imageRecto'] }}</small>
+        </div>
+
+        <!-- Capture Document Verso -->
+        <div class="col-12 md:col-4">
+          <label class="text-sm font-medium text-gray-700">Image verso du document <span class="text-red-500">*</span></label>
+          <div class="w-full h-32 bg-gray-200 flex items-center justify-center overflow-hidden border-2 rounded-md" [class]="formData().imageVerso ? 'border-green-500' : 'border-gray-300'">
+            <img *ngIf="formData().imageVerso" [src]="formData().imageVerso" alt="Aperçu document verso" class="w-full h-full object-contain">
+            <i *ngIf="!formData().imageVerso" class="pi pi-book text-5xl text-gray-400"></i>
+          </div>
+          <p-button label="Scanner" icon="pi pi-camera" severity="secondary" size="small" (onClick)="demarrerCamera('verso')"></p-button>
+          <small *ngIf="formErrors()['imageVerso']" class="p-error block text-center">{{ formErrors()['imageVerso'] }}</small>
+        </div>
+
+        <!-- Capture Photo Profil -->
+        <div class="col-12 md:col-4">
+          <label class="text-sm font-medium text-gray-700">Photo de profil <span class="text-red-500">*</span></label>
+          <div class="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border-2" [class]="formData().photoProfil ? 'border-green-500' : 'border-gray-300'">
+            <img *ngIf="formData().photoProfil" [src]="formData().photoProfil" alt="Aperçu Photo de profil" class="w-full h-full object-cover">
+            <i *ngIf="!formData().photoProfil" class="pi pi-user text-5xl text-gray-400"></i>
+          </div>
+          <p-button label="Prendre" icon="pi pi-camera" severity="secondary" size="small" (onClick)="demarrerCamera('profil')"></p-button>
+          <small *ngIf="formErrors()['photoProfil']" class="p-error block text-center">{{ formErrors()['photoProfil'] }}</small>
+        </div>
+      
+
+      
+        <!-- Type de document -->
+        <div class="col-12 md:col-4">
+          <label for="typeDocument">Type de document <span class="text-red-500">*</span></label>
+          <p-dropdown 
+            id="typeDocument" 
+            name="typeDocument" 
+            [style]="{width:'100%'}"
+            [options]="typesDocument" 
+            [(ngModel)]="formData().typeDocument"
+            placeholder="Sélectionner un type"
+            [class]="formErrors()['typeDocument'] ? 'ng-invalid ng-dirty' : ''">
+          </p-dropdown>
+        </div>
+
+        <!-- Numéro de document -->
+        <div class="col-12 md:col-4">
+          <label for="numeroDocument">Numéro de document <span class="text-red-500">*</span></label>
+          <input pInputText id="numeroDocument" name="numeroDocument" [(ngModel)]="formData().numeroDocument" [class]="formErrors()['numeroDocument'] ? 'ng-invalid ng-dirty' : ''" class="w-full">
+        </div>
+
+        <!-- Numéro NIP -->
+        <div class="col-12 md:col-4">
+          <label for="numeroNip">Numéro NIP (Optionnel)</label>
+          <input pInputText id="numeroNip" name="numeroNip" [(ngModel)]="formData().numeroNip" class="w-full">
+        </div>
+
+        <!-- Date de délivrance -->
+        <div class="col-12 md:col-4">
+          <label for="dateDelivrance">Date de délivrance <span class="text-red-500">*</span></label>
+          <p-calendar id="dateDelivrance"  name="dateDelivrance" [style]="{width:'100%'}" [(ngModel)]="formData().dateDelivrance" dateFormat="dd/mm/yy" [showIcon]="true" [class]="formErrors()['dateDelivrance'] ? 'ng-invalid ng-dirty' : ''" class="w-full"></p-calendar>
+        </div>
+
+        <!-- Lieu de délivrance -->
+        <div class="col-12 md:col-4">
+          <label for="lieuDelivrance">Lieu de délivrance <span class="text-red-500">*</span></label>
+          <input pInputText id="lieuDelivrance" name="lieuDelivrance" [(ngModel)]="formData().lieuDelivrance" [class]="formErrors()['lieuDelivrance'] ? 'ng-invalid ng-dirty' : ''" class="w-full">
+        </div>
+      </div>
+    </p-fieldset>
+
+    <!-- Section 2: Informations Personnelles -->
+    <p-fieldset legend="Informations Personnelles" styleClass="mb-6">
+      <div class="grid">
+        <!-- Prénom -->
+        <div class="col-12 md:col-4">
+          <label for="prenom">Prénom <span class="text-red-500">*</span></label>
+          <input pInputText id="prenom" name="prenom" [(ngModel)]="formData().prenom" [class]="formErrors()['prenom'] ? 'ng-invalid ng-dirty' : ''" class="w-full">
+        </div>
+
+        <!-- Nom de famille -->
+        <div class="col-12 md:col-4">
+          <label for="nomFamille">Nom de famille <span class="text-red-500">*</span></label>
+          <input pInputText id="nomFamille" name="nomFamille" [(ngModel)]="formData().nomFamille" [class]="formErrors()['nomFamille'] ? 'ng-invalid ng-dirty' : ''" class="w-full">
+        </div>
+
+        <!-- Date de naissance -->
+        <div class="col-12 md:col-4">
+          <label for="dateNaissance">Date de naissance <span class="text-red-500">*</span></label>
+          <p-calendar id="dateNaissance" [style]="{width:'100%'}" name="dateNaissance" [(ngModel)]="formData().dateNaissance" dateFormat="dd/mm/yy" [showIcon]="true" [class]="formErrors()['dateNaissance'] ? 'ng-invalid ng-dirty' : ''" class="w-full"></p-calendar>
+        </div>
+
+        <!-- Lieu de naissance -->
+        <div class="col-12 md:col-4">
+          <label for="lieuNaissance">Lieu de naissance <span class="text-red-500">*</span></label>
+          <input pInputText id="lieuNaissance" name="lieuNaissance" [(ngModel)]="formData().lieuNaissance" [class]="formErrors()['lieuNaissance'] ? 'ng-invalid ng-dirty' : ''" class="w-full">
+        </div>
+
+        <!-- Nationalité -->
+        <div class="col-12 md:col-4">
+          <label for="nationalite">Nationalité <span class="text-red-500">*</span></label>
+          <input pInputText id="nationalite" name="nationalite" [(ngModel)]="formData().nationalite" [class]="formErrors()['nationalite'] ? 'ng-invalid ng-dirty' : ''" class="w-full">
+        </div>
+
+        <!-- Profession -->
+        <div class="col-12 md:col-4">
+          <label for="profession">Profession <span class="text-red-500">*</span></label>
+          <input pInputText id="profession" name="profession" [(ngModel)]="formData().profession" [class]="formErrors()['profession'] ? 'ng-invalid ng-dirty' : ''" class="w-full">
+        </div>
+      </div>
+    </p-fieldset>
+
+    <!-- Section 3: Coordonnées -->
+    <p-fieldset legend="Coordonnées" styleClass="mb-6">
+      <div class="grid">
+        <!-- Pays de résidence -->
+        <div class="col-12 md:col-4">
+          <label for="paysResidence">Pays de résidence <span class="text-red-500">*</span></label>
+          <input pInputText id="paysResidence" name="paysResidence" [(ngModel)]="formData().paysResidence" [class]="formErrors()['paysResidence'] ? 'ng-invalid ng-dirty' : ''" class="w-full">
+        </div>
+
+        <!-- Email -->
+        <div class="col-12 md:col-4">
+          <label for="emailContact">Email (Optionnel)</label>
+          <input pInputText type="email" id="emailContact" name="emailContact" [(ngModel)]="formData().emailContact" [class]="formErrors()['emailContact'] ? 'ng-invalid ng-dirty' : ''" class="w-full">
+        </div>
+
+        <!-- Téléphone Burkina -->
+        <div class="col-12 md:col-4">
+          <label for="telephoneBurkina">Téléphone Burkina (Optionnel)</label>
+          <p-inputMask id="telephoneBurkina" name="telephoneBurkina" [(ngModel)]="formData().telephoneBurkina" mask="+226 99999999" placeholder="+226 XXXXXXXX" [class]="formErrors()['telephoneBurkina'] ? 'ng-invalid ng-dirty' : ''" styleClass="w-full"></p-inputMask>
+        </div>
+
+        <!-- Téléphone Étranger -->
+        <div class="col-12 md:col-4">
+          <label for="telephoneEtranger">Téléphone Étranger (Optionnel)</label>
+          <input pInputText type="tel" id="telephoneEtranger" name="telephoneEtranger" [(ngModel)]="formData().telephoneEtranger" class="w-full">
+        </div>
+
+        <!-- Adresse Burkina -->
+        <div class="col-12 md:col-4">
+          <label for="adresseBurkina">Adresse au Burkina <span class="text-red-500">*</span></label>
+          <textarea pInputTextarea id="adresseBurkina" name="adresseBurkina" [(ngModel)]="formData().adresseBurkina" rows="2" [class]="formErrors()['adresseBurkina'] ? 'ng-invalid ng-dirty' : ''" class="w-full"></textarea>
+        </div>
+
+        <!-- Adresse Étranger -->
+        <div class="col-12 md:col-4">
+          <label for="adresseEtranger">Adresse à l'étranger <span class="text-red-500">*</span></label>
+          <textarea pInputTextarea id="adresseEtranger" name="adresseEtranger" [(ngModel)]="formData().adresseEtranger" rows="2" [class]="formErrors()['adresseEtranger'] ? 'ng-invalid ng-dirty' : ''" class="w-full"></textarea>
+        </div>
+      </div>
+    </p-fieldset>
+
+    <!-- Section 4: Informations de Voyage -->
+    <p-fieldset legend="Informations de Voyage">
+      <div class="grid">
+        <!-- Vol ID -->
+        <div class="col-12 md:col-4">
+          <label for="vol_id">Vol <span class="text-red-500">*</span></label>
+          <p-dropdown id="vol_id" name="vol_id" [options]="vols()" [(ngModel)]="formData().vol_id" optionLabel="numero_vol" optionValue="id" placeholder="Sélectionner un vol" (onChange)="onVolSelectionChange($event.value)" [class]="formErrors()['vol_id'] ? 'ng-invalid ng-dirty' : ''" styleClass="w-full">
+            <ng-template pTemplate="selectedItem">
+              {{ selectedVolInfo()?.numero_vol }} ({{ selectedVolInfo()?.villeDepart }} → {{ selectedVolInfo()?.ville_arrivee }})
+            </ng-template>
+            <ng-template let-vol pTemplate="item">
+              {{ vol.numero_vol }} ({{ vol.villeDepart }} → {{ vol.ville_arrivee }})
+            </ng-template>
+          </p-dropdown>
+        </div>
+
+        <!-- Motif de voyage -->
+        <div class="col-12 md:col-4">
+          <label for="motifVoyage">Motif du voyage <span class="text-red-500">*</span></label>
+          <p-dropdown id="motifVoyage" name="motifVoyage" [options]="motifs()" [(ngModel)]="formData().motifVoyage" optionLabel="libelle" optionValue="libelle" placeholder="Sélectionner un motif" [class]="formErrors()['motifVoyage'] ? 'ng-invalid ng-dirty' : ''" styleClass="w-full"></p-dropdown>
+        </div>
+
+        <!-- État du voyage -->
+        <div class="col-12 md:col-4">
+          <label for="etatVoyage">État du voyage <span class="text-red-500">*</span></label>
+          <p-dropdown id="etatVoyage" name="etatVoyage" [options]="etatsVoyage" [(ngModel)]="formData().etatVoyage" placeholder="Sélectionner un état" styleClass="w-full"></p-dropdown>
+        </div>
+
+        <!-- Durée du séjour -->
+        <div class="col-12 md:col-4">
+          <label for="dureeSejour">Durée du séjour (jours) <span class="text-red-500">*</span></label>
+          <p-inputNumber id="dureeSejour" name="dureeSejour" [(ngModel)]="formData().dureeSejour" [min]="1" [showButtons]="true" [class]="formErrors()['dureeSejour'] ? 'ng-invalid ng-dirty' : ''" styleClass="w-full"></p-inputNumber>
+        </div>
+      </div>
+    </p-fieldset>
+
+    <!-- Boutons -->
+    <div class="flex justify-end gap-3 pt-6 border-t mt-6">
+      <p-button label="Réinitialiser" icon="pi pi-refresh" severity="secondary" (onClick)="resetForm()"></p-button>
+      <p-button type="submit" label="Soumettre l'Enregistrement" icon="pi pi-send" [loading]="isSaving()" loadingIcon="pi pi-spin pi-spinner"></p-button>
+    </div>
+
+  </p-card>
+</form>
+
+
+<!-- Modale de Capture Biométrique -->
+<p-dialog 
+  [visible]="isCaptureBiometriqueModalOpen()" 
+  (onHide)="isCaptureBiometriqueModalOpen.set(false)"
+  [modal]="true" 
+  [closable]="true"
+  [style]="{width: '50rem'}"
+  [breakpoints]="{'960px': '75vw', '640px': '90vw'}"
+  header="Capturer les Données Biométriques">
+  
+  @if (passagerPourBiometrie(); as passager) {
+    
+    <p class="text-gray-600 mb-4">Pour : <span class="font-semibold">{{ passager.nom_complet }}</span> ({{passager.numeroDocument}})</p>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <!-- Main Gauche -->
+      <div class="p-3 border rounded-lg flex items-center justify-between bg-gray-50">
+        <div class="flex items-center">
+          <i class="pi pi-fingerprint text-3xl text-cyan-500 mr-3"></i>
+          <div>
+            <p class="font-semibold text-gray-700">4 doigts main gauche</p>
+            <p class="text-xs" [class]="empreinteGaucheCapturee() ? 'text-green-600' : 'text-gray-500'">
+              {{ empreinteGaucheCapturee() ? 'Capturé' : 'Prêt pour la capture' }}
+            </p>
+          </div>
+        </div>
+        <p-button 
+          [label]="empreinteGaucheCapturee() ? 'Recapturer' : 'Capturer'"
+          severity="info"
+          size="small"
+          (onClick)="empreinteGaucheCapturee.set(true)">
+        </p-button>
+      </div>
+
+      <!-- Main Droite -->
+      <div class="p-3 border rounded-lg flex items-center justify-between bg-gray-50">
+        <div class="flex items-center">
+          <i class="pi pi-fingerprint text-3xl text-cyan-500 mr-3"></i>
+          <div>
+            <p class="font-semibold text-gray-700">4 doigts main droite</p>
+            <p class="text-xs" [class]="empreinteDroiteCapturee() ? 'text-green-600' : 'text-gray-500'">
+              {{ empreinteDroiteCapturee() ? 'Capturé' : 'Prêt pour la capture' }}
+            </p>
+          </div>
+        </div>
+        <p-button 
+          [label]="empreinteDroiteCapturee() ? 'Recapturer' : 'Capturer'"
+          severity="info"
+          size="small"
+          (onClick)="empreinteDroiteCapturee.set(true)">
+        </p-button>
+      </div>
+
+      <!-- Pouces -->
+      <div class="p-3 border rounded-lg flex items-center justify-between bg-gray-50">
+        <div class="flex items-center">
+          <i class="pi pi-thumbs-up text-3xl text-purple-500 mr-3"></i>
+          <div>
+            <p class="font-semibold text-gray-700">Les deux pouces</p>
+            <p class="text-xs" [class]="empreintePoucesCapturee() ? 'text-green-600' : 'text-gray-500'">
+              {{ empreintePoucesCapturee() ? 'Capturé' : 'Prêt pour la capture' }}
+            </p>
+          </div>
+        </div>
+        <p-button 
+          [label]="empreintePoucesCapturee() ? 'Recapturer' : 'Capturer'"
+          severity="help"
+          size="small"
+          (onClick)="empreintePoucesCapturee.set(true)">
+        </p-button>
+      </div>
+
+      <!-- Photo -->
+      <div class="p-3 border rounded-lg flex items-center justify-between bg-gray-50">
+        <div class="flex items-center">
+          @if (capturedPhotoPourBiometrie(); as photo) {
+            <img [src]="photo" alt="Aperçu" class="w-12 h-12 rounded-full object-cover mr-3 border-2 border-green-500">
+          } @else {
+            <i class="pi pi-camera text-3xl text-green-500 mr-3"></i>
+          }
+          <div>
+            <p class="font-semibold text-gray-700">Photo d'identité</p>
+            @if (capturedPhotoPourBiometrie()) {
+              <p class="text-xs text-green-600">Photo capturée</p>
+            } @else {
+              <p class="text-xs text-gray-500">Prêt pour la capture</p>
+            }
+          </div>
+        </div>
+        <p-button 
+          [label]="capturedPhotoPourBiometrie() ? 'Reprendre' : 'Prendre'"
+          severity="success"
+          size="small"
+          (onClick)="demarrerCamera('biometrique')">
+        </p-button>
+      </div>
+    </div>
+
+    <div class="flex justify-content-end">
+      <p-button 
+        label="Annuler" 
+        class="mr-2"
+        severity="secondary"
+        (onClick)="closeBiometricModal()">
+      </p-button>
+      <p-button 
+        label="Sauvegarder et Valider" 
+        icon="pi pi-save"
+        [loading]="isSaving()"
+        (onClick)="validerAvecBiometrie()">
+      </p-button>
+    </div>
+  }
+</p-dialog>
+
+<!-- Modale de capture Webcam -->
+<p-dialog 
+[visible]="isCameraModalOpen()" 
+  (onHide)="isCameraModalOpen.set(false)"
+  [modal]="true" 
+  [closable]="true"
+  [style]="{width: '50rem'}"
+  [breakpoints]="{'960px': '75vw', '640px': '90vw'}"
+  header="Capture Photo">
+  
+  <div class="relative w-full aspect-[4/3] bg-gray-900 rounded-md overflow-hidden">
+    @if (!capturedPhotoBase64()) {
+      <video #videoElement playsinline autoplay class="w-full h-full object-cover"></video>
+    } @else {
+      <img [src]="capturedPhotoBase64()" alt="Aperçu de la capture" class="w-full h-full object-contain">
+    }
+    <canvas #canvasElement class="hidden"></canvas>
+  </div>
+
+  <ng-template pTemplate="footer">
+    @if (!capturedPhotoBase64()) {
+      <p-button 
+        label="Capturer" 
+        icon="pi pi-camera"
+        severity="success"
+        (onClick)="capturerPhoto()">
+      </p-button>
+    } @else {
+      <p-button 
+        label="Reprendre" 
+        icon="pi pi-refresh"
+        severity="secondary"
+        (onClick)="reprendrePhoto()">
+      </p-button>
+      <p-button 
+        label="Confirmer" 
+        icon="pi pi-check"
+        severity="success"
+        (onClick)="confirmerPhoto()">
+      </p-button>
+    }
+  </ng-template>
+</p-dialog>
+
+<app-loading-spinner></app-loading-spinner>
+
+<p-confirmDialog header="Confirmation" icon="pi pi-exclamation-triangle"></p-confirmDialog>

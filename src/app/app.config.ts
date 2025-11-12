@@ -20,12 +20,15 @@ import { GlobalConfigreducer } from './store/global-config/reducer';
 
 
 
-import { dashboardReducer } from './store/dashboard/reducer';
-import { DashboardEffects } from './store/dashboard/effect';
+
 import { Modulereducer } from './store/module-param/reducer';
 import { ModuleParamEffects } from './store/module-param/effect';
 import { MenuActionEffects } from './store/menu/effect';
 import { Menureducer } from './store/menu/reducer';
+import { Enregistrementreducer } from './store/enregistrement/reducer';
+import { EnregistrementEffects } from './store/enregistrement/effect';
+import { DonneeBiometriqueEffects } from './store/biometric/effect';
+import { biometricReducer } from './store/biometric/reducer';
 import { PaysReducer } from './store/pays/reducer';
 import { PaysEffects } from './store/pays/effect';
 import { VilleReducer } from './store/ville/reducer';
@@ -56,10 +59,17 @@ export const appConfig: ApplicationConfig = {
     ),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideAnimations(),
+<<<<<<< HEAD
     provideStore({globalState: GlobalConfigreducer, profilState: reducer , userState: UserReducer, villeState: VilleReducer, paysState: PaysReducer, aeroportState: AeroportReducer,compagnieState: CompagnieReducer, menuActionState: Menureducer, motifVoyageState: MotifVoyageReducer, listeNoireState: ListeNoireReducer, moduleParamState: Modulereducer,
     dashboard: dashboardReducer
     }),
     provideEffects([ProfilEffects, UserEffects, MenuActionEffects, ModuleParamEffects,DashboardEffects, PaysEffects, VilleEffects, AeroportEffects, CompagnieEffects, ListeNoireEffects, MotifVoyageEffects,]),
+=======
+    provideStore({globalState: GlobalConfigreducer, profilState: reducer , userState: UserReducer, menuActionState: Menureducer, moduleParamState: Modulereducer, villeState: VilleReducer, paysState: PaysReducer, aeroportState: AeroportReducer,compagnieState: CompagnieReducer,
+    enregistrementState: Enregistrementreducer, donneeBiometriqueState: biometricReducer
+    }),
+    provideEffects([ProfilEffects, UserEffects, MenuActionEffects, ModuleParamEffects, EnregistrementEffects,DonneeBiometriqueEffects, PaysEffects, VilleEffects, AeroportEffects, CompagnieEffects]),
+>>>>>>> 88ad0c88c506ebcf686a3c800134dff77773f93d
     provideRouter(routes),
     provideStoreDevtools({
       maxAge: 25,

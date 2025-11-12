@@ -4,6 +4,8 @@ import { ModuleParamState } from "./module-param/state";
 import { ProfilState } from "./profil/state";
 import { UserState } from "./user/state";
 
+import { EnregistrementState } from "./enregistrement/state";
+import { DonneeBiometriqueState } from "./biometric/state";
 import { DashboardState } from "./dashboard/state";
 import { PaysState } from "./pays/state";
 import { VilleState } from "./ville/state";
@@ -22,6 +24,8 @@ export interface AppState {
   userState: UserState;
   menuActionState: MenuActionState;
   moduleParamState: ModuleParamState;
+  enregistrementState: EnregistrementState;
+  donneeBiometriqueState: DonneeBiometriqueState;
   dashboardState: DashboardState;
   paysState: PaysState;
   villeState: VilleState;

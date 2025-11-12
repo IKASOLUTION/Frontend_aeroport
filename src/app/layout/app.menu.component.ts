@@ -19,15 +19,15 @@ export class AppMenuComponent implements OnInit {
             {
                 items: [
                     {
-                label: 'Dashboard',
+                        label: 'Dashboard',
                         icon: 'pi pi-fw pi-home',
                         routerLink: ['/admin/dashboard']
                     }
                 ]
             },
 
-            
-           
+
+
             {
                 label: 'Administration',
                 icon: 'fa-solid fa-users',
@@ -42,11 +42,33 @@ export class AppMenuComponent implements OnInit {
                         icon: 'pi pi-fw pi-user',
                         routerLink: ['/admin/module-param']
                     },
-                    
-                                    
+
+
                 ]
-            },     
-             {
+            },
+            {
+                label: 'Passagers',
+                icon: 'pi  pi-fw pi-plane',
+                items: [
+                    {
+                        label: 'Enregistrement',
+                        icon: 'pi pi-fw pi-id-card',
+                        routerLink: ['/admin/gestion-enregistrements']
+                    },
+                    {
+                        label: 'Motifs de Voyage',
+                        icon: 'pi pi-building',
+                        routerLink: ['/admin/motifVoyage']
+                    },
+ 
+                ]
+
+            },
+
+            
+
+
+            {
                 label: 'Infrastructure',
                 icon: 'pi pi-fw pi-user',
                 items: [
@@ -96,17 +118,13 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/admin/listeNoire']
                     },
 
-                      {
-                        label: 'Motifs de Voyage',
-                        icon: 'pi pi-building',
-                        routerLink: ['/admin/motifVoyage']
-                    },
- 
+                      
                                     
                 ]
             },   
             
             
-         ];
+         ]; 
+
     }
 }
