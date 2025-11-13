@@ -39,6 +39,10 @@ import { CompagnieReducer } from './store/compagnie/reducer';
 import { CompagnieEffects } from './store/compagnie/effect';
 import { VolReducer } from './store/vol/reducer';
 import { VolEffects } from './store/vol/effect';
+import { MotifVoyageEffects } from './store/motifVoyage/effect';
+import { ListeNoireEffects } from './store/listeNoir/effect';
+import { ListeNoireReducer } from './store/listeNoir/reducer';
+import { MotifVoyageReducer } from './store/motifVoyage/reducer';
 
 
 
@@ -61,8 +65,10 @@ export const appConfig: ApplicationConfig = {
     enregistrementState: Enregistrementreducer, donneeBiometriqueState: biometricReducer, volState: VolReducer
     }),
     provideEffects([ProfilEffects, UserEffects, MenuActionEffects, ModuleParamEffects, EnregistrementEffects,DonneeBiometriqueEffects,
-       PaysEffects, VilleEffects, AeroportEffects, CompagnieEffects, VolEffects]),
-    provideRouter(routes),
+       PaysEffects, VilleEffects, AeroportEffects, CompagnieEffects, VolEffects, ListeNoireEffects, MotifVoyageEffects]),
+
+
+   provideRouter(routes),
     provideStoreDevtools({
       maxAge: 25,
       logOnly: false

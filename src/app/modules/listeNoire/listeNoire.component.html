@@ -1,0 +1,222 @@
+<div class="grid">
+    <h3 class="text-3xl font-semibold text-gray-800">Gestion de la Liste Noire</h3>
+  <div class="col-12 md:col-12">
+   <p-table #dt
+                 styleClass="p-datatable-gridlines p-datatable-sm p-datatable"
+                 [value]="listeNoires"
+                 [columns]="cols"
+                 [rows]="5"
+                 [paginator]="true"
+                 [rowsPerPageOptions]="[5, 10, 20, 30]"
+                 [showCurrentPageReport]="true"
+                 [globalFilterFields]="['nom', 'prenom', 'lieuNaissance', 'motif', 'numeroCnib', 'numeroNip', 'statut']"
+                 currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+                 [(selection)]="selectedListeNoire"
+                 selectionMode="single"
+                 [rowHover]="true"
+                 dataKey="id"
+                 [loading]="loading">
+
+            <!-- Barre d'action et recherche -->
+            <ng-template pTemplate="caption">
+                <div class="flex justify-content-between flex-column sm:flex-row">
+                    <div>
+                        <button pButton 
+                                label="Nouvelle personne" 
+                                class="p-button-success mr-2 mb-2" 
+                                icon="pi pi-plus"
+                                (click)="openNew()">
+                        </button>
+                    </div>
+
+                    <span class="p-input-icon-left mb-2">
+                        <i class="pi pi-search"></i>
+                        <input pInputText 
+                               type="text"
+                               #filter
+                               (input)="onGlobalFilter(dt, $event)"
+                               placeholder="Rechercher..."
+                               class="w-full"/>
+                    </span>
+                </div>
+            </ng-template>
+
+            <!-- En-têtes du tableau -->
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="font-weight: bold;">Nom
+                        <p-columnFilter type="text" display="menu" field="nom"></p-columnFilter>
+                    </th>
+                    <th style="font-weight: bold;">Prénom
+                        <p-columnFilter type="text" display="menu" field="prenom"></p-columnFilter>
+                    </th>
+                    <th style="font-weight: bold;">Date de naissance
+                        <p-columnFilter type="date" display="menu" field="dateNaissance"></p-columnFilter>
+                    </th>
+                    <th style="font-weight: bold;">Lieu de naissance
+                        <p-columnFilter type="text" display="menu" field="lieuNaissance"></p-columnFilter>
+                    </th>
+                    <th style="font-weight: bold;">Motif
+                        <p-columnFilter type="text" display="menu" field="motif"></p-columnFilter>
+                    </th>
+                    <th style="font-weight: bold;">N° NIP
+                        <p-columnFilter type="text" display="menu" field="numeroNip"></p-columnFilter>
+                    </th>
+                    <th style="font-weight: bold;">N° CNIB
+                        <p-columnFilter type="text" display="menu" field="numeroCnib"></p-columnFilter>
+                    </th>
+                    <th style="font-weight: bold;">Statut
+                        <p-columnFilter type="text" display="menu" field="statut"></p-columnFilter>
+                    </th>
+                    <th style="font-weight: bold;" class="text-center">Actions</th>
+                </tr>
+            </ng-template>
+
+            <!-- Corps du tableau -->
+            <ng-template pTemplate="body" let-item>
+                <tr [pSelectableRow]="item">
+                    <td class="table-separator">{{item.nom}}</td>
+                    <td class="table-separator">{{item.prenom}}</td>
+                    <td class="table-separator">{{item.dateNaissance | date:'dd/MM/yyyy'}}</td>
+                    <td class="table-separator">{{item.lieuNaissance}}</td>
+                    <td class="table-separator">{{item.motif}}</td>
+                    <td class="table-separator">{{item.numeroNip || 'N/A'}}</td>
+                    <td class="table-separator">{{item.numeroCnib || 'N/A'}}</td>
+                    <td class="table-separator">
+                        <span [class]="'badge ' + (item.statut === 'ACTIF' ? 'badge-success' : 'badge-warning')">
+                            {{item.statut}}
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <button pButton 
+                                icon="pi pi-pencil"
+                                class="p-button-rounded p-button-info mr-2"
+                                pTooltip="Modifier" 
+                                tooltipPosition="top"
+                                (click)="update(item)">
+                        </button>
+
+                        <button pButton 
+                                [icon]="item.statut === 'ACTIF' ? 'pi pi-ban' : 'pi pi-check-circle'" 
+                                [class]="'p-button-rounded mr-2 ' + (item.statut === 'ACTIF' ? 'p-button-warning' : 'p-button-success')"
+                                [pTooltip]="item.statut === 'ACTIF' ? 'Lever la mesure' : 'Réactiver'"
+                                tooltipPosition="top"
+                                (click)="confirmChangeStatusListeNoire(item)">
+                        </button>
+
+                        <button pButton 
+                                icon="pi pi-trash"
+                                class="p-button-rounded p-button-danger"
+                                pTooltip="Supprimer"
+                                tooltipPosition="top"
+                                (click)="confirmDelete(item)">
+                        </button>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <!-- Message si vide -->
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="9" style="text-align: center; font-size: 1.2em; color: red; font-weight: bold;">
+                        <span class="text-danger">Aucune personne trouvée dans la liste noire.</span>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+  </div>
+</div>
+
+<!-- FORMULAIRE MODAL -->
+<p-dialog [(visible)]="listeNoireDialog"
+          [modal]="true"
+          [closable]="false"
+          [style]="{ width: '90vw', maxWidth: '900px', maxHeight: '95vh' }"
+          [header]="popupHeader"
+          [contentStyle]="{ 'overflow': 'auto', 'padding': '1.5rem' }">
+
+  <form [formGroup]="listeNoireFormGroup" (ngSubmit)="onSave()">
+    <div class="p-fluid grid">
+      <!-- Colonne gauche -->
+      <div class="col-12 md:col-6">
+        <p-fieldset legend="Informations personnelles">
+          <div class="field">
+            <label>Nom <span style="color:red">*</span></label>
+            <input pInputText formControlName="nom" placeholder="Nom complet"/>
+            <small class="p-error" *ngIf="listeNoireFormGroup.get('nom')?.invalid && listeNoireFormGroup.get('nom')?.touched">
+              Le nom est requis
+            </small>
+          </div>
+
+          <div class="field">
+            <label>Prénom <span style="color:red">*</span></label>
+            <input pInputText formControlName="prenom" placeholder="Prénom"/>
+            <small class="p-error" *ngIf="listeNoireFormGroup.get('prenom')?.invalid && listeNoireFormGroup.get('prenom')?.touched">
+              Le prénom est requis
+            </small>
+          </div>
+
+          <div class="field">
+            <label>Date de naissance <span style="color:red">*</span></label>
+            <input type="date" pInputText formControlName="dateNaissance"/>
+          </div>
+
+          <div class="field">
+            <label>Lieu de naissance <span style="color:red">*</span></label>
+            <input pInputText formControlName="lieuNaissance" placeholder="Ex: Ouagadougou"/>
+          </div>
+
+          <div class="field">
+            <label>Motif <span style="color:red">*</span></label>
+            <textarea pInputTextarea formControlName="motif" rows="2" placeholder="Raison d'inscription..."></textarea>
+          </div>
+        </p-fieldset>
+      </div>
+
+      <!-- Colonne droite -->
+      <div class="col-12 md:col-6">
+        <p-fieldset legend="Informations complémentaires">
+          <div class="field">
+            <label>Numéro NIP</label>
+            <input pInputText formControlName="numeroNip" placeholder="Ex: 00123456"/>
+          </div>
+
+          <div class="field">
+            <label>Numéro CNIB</label>
+            <input pInputText formControlName="numeroCnib" placeholder="Ex: B12345678"/>
+          </div>
+
+          <div class="field">
+            <label>Statut</label>
+            <p-dropdown [options]="[
+                {label:'Actif', value:'ACTIF'},
+                {label:'Levée', value:'LEVEE'}
+              ]"
+              formControlName="statut"
+              placeholder="Sélectionnez un statut">
+            </p-dropdown>
+          </div>
+
+          <div class="field">
+            <label>Photo (URL)</label>
+            <input pInputText formControlName="photo" placeholder="URL de la photo"/>
+          </div>
+        </p-fieldset>
+      </div>
+    </div>
+
+    <!-- Boutons d’action -->
+    <div class="flex justify-content-end gap-2 mt-3 pt-3" style="border-top: 2px solid #dee2e6;">
+      <button pButton label="Annuler" icon="pi pi-times"
+              class="p-button-secondary" type="button" (click)="cancel()">
+      </button>
+      <button pButton label="Enregistrer" icon="pi pi-check"
+              class="p-button-success" type="submit"
+              [disabled]="listeNoireFormGroup.invalid">
+      </button>
+    </div>
+  </form>
+</p-dialog>
+
+<p-toast position="top-center"></p-toast>
+<p-confirmDialog></p-confirmDialog>
