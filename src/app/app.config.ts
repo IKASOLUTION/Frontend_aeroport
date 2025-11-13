@@ -37,6 +37,8 @@ import { AeroportEffects } from './store/aeroport/effect';
 import { AeroportReducer } from './store/aeroport/reducer';
 import { CompagnieReducer } from './store/compagnie/reducer';
 import { CompagnieEffects } from './store/compagnie/effect';
+import { VolReducer } from './store/vol/reducer';
+import { VolEffects } from './store/vol/effect';
 
 
 
@@ -56,9 +58,10 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideAnimations(),
     provideStore({globalState: GlobalConfigreducer, profilState: reducer , userState: UserReducer, menuActionState: Menureducer, moduleParamState: Modulereducer, villeState: VilleReducer, paysState: PaysReducer, aeroportState: AeroportReducer,compagnieState: CompagnieReducer,
-    enregistrementState: Enregistrementreducer, donneeBiometriqueState: biometricReducer
+    enregistrementState: Enregistrementreducer, donneeBiometriqueState: biometricReducer, volState: VolReducer
     }),
-    provideEffects([ProfilEffects, UserEffects, MenuActionEffects, ModuleParamEffects, EnregistrementEffects,DonneeBiometriqueEffects, PaysEffects, VilleEffects, AeroportEffects, CompagnieEffects]),
+    provideEffects([ProfilEffects, UserEffects, MenuActionEffects, ModuleParamEffects, EnregistrementEffects,DonneeBiometriqueEffects,
+       PaysEffects, VilleEffects, AeroportEffects, CompagnieEffects, VolEffects]),
     provideRouter(routes),
     provideStoreDevtools({
       maxAge: 25,

@@ -39,6 +39,9 @@ import * as globalSelector from '../../../store/global-config/selector';
 import * as menuAction from '../../../store/menu/action';
 import * as menuSelector from '../../../store/menu/selector';
 import { LoadingSpinnerComponent } from '../../loading-spinner.component';
+import * as aeroportAction from '../../../store/aeroport/action';
+import * as aeroportSelector from '../../../store/aeroport/selector';
+import { Aeroport } from 'src/app/store/aeroport/model';
 
 @Component({
     selector: 'app-user',
@@ -144,6 +147,8 @@ export class UserComponent implements OnInit, OnDestroy {
     tes: boolean =true;
     op: boolean = false; 
     op2: boolean = false;
+    aeroportList$!: Observable<Array<Aeroport>>;
+    aeroports: Aeroport[] = [];
 
 
 
@@ -172,6 +177,16 @@ export class UserComponent implements OnInit, OnDestroy {
                    }
        });
 
+        this.aeroportList$ = this.store.pipe(select(aeroportSelector.aeroportList));
+               this.store.dispatch(aeroportAction.loadAeroport());
+               
+               this.aeroportList$.pipe(takeUntil(this.destroy$))
+                   .subscribe(value => {
+                       if (value) {
+                           this.aeroports = [...value];
+                           console.log('=== Aéroports assignés ===', this.aeroports);
+                       }
+                   });
        
        
        this.store.pipe(
@@ -476,9 +491,9 @@ export class UserComponent implements OnInit, OnDestroy {
 
     renitialise() {
 
-      /*  this.accountService.reunitialise(this.emailUser, this.newPassword).subscribe((res)=>{
+        this.accountService.reinitialize(this.emailUser, this.newPassword).subscribe((res)=>{
 
-       }); */
+       }); 
        this.emailUser = "";
        this.newPassword = "";
         this.visible = false;

@@ -21,7 +21,7 @@ $getEnregistrements(): Observable<Enregistrement[]> {
 
 createEnregistrement(enregistrement: Enregistrement): Observable<any> {
   const formData = this.convertToFormData(enregistrement);
-    
+    console.log('FormData pour enregistrement:', formData);
   return this.http.post(`${GlobalConfig.getEndpoint(Endpoints.ENREIGISTREMENT)}`, formData);
 }
 

@@ -31,29 +31,7 @@
             <ng-template pTemplate="header">
                 <tr>
 
-                    <!--<th style="font-weight: bold;">Filiale
-                        <p-columnFilter field="agence.filiale.nom" type="text" display="menu" >
-                             <ng-template pTemplate="header">
-                                <div class="px-3 pt-3 pb-0">
-                                    <span class="font-bold">Filiales </span>
-                                </div>
-                            </ng-template>
-
-                            <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                                <p-multiSelect [ngModel]="value" [options]="filiales" placeholder="Any" (onChange)="filter($event.value)" optionLabel="nom">
-                                    <ng-template let-option pTemplate="item">
-                                        <div class="p-multiselect-representative-option">
-                                            <span class="ml-2">{{option.nom}}</span>
-                                        </div>
-                                    </ng-template>
-                                </p-multiSelect>
-                            </ng-template>
-                        </p-columnFilter>
-                    </th> -->
-                   <!--  <th style="font-weight: bold;">Agence
-                        <p-columnFilter type="text" display="menu" field="agence.libelle"></p-columnFilter>
-
-                    </th> -->
+                  
                     <th style="font-weight: bold;" >Profil
                         <p-columnFilter type="text" display="menu" field="profil.libelle"></p-columnFilter>
 
@@ -139,6 +117,14 @@
 
                             </p-dropdown>
                         </div>
+                         <div class="col-6">
+                            <label  class="w-full">Aeroport <span style="color: red !important; size: 1.4em;"   class="required"></span></label>
+                            <p-dropdown [options]="aeroports"   name="aeroport"  [(ngModel)]="user.aeroport" [showClear]="true" [ngModelOptions]="{standalone: true}" [filter]="true" [style]="{width:'100%'}"  filterBy="nomAeroport" placeholder="Selectionnez aéroport"
+                                        optionLabel="nomAeroport" appendTo="body" class="multiselect-custom" display="chip">
+
+                            </p-dropdown>
+                        </div>
+
 
                         <div class="col-6">
                             <label  class="w-full">Nom <span style="color: red !important; size: 1.4em;"   class="required">*</span></label>
@@ -173,10 +159,10 @@
             <p-dialog position="top" header="Réunitialiser le mot de passe" [modal]="true" [(visible)]="visible" [style]="{ width: '35rem' }">
                 <br/>
                 <div>
-                <div class="flex align-items-center gap-3 mb-3">
+                <!-- <div class="flex align-items-center gap-3 mb-3">
                     <label for="username" class="font-semibold w-6rem">Ancien mot de passe</label>
                     <input pInputText id="ancien" name="ancien" [(ngModel)]="ancien" class="flex-auto" autocomplete="off" />
-                </div>
+                </div> -->
                 <div class="flex align-items-center gap-3 mb-5">
                     <label for="newPassword" class="font-semibold w-6rem">Nouveau mot de passe</label>
                     <div class="col-10">
@@ -186,7 +172,7 @@
                 </div>
 
                 <div class="flex  gap-2">
-                    <button pButton pRipple class="p-button-success ml-2" icon="pi pi-save" [disabled]="!newPassword || !ancien || password.invalid " label="Enregistrer" (click)="renitialise()"></button>
+                    <button pButton pRipple class="p-button-success ml-2" icon="pi pi-save" [disabled]="!newPassword || password.invalid " label="Enregistrer" (click)="renitialise()"></button>
                     <button  pButton pRipple class="p-button-danger" icon="pi pi-times" label="Annuler" (click)="visible = false" ></button>
 
                 </div>

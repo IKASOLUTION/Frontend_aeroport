@@ -1,5 +1,6 @@
 import { Message } from "primeng/api";
 import { Profil } from "../profil/model";
+import { Aeroport } from "../aeroport/model";
 
 export interface User {
   id?: number;
@@ -7,7 +8,7 @@ export interface User {
   prenom?: string;
   email?: string;
   role?: string;
-  aeroport?: string;
+  aeroport?: Aeroport;
   statut?: string;
   desactive?: boolean;
   

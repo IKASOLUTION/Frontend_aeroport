@@ -7,7 +7,7 @@
   <p-card styleClass="shadow-lg">
 
     <!-- Section 1: Document d'Identité -->
-    <p-fieldset legend="Document d'Identité" class="pi pi-id-card text-xl text-green-600 mr-3" styleClass="mb-6">
+    <p-fieldset legend="Document d'Identité"  styleClass="mb-6">
       
 
       <!-- Section de capture photo -->
@@ -175,13 +175,13 @@
       <div class="grid">
         <!-- Vol ID -->
         <div class="col-12 md:col-4">
-          <label for="vol_id">Vol <span class="text-red-500">*</span></label>
-          <p-dropdown id="vol_id" name="vol_id" [options]="vols()" [(ngModel)]="formData().vol_id" optionLabel="numero_vol" optionValue="id" placeholder="Sélectionner un vol" (onChange)="onVolSelectionChange($event.value)" [class]="formErrors()['vol_id'] ? 'ng-invalid ng-dirty' : ''" styleClass="w-full">
+          <label for="volId">Vol <span class="text-red-500">*</span></label>
+          <p-dropdown id="volId" name="volId" [options]="volList()" [(ngModel)]="formData().volId" optionLabel="numero" optionValue="id" placeholder="Sélectionner un vol" (onChange)="onVolSelectionChange($event.value)" [class]="formErrors()['volId'] ? 'ng-invalid ng-dirty' : ''" styleClass="w-full">
             <ng-template pTemplate="selectedItem">
-              {{ selectedVolInfo()?.numero_vol }} ({{ selectedVolInfo()?.villeDepart }} → {{ selectedVolInfo()?.ville_arrivee }})
+              {{ selectedVolInfo()?.numero }} ({{ selectedVolInfo()?.villeDepart?.nom }} → {{ selectedVolInfo()?.villeArrivee?.nom }})
             </ng-template>
             <ng-template let-vol pTemplate="item">
-              {{ vol.numero_vol }} ({{ vol.villeDepart }} → {{ vol.ville_arrivee }})
+              {{ vol.numero }} ({{ vol.villeDepart?.nom  }} → {{ vol.villeArrivee?.nom }})
             </ng-template>
           </p-dropdown>
         </div>

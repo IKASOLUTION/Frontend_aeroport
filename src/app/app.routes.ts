@@ -30,6 +30,8 @@ export const routes: Routes = [
             { path: 'ville', data: { breadcrumb: 'Ville'}, loadComponent: () => import('./modules/ville/ville.component').then(m => m.VilleComponent) },
             { path: 'aeroport', data: { breadcrumb: 'Aeroport'}, loadComponent: () => import('./modules/aeroport/aeroport.component').then(m => m.AeroportComponent) },
             { path: 'compagnie', data: { breadcrumb: 'Compagnie'}, loadComponent: () => import('./modules/compagnie/compagnie.component').then(m => m.CompagnieComponent) },
+            { path: 'vol', data: { breadcrumb: 'Vol'}, loadComponent: () => import('./modules/vol/vol.component').then(v => v.VolComponent) },
+
 
 
 

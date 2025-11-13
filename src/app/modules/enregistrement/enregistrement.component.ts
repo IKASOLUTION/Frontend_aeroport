@@ -9,6 +9,8 @@ import * as enregistrementSelector from '../../store/enregistrement/selector';
 import * as biometricAction from '../../store/biometric/action';
 import * as biometricSelector from '../../store/biometric/selector';
 import * as globalSelector from '../../store/global-config/selector';
+import * as volAction from '../../store/vol/action';
+import * as volSelector from '../../store/vol/selector';
 
 
 // PrimeNG Imports
@@ -29,22 +31,13 @@ import { DonneeBiometrique } from 'src/app/store/biometric/model';
 import { co } from '@fullcalendar/core/internal-common';
 import { LoadingSpinnerComponent } from '../loading-spinner.component';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { Vol } from 'src/app/store/vol/model';
 
 
 
-interface Vol {
-  id: number;
-  numero_vol: string;
-  villeDepart: string;
-  ville_arrivee: string;
-  date_vol: string;
-  heure_depart: string;
-}
 
-interface Motif {
-  id: number;
-  libelle: string;
-}
+
+
 
 interface Passager {
   id: number;
@@ -73,7 +66,7 @@ interface Passager {
     ConfirmDialogModule,
     LoadingSpinnerComponent
   ],
-  providers: [MessageService,ConfirmationService],
+  providers: [MessageService, ConfirmationService],
   templateUrl: './enregistrement.component.html'
 })
 export class EnregistrementComponent implements OnInit, OnDestroy {
@@ -93,13 +86,14 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   formErrors = signal<Record<string, string>>({});
   isSaving = signal<boolean>(false);
   loading = signal<boolean>(true);
-  
+
   vols = signal<Vol[]>([]);
   motifs = signal<{ libelle: string; value: MotifVoyage }[]>([]);
   enregistrementList = signal<Enregistrement[]>([]);
-  
+  volList = signal<Vol[]>([]);
+
   selectedVolInfo = signal<Vol | null>(null);
-  
+
   // Modale Biométrique
   isCaptureBiometriqueModalOpen = signal<boolean>(false);
   passagerPourBiometrie = signal<Passager | null>(null);
@@ -122,7 +116,7 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initializeFormData();
-   // this.loadEnregistrements();
+    // this.loadEnregistrements();
     this.subscribeToStoreUpdates();
     this.loadVols();
     this.loadMotifs();
@@ -143,7 +137,17 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
         this.enregistrementList.set(value);
       }
     });
+     this.store.pipe(
+      select(volSelector.volList),
+      takeUntil(this.destroy$)
+    ).subscribe(value => {
+      if (value) {
+        this.volList.set([...value]);
+      }
+    });
 
+
+    
     // Écouter les statuts globaux (succès/erreur)
     this.store.pipe(
       select(globalSelector.status),
@@ -222,7 +226,7 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
       telephoneEtranger: null,
       adresseBurkina: null,
       adresseEtranger: null,
-      vol_id: null,
+      volId: null,
       villeDepart: '',
       villeDestination: '',
       dateVoyage: '',
@@ -234,10 +238,10 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
 
   loadVols(): void {
     // Dispatch action pour charger les vols depuis le store
-    // this.store.dispatch(volAction.loadVols());
-    
+    this.store.dispatch(volAction.loadVol());
+
     // Ou simuler temporairement
-    this.vols.set([
+    /* this.vols.set([
       {
         id: 1,
         numero_vol: 'AF1234',
@@ -262,16 +266,16 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
         date_vol: '2025-11-17',
         heure_depart: '08:15'
       }
-    ]);
+    ]); */
   }
 
   loadMotifs(): void {
     // Dispatch action pour charger les motifs depuis le store
     // this.store.dispatch(motifAction.loadMotifs());
-    
+
     // Ou simuler temporairement
     this.motifs.set([
-     
+
       { libelle: 'Affaires', value: MotifVoyage.AFFAIRES },
       { libelle: 'Tourisme', value: MotifVoyage.TOURISME },
       { libelle: 'Famille', value: MotifVoyage.FAMILLE },
@@ -282,7 +286,7 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
 
   updateFormDataField(field: keyof Enregistrement, value: any): void {
     this.formData.update(data => ({ ...data, [field]: value }));
-    
+
     // Effacer l'erreur pour ce champ si elle existe
     if (this.formErrors()[field]) {
       this.formErrors.update(errors => {
@@ -294,16 +298,22 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   }
 
   onVolSelectionChange(volId: number): void {
-    const selectedVol = this.vols().find(v => v.id === volId);
+    const selectedVol = this.volList().find(v => v.id === volId);
+    console.log('Vol sélectionné:', selectedVol);
+    console.log('volList:', this.volList());
     if (selectedVol) {
       this.selectedVolInfo.set(selectedVol);
       this.formData.update(data => ({
         ...data,
-        vol_id: volId,
-        villeDepart: selectedVol.villeDepart,
-        villeDestination: selectedVol.ville_arrivee,
-        dateVoyage: selectedVol.date_vol,
-        heureVoyage: selectedVol.heure_depart
+        volId: volId,
+        villeDepart: selectedVol.villeDepart?.nom,
+        villeDestination: selectedVol.villeArrivee?.nom,
+       dateVoyage: selectedVol.dateDepart
+        ? new Date(selectedVol.dateDepart).toISOString().split('T')[0]
+        : '',
+      heureVoyage: selectedVol.dateDepart
+        ? new Date(selectedVol.dateDepart).toISOString().split('T')[1].substring(0, 5)
+        : ''
       }));
     }
   }
@@ -369,8 +379,8 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
     }
 
     // Validation Voyage
-    if (!data.vol_id) {
-      errors['vol_id'] = 'Le vol est requis';
+    if (!data.volId) {
+      errors['volId'] = 'Le vol est requis';
     }
     if (data.motifVoyage === undefined) {
       errors['motifVoyage'] = 'Le motif du voyage est requis';
@@ -391,7 +401,7 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   submitEnregistrement(): void {
     // Dispatch action pour créer l'enregistrement
     const enregistrementData = this.prepareEnregistrementData();
-    this.store.dispatch(enregistrementAction.createEnregistrement( enregistrementData 
+    this.store.dispatch(enregistrementAction.createEnregistrement(enregistrementData
     ));
     if (!this.validateForm()) {
       this.messageService.add({
@@ -403,10 +413,10 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
       return;
     }
 
-    
- 
+
+
     // Ouvrir la modale biométrique après succès (géré via subscription au store)
-     this.store.pipe(
+    this.store.pipe(
       select(enregistrementSelector.selectedEnregistrement),
       takeUntil(this.destroy$)
     ).subscribe(created => {
@@ -419,12 +429,12 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
         });
         this.isCaptureBiometriqueModalOpen.set(true);
       }
-    }); 
+    });
   }
 
   private prepareEnregistrementData(): Enregistrement {
     const data = this.formData();
-    
+
     // Convertir les dates si nécessaire
     return {
       ...data,
@@ -436,11 +446,11 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
 
   private formatDate(date: any): string {
     if (!date) return '';
-    
+
     if (date instanceof Date) {
       return date.toISOString().split('T')[0];
     }
-    
+
     return date;
   }
 
@@ -448,7 +458,7 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
     this.initializeFormData();
     this.formErrors.set({});
     this.selectedVolInfo.set(null);
-    
+
     this.messageService.add({
       severity: 'info',
       summary: 'Formulaire réinitialisé',
@@ -465,7 +475,7 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
 
     try {
       await this.waitForView();
-      
+
       this.mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'user', width: 1280, height: 720 }
       });
@@ -549,8 +559,8 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   }
 
   validerAvecBiometrie(): void {
-    if (!this.empreinteGaucheCapturee() || !this.empreinteDroiteCapturee() || 
-        !this.empreintePoucesCapturee() || !this.capturedPhotoPourBiometrie()) {
+    if (!this.empreinteGaucheCapturee() || !this.empreinteDroiteCapturee() ||
+      !this.empreintePoucesCapturee() || !this.capturedPhotoPourBiometrie()) {
       this.messageService.add({
         severity: 'warn',
         summary: 'Données incomplètes',
@@ -564,18 +574,18 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
     if (!passager) return;
 
     this.biometric.set({
-  enregistrementId: this.enregistrementSelect()?.id || 0,
-  empreinteGauche: true,
-  empreinteDroite: true,
-  empreintePouces: true,
-  photoBiometrique: this.convertBase64ToFile(this.capturedPhotoPourBiometrie())
-});
-     const biometricData = this.biometric();
-if (biometricData) {
-  this.store.dispatch(biometricAction.createDonneeBiometrique(biometricData));
-} else {
-  console.error('Données biométriques invalides');
-}
+      enregistrementId: this.enregistrementSelect()?.id || 0,
+      empreinteGauche: true,
+      empreinteDroite: true,
+      empreintePouces: true,
+      photoBiometrique: this.convertBase64ToFile(this.capturedPhotoPourBiometrie())
+    });
+    const biometricData = this.biometric();
+    if (biometricData) {
+      this.store.dispatch(biometricAction.createDonneeBiometrique(biometricData));
+    } else {
+      console.error('Données biométriques invalides');
+    }
 
     // Fermer la modale et réinitialiser après succès (géré via subscription)
     /* this.store.pipe(
@@ -588,31 +598,31 @@ if (biometricData) {
       }
     }); */
     this.closeBiometricModal();
-        this.resetForm();
+    this.resetForm();
   }
 
 
   private convertBase64ToFile(base64String: string | null, filename: string = 'photo.jpg'): File | undefined {
-  if (!base64String) return undefined;
-  
-  try {
-    // Supprimer le préfixe data:image/...;base64, si présent
-    const base64Data = base64String.split(',')[1] || base64String;
-    const byteString = atob(base64Data);
-    const arrayBuffer = new ArrayBuffer(byteString.length);
-    const uint8Array = new Uint8Array(arrayBuffer);
-    
-    for (let i = 0; i < byteString.length; i++) {
-      uint8Array[i] = byteString.charCodeAt(i);
+    if (!base64String) return undefined;
+
+    try {
+      // Supprimer le préfixe data:image/...;base64, si présent
+      const base64Data = base64String.split(',')[1] || base64String;
+      const byteString = atob(base64Data);
+      const arrayBuffer = new ArrayBuffer(byteString.length);
+      const uint8Array = new Uint8Array(arrayBuffer);
+
+      for (let i = 0; i < byteString.length; i++) {
+        uint8Array[i] = byteString.charCodeAt(i);
+      }
+
+      const blob = new Blob([uint8Array], { type: 'image/jpeg' });
+      return new File([blob], filename, { type: 'image/jpeg' });
+    } catch (error) {
+      console.error('Erreur conversion base64 vers File:', error);
+      return undefined;
     }
-    
-    const blob = new Blob([uint8Array], { type: 'image/jpeg' });
-    return new File([blob], filename, { type: 'image/jpeg' });
-  } catch (error) {
-    console.error('Erreur conversion base64 vers File:', error);
-    return undefined;
   }
-}
 
 
   ngOnDestroy(): void {

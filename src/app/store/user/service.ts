@@ -25,13 +25,22 @@ createUser(user: User): Observable<any> {
 
 updateUser(user: User): Observable<any> {
     // @FIXME: post request
-    return this.http.put(`${GlobalConfig.getEndpoint(Endpoints.USER)}${user.id}`, user);
+    return this.http.put(`${GlobalConfig.getEndpoint(Endpoints.USER)}/${user.id}`, user);
 }
 deleteAdherent(user: User): Observable<any> {
     // @FIXME: post request
     return this.http.patch(`${GlobalConfig.getEndpoint(Endpoints.USER)}/${user.id}`, user);
 }
 
+activerDesactiver(user: User): Observable<any> {
+    // @FIXME: post request
+    return this.http.get(`${GlobalConfig.getEndpoint(Endpoints.USER)}/active-desactive-user/${user.id}`);
+}
+
+updatePwd(user: User): Observable<any> {
+    // @FIXME: post request
+    return this.http.post(`${GlobalConfig.getEndpoint(Endpoints.USER)}/account/change-password`, user);
+  }
 
 private handleError<T>() {
     return (error: HttpErrorResponse) => {
