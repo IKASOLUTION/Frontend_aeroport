@@ -31,6 +31,8 @@ export const routes: Routes = [
             { path: 'compagnie', data: { breadcrumb: 'Compagnie'}, loadComponent: () => import('./modules/compagnie/compagnie.component').then(m => m.CompagnieComponent) },
             { path: 'listeNoire', data: { breadcrumb: 'Liste Noire'}, loadComponent: () => import('./modules/listeNoire/listeNoire.component').then(m => m.ListeNoireComponent) },
             {path: 'motifVoyage', data: { breadcrumb: 'Motif de Voyage'}, loadComponent: () => import('./modules/motifVoyage/motifVoyage.component').then(m => m.MotifVoyageComponent) },
+            {path: 'gestion-enregistrements', data: { breadcrumb: 'Gestion des Enregistrements'}, loadComponent: () => import('./modules/enregistrement/enregistrement.component').then(m => m.EnregistrementComponent) },
+            {path: 'vol', data: { breadcrumb: 'Vol'}, loadComponent: () => import('./modules/vol/vol.component').then(m => m.VolComponent) },
             {path: 'registre-passagers', data: { breadcrumb: 'Registre des Passagers'}, loadComponent: () => import('./modules/register/register.component').then(m => m.RegisterComponent) },
 
             
