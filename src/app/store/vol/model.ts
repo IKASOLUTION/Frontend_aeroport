@@ -3,6 +3,7 @@ import { Profil } from "../profil/model";
 import { Ville } from "../ville/model";
 import { Aeroport } from "../aeroport/model";
 import { Compagnie } from "../compagnie/model";
+import { StatutVoyageur } from "../motifVoyage/model";
 
 export interface Vol {
   id?: number;
@@ -22,6 +23,8 @@ export interface Vol {
   dateSaisie?: Date;
   villeNomD?: string;
   villeNomA?: string;
+  type?: string;
+  statutLibelle?: string;
 }
 
 export interface VolList {
@@ -46,6 +49,9 @@ export interface SearchDto {
     dateDebut: Date;
     dateFin: Date;
     statutVols?: StatutVol[];
+    status?: StatutVoyageur[],
+    aeroportId?: number;
+    motifVoyageId?: number;
     page?: number;
     size?: number;
     sortBy?: string;

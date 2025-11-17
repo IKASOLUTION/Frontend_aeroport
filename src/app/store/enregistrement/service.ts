@@ -4,6 +4,7 @@ import { Enregistrement, EnregistrementList, MotifVoyage, TypeDocument } from ".
 import { catchError, map, Observable, throwError } from "rxjs";
 import { GlobalConfig } from "src/app/config/global.config";
 import { Endpoints } from "src/app/config/module.endpoints";
+import { PageResponse, SearchDto } from "../vol/model";
 
 
 @Injectable({providedIn: 'root'})
@@ -61,6 +62,31 @@ private convertToFormData(enregistrement: Enregistrement): FormData {
   
   return formData;
 }
+
+getEnregistrementsByPeriode(searchDto: SearchDto): Observable<PageResponse<Enregistrement>> {
+         // @FIXME: put request
+        const body = {
+            dateDebut: this.formatDate(searchDto.dateDebut),
+            dateFin: this.formatDate(searchDto.dateFin),
+            status: searchDto.status,
+            aeroportId: searchDto.aeroportId,
+            page: searchDto.page || 0,
+            size: searchDto.size || 10,
+            sort: searchDto.sortBy || 'dateDepart,desc'
+        };
+
+        console.log('=== Service - Body envoyé ===', body);
+
+        return this.http.put<PageResponse<Enregistrement>>(`${GlobalConfig.getEndpoint(Endpoints.ENREIGISTREMENT)}/periode`, body);
+    }
+
+      private formatDate(date: Date): string {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
 
 private base64ToFile(base64String: string, filename: string): File {
   // Extraire le type MIME et les données

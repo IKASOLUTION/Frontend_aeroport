@@ -37,6 +37,7 @@ import { Ville } from 'src/app/store/ville/model';
 import { Compagnie } from 'src/app/store/compagnie/model';
 import { Aeroport } from 'src/app/store/aeroport/model';
 import { FieldsetModule } from 'primeng/fieldset';
+import { TagModule } from 'primeng/tag';
 
 @Component({
     selector: 'app-vol',
@@ -62,6 +63,7 @@ import { FieldsetModule } from 'primeng/fieldset';
         PaginatorModule, 
         DialogModule, 
         FieldsetModule,
+        TagModule,
         ConfirmDialogModule
     ],
     providers: [MessageService, ConfirmationService],
@@ -126,6 +128,7 @@ export class VolComponent implements OnInit, OnDestroy {
    
     dateDebut: Date | null = null;
     dateFin: Date | null = null;
+    isDetailModalOpen = false;
 
     constructor(
         private fb: FormBuilder,
@@ -237,6 +240,17 @@ export class VolComponent implements OnInit, OnDestroy {
         });
     }
 
+    // Ouvrir le modal de détail
+  openDetailModal(vol: Vol) {
+    this.selectedVol = vol;
+    this.isDetailModalOpen = true;
+  }
+  
+  // Fermer le modal de détail
+  closeDetailModal() {
+    this.isDetailModalOpen = false;
+    this.selectedVol = {};
+  }
      closeFilterDialog(): void {
         this.filterDialog = false;
     }
@@ -409,21 +423,29 @@ export class VolComponent implements OnInit, OnDestroy {
         this.isUpdate = false;
         this.volDialog = true;
     }
+removeAccents(str: string): string {
+  return str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+}
 
     update(form: Vol): void {
         this.popupHeader = 'Modifier un vol';
-        
+        const selectedTypeVol =TypeVol.DEPART;
+        if (!form.typeVol && form.typeVol?.toString() === 'Arrivée') {
+            form.typeVol = TypeVol.ARRIVEE;
+        }
         this.volFormGroup.patchValue({
             id: form.id,
             numero: form.numero,
-            typeVol: form.typeVol,
+            typeVol: this.typesVol.find(t => this.removeAccents(t.label).toUpperCase() === form.typeVol?.toString().toUpperCase())?.value,
             compagnie: form.compagnie,
             aeroport: form.aeroport,
             villeDepart: form.villeDepart,
             villeArrivee: form.villeArrivee,
             dateDepart: form.dateDepart ? new Date(form.dateDepart) : null,
             dateArrivee: form.dateArrivee ? new Date(form.dateArrivee) : null,
-            statut: form.statut
+            statut: this.statutsVol.find(s =>  this.removeAccents(s.label).toUpperCase() === form.statut?.toString())?.value
         });
         
         this.vol = { ...form };
@@ -537,8 +559,17 @@ export class VolComponent implements OnInit, OnDestroy {
         });
     }
 
+    getTypeVolSeverity(type: TypeVol | undefined): string {
+    switch (type) {
+      case TypeVol.ARRIVEE:
+        return 'info';
+      case TypeVol.DEPART:
+        return 'success';
+      default:
+        return 'secondary';
+    }
+  }
     getStatutClass(statut: string | undefined): string {
-        console.log('=== getStatutClass statut ===', statut);
         if (!statut) return 'badge-secondary';
         
         switch (statut) {
@@ -557,6 +588,26 @@ export class VolComponent implements OnInit, OnDestroy {
                 return 'badge-secondary';
         }
     }
+
+    getStatutDetail(statut: StatutVol | undefined): string {
+    if (!statut) return 'secondary';
+    
+    switch (statut.toString()) {
+      case StatutVol.CONFIRME.toString():
+        return 'primary';
+      case StatutVol.EFFECTUE.toString():
+        return 'success';
+      case StatutVol.ANNULE.toString():
+        return 'danger';
+      case StatutVol.PROGRAMME.toString():
+        console.log('=== PROGRAMME ===');
+        return 'warning';
+      case StatutVol.RETARDE.toString():
+        return 'warning';
+      default:
+        return 'secondary';
+    }
+  }
 
     cancel(): void {
         this.volFormGroup.reset();

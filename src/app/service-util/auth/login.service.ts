@@ -8,16 +8,16 @@ import { Router } from '@angular/router';
 @Injectable({ providedIn: 'root' })
 export class LoginService {
     constructor(
-        private accountService: AccountService, 
+        private accountService: AccountService,
         private router: Router,
         private authServerProvider: AuthServerProvider
-    ) {}
+    ) { }
 
     login(credentials: any): Observable<any> {
         return this.authServerProvider.login(credentials).pipe(
             tap((response: any) => {
                 console.log('Données de connexion reçues:', response);
-                 this.router.navigateByUrl('/admin/dashboard');
+                this.router.navigateByUrl('/admin/dashboard');
             }),
             switchMap((response: any) => {
                 // Récupérer et mettre à jour l'identité de l'utilisateur
@@ -28,8 +28,8 @@ export class LoginService {
 
 
                         if (account) {
-                        localStorage.setItem('UTILISATEUR_KEY', JSON.stringify(account));
-    }
+                            localStorage.setItem('UTILISATEUR_KEY', JSON.stringify(account));
+                        }
 
 
 
@@ -42,7 +42,7 @@ export class LoginService {
                         observer.complete();
                     }))
                 );
-            }), 
+            }),
             catchError((error) => {
                 console.error('Erreur lors de la connexion:', error);
                 this.logout();
@@ -55,10 +55,10 @@ export class LoginService {
         try {
             // Déconnexion via AuthServerProvider (gère tout le nettoyage)
             this.authServerProvider.logout();
-            
+
             // Réinitialiser l'état d'authentification dans AccountService
             this.accountService.authenticate(null);
-            
+
             console.log('Déconnexion effectuée avec succès');
         } catch (error) {
             console.error('Erreur lors de la déconnexion:', error);
@@ -83,24 +83,10 @@ export class LoginService {
 
 
 
-     getStoredUser(): User | null {
-    const userJson = localStorage.getItem('UTILISATEUR_KEY');
-    return userJson ? JSON.parse(userJson) as User : null;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    getStoredUser(): User | null {
+        const userJson = localStorage.getItem('UTILISATEUR_KEY');
+        return userJson ? JSON.parse(userJson) as User : null;
+    }
 
     /**
      * Récupère les informations de l'utilisateur connecté
