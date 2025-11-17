@@ -64,10 +64,14 @@
                     <td class="table-separator">{{aeroport.ville?.nom || 'N/A'}}</td>
                     <td class="table-separator">{{aeroport.pays || 'N/A'}}</td>
                     <td class="table-separator">
-                        <span [class]="'badge ' + (aeroport.statutAeroport === 'ACTIF' ? 'badge-success' : 'badge-danger')">
-                            {{aeroport.statutAeroport || 'N/A'}}
-                        </span>
-                    </td>
+    <span [ngClass]="{
+        'status-badge status-actif': aeroport.statutAeroport === 'ACTIF',
+        'status-badge status-inactif': aeroport.statutAeroport === 'INACTIF'
+    }">
+        <i [class]="aeroport.statutAeroport === 'ACTIF' ? 'pi pi-check-circle' : 'pi pi-times-circle'"></i>
+        {{aeroport.statutAeroport}}
+    </span>
+</td>
                     <td class="text-center">
                         <button pButton 
                                 icon="pi pi-pencil" 

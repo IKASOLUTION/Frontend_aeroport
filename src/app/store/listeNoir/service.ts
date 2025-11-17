@@ -35,14 +35,15 @@ updateListeNoire(listeNoire: ListeNoire): Observable<any> {
     console.log("===== SERVICE UPDATE - Données =====", listeNoire);
     return this.http.put(`${GlobalConfig.getEndpoint(Endpoints.ListeNoire)}/${listeNoire.id}`, listeNoire);
 }
-deleteListeNoire(listeNoire: ListeNoire): Observable<any> {
-    // @FIXME: post request
-    return this.http.patch(`${GlobalConfig.getEndpoint(Endpoints.ListeNoire)}/${listeNoire.id}`, listeNoire);
+deleteListeNoire(listeNoire: ListeNoire): Observable<void> {
+    return this.http.delete<void>(
+        `${GlobalConfig.getEndpoint(Endpoints.ListeNoire)}/${listeNoire.id}`
+    );
 }
 
 changerStatusListeNoire(listeNoire: ListeNoire): Observable<any> {
     // @FIXME: post request
-    return this.http.put(`${GlobalConfig.getEndpoint(Endpoints.ListeNoire)}${listeNoire.id}`, listeNoire);
+    return this.http.put(`${GlobalConfig.getEndpoint(Endpoints.ListeNoire)}/${listeNoire.id}`, listeNoire);
 }
 
 

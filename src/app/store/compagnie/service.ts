@@ -34,7 +34,7 @@ deleteCompagnie(compagnie: Compagnie): Observable<any> {
 
 changerStatusCompagnie(compagnie: Compagnie): Observable<any> {
     // @FIXME: post request
-    return this.http.put(`${GlobalConfig.getEndpoint(Endpoints.COMPAGNIE)}${compagnie.id}`, compagnie);
+    return this.http.put(`${GlobalConfig.getEndpoint(Endpoints.COMPAGNIE)}/${compagnie.id}`, compagnie);
 }
 
 

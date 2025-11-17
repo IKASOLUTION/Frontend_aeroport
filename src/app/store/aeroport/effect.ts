@@ -100,4 +100,23 @@ export class AeroportEffects {
             )
         )
     );
+
+      deleteAeroport$ = createEffect(() =>
+                this.actions$.pipe(
+                    ofType(featureActions.deleteAeroport),
+                    mergeMap((aeroport: Aeroport) =>
+                        this.aeroportService.deleteAeroport(aeroport).pipe(
+                            switchMap(value => [
+                                GlobalConfig.setStatus(StatusEnum.success, this.successMsg),
+                                featureActions.loadAeroport()
+                            ]),
+                            catchError((error: HttpErrorResponse) => {
+                                const errorMsg = error.error?.message || 'Erreur lors du changement de statut';
+                                return of(GlobalConfig.setStatus(StatusEnum.error, errorMsg));
+                            })
+                        )
+                    )
+                )
+            );
+  
 }

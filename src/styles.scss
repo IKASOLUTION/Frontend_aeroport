@@ -18,3 +18,242 @@ $gutter: 1rem; //for primeflex grid system
 @import "assets/demo/styles/flags/flags.css";
 @import "assets/demo/styles/badges.scss";
 @import "assets/demo/styles/code.scss";
+
+
+.status-badge {
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    display: inline-block;
+    min-width: 80px;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+.status-actif {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.status-levee {
+    background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+    color: #000;
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+}
+
+.status-inactif {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+
+/* Conteneur de notification */
+.notification-item {
+    position: relative;
+    margin-right: 1rem;
+}
+
+.notification-button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.notification-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.notification-icon {
+    font-size: 1.5rem;
+    color: white;
+}
+
+/* Badge de notification */
+.notification-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #dc3545;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.2rem 0.4rem;
+    border-radius: 50px;
+    min-width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.5);
+    animation: pulse-badge 2s infinite;
+}
+
+@keyframes pulse-badge {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* Dropdown des notifications */
+.notification-dropdown {
+    position: absolute;
+    top: 60px;
+    right: 0;
+    width: 380px;
+    max-height: 500px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.notification-header {
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.notification-header h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.notification-count-text {
+    font-size: 0.85rem;
+    opacity: 0.9;
+}
+
+/* Liste des notifications */
+.notification-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.notification-item-detail {
+    display: flex;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e9ecef;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.notification-item-detail:hover {
+    background: #f8f9fa;
+}
+
+.notification-item-detail:last-child {
+    border-bottom: none;
+}
+
+.notification-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.notification-icon-wrapper.success {
+    background: rgba(40, 167, 69, 0.15);
+    color: #28a745;
+}
+
+.notification-icon-wrapper.warning {
+    background: rgba(255, 193, 7, 0.15);
+    color: #ffc107;
+}
+
+.notification-icon-wrapper.danger {
+    background: rgba(220, 53, 69, 0.15);
+    color: #dc3545;
+}
+
+.notification-icon-wrapper.info {
+    background: rgba(23, 162, 184, 0.15);
+    color: #17a2b8;
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-content h5 {
+    margin: 0 0 0.3rem 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #212529;
+}
+
+.notification-content p {
+    margin: 0 0 0.3rem 0;
+    font-size: 0.85rem;
+    color: #6c757d;
+    line-height: 1.4;
+}
+
+.notification-time {
+    font-size: 0.75rem;
+    color: #adb5bd;
+}
+
+/* Footer du dropdown */
+.notification-footer {
+    padding: 0.8rem;
+    background: #f8f9fa;
+    text-align: center;
+    border-top: 1px solid #e9ecef;
+}
+
+.view-all-link {
+    color: #667eea;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.view-all-link:hover {
+    color: #764ba2;
+}
+
+/* Scrollbar personnalisée */
+.notification-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notification-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.notification-list::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.notification-list::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}

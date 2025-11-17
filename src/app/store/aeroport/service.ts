@@ -35,14 +35,17 @@ updateAeroport(aeroport: Aeroport): Observable<any> {
     console.log("===== SERVICE UPDATE - Données =====", aeroport);
     return this.http.put(`${GlobalConfig.getEndpoint(Endpoints.AEROPORT)}/${aeroport.id}`, aeroport);
 }
-deleteAeroport(aeroport: Aeroport): Observable<any> {
-    // @FIXME: post request
-    return this.http.patch(`${GlobalConfig.getEndpoint(Endpoints.AEROPORT)}/${aeroport.id}`, aeroport);
+
+deleteAeroport(aeroport: Aeroport): Observable<void> {
+    return this.http.delete<void>(
+        `${GlobalConfig.getEndpoint(Endpoints.AEROPORT)}/${aeroport.id}`
+    );
 }
+
 
 changerStatusAeroport(aeroport: Aeroport): Observable<any> {
     // @FIXME: post request
-    return this.http.put(`${GlobalConfig.getEndpoint(Endpoints.AEROPORT)}${aeroport.id}`, aeroport);
+    return this.http.put(`${GlobalConfig.getEndpoint(Endpoints.AEROPORT)}/${aeroport.id}`, aeroport);
 }
 
 

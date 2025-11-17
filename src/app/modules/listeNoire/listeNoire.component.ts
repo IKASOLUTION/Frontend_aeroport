@@ -187,7 +187,6 @@ export class ListeNoireComponent implements OnInit, OnDestroy {
     motif: this.fb.control('', [Validators.required, Validators.minLength(3)]),
     numeroNip: this.fb.control('', [Validators.pattern('^[0-9]*$')]),
     numeroCnib: this.fb.control('', [Validators.pattern('^[A-Za-z0-9]*$')]),
-    photo: this.fb.control(''),
     statut: this.fb.control(Statut.ACTIF, [Validators.required])
   });
 }
@@ -220,7 +219,6 @@ export class ListeNoireComponent implements OnInit, OnDestroy {
     motif: form.motif,
     numeroNip: form.numeroNip,
     numeroCnib: form.numeroCnib,
-    photo: form.photo,
     statut: form.statut
   });
 
@@ -251,7 +249,6 @@ export class ListeNoireComponent implements OnInit, OnDestroy {
             dateNaissance: formValue.dateNaissance || undefined,
             lieuNaissance: formValue.lieuNaissance?.trim() || undefined,
             motif: formValue.motif?.trim() || undefined,
-            photo: formValue.photo || undefined,
             numeroNip: formValue.numeroNip?.trim() || undefined,
             numeroCnib: formValue.numeroCnib?.trim() || undefined,
             statut: formValue.statut
@@ -293,24 +290,21 @@ export class ListeNoireComponent implements OnInit, OnDestroy {
         this.popupHeader = 'Enregistrer une personne';
     }
 
-    confirmDelete(listeNoire: ListeNoire) {
-        this.confirmationService.confirm({
-            message: `Êtes-vous sûr de vouloir supprimer cette personne "${listeNoire.nom}" ?`,
-            header: 'Confirmation de suppression',
-            icon: 'pi pi-exclamation-triangle',
-            acceptButtonStyleClass: 'p-button-danger',
-            rejectButtonStyleClass: 'p-button-secondary',
-            acceptLabel: 'Oui, supprimer',
-            rejectLabel: 'Annuler',
-            accept: () => {
-                this.deleteListeNoire(listeNoire);
-            }
-        });
-    }
 
-    deleteListeNoire(listeNoire: ListeNoire) {
-        this.store.dispatch(listeNoireAction.deleteListeNoire(listeNoire));
-    }
+     confirmDelete(listeNoire: ListeNoire) {
+        this.confirmationService.confirm({
+          message: `Êtes-vous sûr de vouloir supprimer  "${listeNoire.nom}" ?`,
+          header: 'Confirmation de suppression',
+          icon: 'pi pi-exclamation-triangle',
+          acceptButtonStyleClass: 'p-button-danger',
+          rejectButtonStyleClass: 'p-button-secondary',
+          acceptLabel: 'Oui, supprimer',
+          rejectLabel: 'Annuler',
+          accept: () => this.store.dispatch(listeNoireAction.deleteListeNoire(listeNoire))
+        });
+      }
+
+   
 
     confirmChangeStatusListeNoire(listeNoire: ListeNoire) {
         const newStatus: Statut = listeNoire.statut === Statut.ACTIF ? 

@@ -2,8 +2,8 @@
     <div class="layout-topbar-start">
         
         <a class="layout-topbar-logo" routerLink="/">
-        <i class="pi pi-send text-green-500 text-3xl"></i>
-            <span class="text-2xl font-bold ml-3 " style="color: rgb(255 255 255 );">Aéroport</span>
+            <i class="pi pi-send text-green-500 text-3xl"></i>
+            <span class="text-2xl font-bold ml-3" style="color: rgb(255 255 255);">Aéroport</span>
         </a>
         <a #menuButton class="layout-menu-button" (click)="onMenuButtonClick()" pRipple>
             <i class="pi pi-chevron-right"></i>
@@ -21,18 +21,68 @@
         <div class="layout-topbar-actions-end">
             <ul class="layout-topbar-items">
 
+                <!-- 🔔 ICÔNE D'ALERTE -->
+                <li class="notification-item">
+                    <a class="notification-button" 
+                       pStyleClass="@next" 
+                       enterFromClass="ng-hidden" 
+                       enterActiveClass="px-scalein" 
+                       leaveToClass="ng-hidden" 
+                       leaveActiveClass="px-fadeout" 
+                       [hideOnOutsideClick]="true" 
+                       pRipple>
+                        <i class="pi pi-bell notification-icon"></i>
+                        <!-- Badge avec nombre de notifications -->
+                        <span class="notification-badge" *ngIf="notificationCount > 0">
+                           
+                        </span>
+                    </a>
+                    
+                    <!-- Dropdown des notifications -->
+                    <div class="ng-hidden notification-dropdown">
+                        <div class="notification-header">
+                            <h4>Notifications</h4>
+                            <span class="notification-count-text"> nouvelle(s)</span>
+                        </div>
+                        <ul class="notification-list">
+                            <li class="notification-item-detail" *ngFor="let notification of notifications">
+                                <div class="notification-icon-wrapper" >
+                                    <i [class]="'pi ' + notification.icon"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <h5>{{notification.title}}</h5>
+                                    <p>{{notification.message}}</p>
+                                    <span class="notification-time">{{notification.time}}</span>
+                                </div>
+                            </li>
+                        </ul>
+                        <div class="notification-footer">
+                            <a routerLink="/notifications" class="view-all-link">
+                                Voir toutes les notifications
+                            </a>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Avatar / Profil -->
                 <li>
-                    <a pStyleClass="@next" enterFromClass="ng-hidden" enterActiveClass="px-scalein" leaveToClass="ng-hidden" leaveActiveClass="px-fadeout" [hideOnOutsideClick]="true" pRipple>
-                        <!-- Avatar supprimé ou laissé vide -->
+                    <a pStyleClass="@next" 
+                       enterFromClass="ng-hidden" 
+                       enterActiveClass="px-scalein" 
+                       leaveToClass="ng-hidden" 
+                       leaveActiveClass="px-fadeout" 
+                       [hideOnOutsideClick]="true" 
+                       pRipple>
+                        <i class="pi pi-user" style="font-size: 1.5rem; color: white;"></i>
                     </a>
                     <div class="ng-hidden">
                         <ul class="list-none p-0 m-0">
-                            <!-- ❌ Supprimé : Settings -->
-                            <!-- ❌ Supprimé : Terms of Usage -->
-                            <!-- ❌ Supprimé : Support -->
-
-                            <!-- ✅ Conservé : Logout -->
-                            
+                            <li>
+                                <a class="flex align-items-center p-3 cursor-pointer" (click)="logout()">
+                                    <i class="pi pi-sign-out mr-2"></i>
+                                    <span>Déconnexion</span>
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </li>

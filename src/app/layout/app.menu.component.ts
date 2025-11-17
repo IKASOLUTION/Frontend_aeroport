@@ -25,9 +25,6 @@ export class AppMenuComponent implements OnInit {
                     }
                 ]
             },
-
-
-
             {
                 label: 'Administration',
                 icon: 'fa-solid fa-users',
@@ -64,10 +61,6 @@ export class AppMenuComponent implements OnInit {
                 ]
 
             },
-
-            
-
-
             {
                 label: 'Infrastructure',
                 icon: 'pi pi-fw pi-user',
