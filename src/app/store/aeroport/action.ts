@@ -13,10 +13,11 @@ export const updateAeroport = createAction(
     props<Aeroport>()
 );
 
-export const deleteAeroport = createAction(
-    '[Aeroport] Delete Aeroport', 
-    props<Aeroport>()
-);
+// export const deleteAeroport = createAction(
+//     '[Aeroport] Delete Aeroport', 
+//     props<Aeroport>()
+// );
+export const deleteAeroport = createAction('[App Init] delete Aeroport', props<Aeroport>());
 
 export const changerStatusAeroport = createAction(
     '[Aeroport] Change Status Aeroport', 

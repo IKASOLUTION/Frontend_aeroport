@@ -252,8 +252,8 @@ update(form: Ville) {
             acceptLabel: 'Oui',
             rejectLabel: 'Non',
             accept: () => {
-                if (toSave.id) {
-                    this.store.dispatch(villeAction.updateVille(toSave));
+                 if (this.isUpdate && toSave.id) {
+                    this.store.dispatch(villeAction.updateVille({ ville: toSave }));
                 } else {
                     this.store.dispatch(villeAction.createVille(toSave));
                 }
@@ -267,8 +267,25 @@ update(form: Ville) {
     }
 
 
-    deleteVille(Ville: Ville) {
-        this.store.dispatch(villeAction.deleteVille(Ville));
+    deleteVille(ville: Ville) {
+
+        this.confirmationService.confirm({
+            message: 'Êtes-vous sûr de vouloir supprimer cette ville?',
+            header: 'Confirmation',
+            icon: 'pi pi-exclamation-triangle',
+            acceptButtonStyleClass: 'p-button-danger',
+            rejectButtonStyleClass: 'p-button-secondary',
+            acceptLabel: 'Oui',
+            rejectLabel: 'Non',
+            accept: () => {
+                console.log("Ville à supprimer:", ville);
+                if ( ville.id){
+                    this.store.dispatch(villeAction.deleteVille(ville));
+                } 
+               
+            }
+        });
+               
     }
      onGlobalFilter(table: any, event: Event) {
     const input = (event.target as HTMLInputElement).value;
