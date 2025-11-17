@@ -1,0 +1,414 @@
+<div class="grid">
+    <div class="col-12 md:col-12">
+        <p-table #dt styleClass="p-datatable-gridlines p-datatable-sm p-datatable" [value]="vols" [columns]="cols"
+            [rows]="5" [paginator]="true" [rowsPerPageOptions]="[5, 10, 20, 30]" [showCurrentPageReport]="true"
+            [globalFilterFields]="['numero', 'villeNomD', 'villeNomA', 'compagnie.nomCompagine', 'statut']"
+            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+            [(selection)]="selectedVol" selectionMode="single" [rowHover]="true" dataKey="id" [loading]="loading">
+
+            <ng-template pTemplate="caption">
+                <div class="flex justify-content-between flex-column sm:flex-row">
+                    <div class="flex gap-2">
+                        <button pButton label="Nouveau Vol" class="p-button-success mb-2" icon="pi pi-plus"
+                            (click)="openNew()">
+                        </button>
+                        <button pButton label="Filtrer par période" class="p-button-info mb-2" icon="pi pi-filter"
+                            (click)="openFilterDialog()">
+                        </button>
+                        <button pButton label="Réinitialiser" class="p-button-secondary mb-2" icon="pi pi-refresh"
+                            (click)="resetFilters()">
+                        </button>
+                    </div>
+                    <div class="flex flex-column align-items-end">
+                        <span class="p-input-icon-left mb-2">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" #filter (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Rechercher" class="w-full" />
+                        </span>
+                        <small class="text-500" *ngIf="dateDebut && dateFin">
+                            Période: {{dateDebut | date:'dd/MM/yyyy'}} - {{dateFin | date:'dd/MM/yyyy'}}
+                            <span *ngIf="selectedStatuts.length > 0"> | Statuts: {{selectedStatuts.length}}
+                                sélectionné(s)</span>
+                        </small>
+                    </div>
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="font-weight: bold;">N° Vol / Type
+                        <p-columnFilter type="text" display="menu" field="numero"></p-columnFilter>
+                    </th>
+                    <th style="font-weight: bold;">Compagnie
+                        <p-columnFilter type="text" display="menu" field="villeNomD"></p-columnFilter>
+                    </th>
+                    <th style="font-weight: bold;">Itinéraire
+                        <p-columnFilter type="text" display="menu" field="villeNomA"></p-columnFilter>
+                    </th>
+                    <th style="font-weight: bold;">Départ
+                        <p-columnFilter type="text" display="menu" field="typeVol"></p-columnFilter>
+                    </th>
+                    <th style="font-weight: bold;">Arrivée
+                        <p-columnFilter type="text" display="menu" field="compagnie.nomCompagine"></p-columnFilter>
+                    </th>
+                    <th style="font-weight: bold;">Statut
+                        <p-columnFilter type="text" display="menu" field="aeroport.nomAeroport"></p-columnFilter>
+                    </th>
+
+                    <th style="font-weight: bold;" class="text-center">Actions</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-vol>
+                <tr [pSelectableRow]="vol">
+                    <td class="table-separator">{{vol.numero || vol.typeVol}}</td>
+                    <td class="table-separator">{{vol.compagnie?.nomCompagine}}</td>
+                    <td class="table-separator">{{ vol.villeArrivee?.nom }}</td>
+                    <td class="table-separator">{{vol.dateDepart | date:'dd/MM/yyyy HH:mm' || 'N/A'}}</td>
+                    <td class="table-separator">{{vol.dateDepart | date:'dd/MM/yyyy HH:mm' || 'N/A'}}</td>
+                    <td class="table-separator">
+                        <span [class]="'badge ' + getStatutClass(vol.statut)">
+                            {{vol.statut || 'N/A'}}
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-info mr-2"
+                            pTooltip="Modifier" tooltipPosition="top" (click)="update(vol)">
+                        </button>
+
+                        <button pButton [icon]="vol.statut === 'CONFIRME' ? 'pi pi-ban' : 'pi pi-check-circle'"
+                            [class]="'p-button-rounded mr-2 ' + (vol.statut === 'CONFIRME' ? 'p-button-warning' : 'p-button-success')"
+                            [pTooltip]="vol.statut === 'CONFIRME' ? 'Annuler' : 'Confirmer'" tooltipPosition="top"
+                            (click)="confirmChangeStatus(vol)">
+                        </button>
+
+                        <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger" pTooltip="Supprimer"
+                            tooltipPosition="top" (click)="confirmDelete(vol)">
+                        </button>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="10" style="text-align: center; font-size: 1.2em; color: red; font-weight: bold;">
+                        <span class="text-danger">Aucun vol trouvé !</span>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+
+<p-dialog [(visible)]="volDialog" [modal]="true" [closable]="false"
+    [style]="{ width: '95vw', maxWidth: '1200px', maxHeight: '95vh' }" [header]="popupHeader"
+    [contentStyle]="{ 'overflow': 'auto', 'padding': '1.5rem' }" styleClass="custom-dialog">
+
+    <form [formGroup]="volFormGroup" (ngSubmit)="onSave()">
+        <div class="p-fluid">
+            <div class="grid">
+                <!-- Colonne Gauche -->
+                <div class="col-12 lg:col-6">
+                    <!-- Section: Informations du Vol -->
+                    <p-fieldset legend="Informations du Vol" [toggleable]="false" styleClass="mb-3">
+                        <div class="grid">
+                            <!-- Numéro de vol -->
+                            <div class="col-12 md:col-6">
+                                <div class="field">
+                                    <label for="numero">
+                                        Numéro de vol
+                                        <span class="required" style="color: red !important;">*</span>
+                                    </label>
+                                    <input id="numero" type="text" pInputText formControlName="numero"
+                                        placeholder="Ex: AF1234" style="text-transform: uppercase;"
+                                        [class.ng-invalid]="volFormGroup.get('numero')?.invalid && volFormGroup.get('numero')?.touched" />
+                                    <small class="p-error"
+                                        *ngIf="volFormGroup.get('numero')?.invalid && volFormGroup.get('numero')?.touched">
+                                        Le numéro de vol est requis
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- Type de vol -->
+                            <div class="col-12 md:col-6">
+                                <div class="field">
+                                    <label for="typeVol">
+                                        Type de vol
+                                        <span class="required" style="color: red !important;">*</span>
+                                    </label>
+                                    <p-dropdown id="typeVol" [options]="typesVol" formControlName="typeVol"
+                                        optionLabel="label" optionValue="value" placeholder="Sélectionnez un type"
+                                        [style]="{'width': '100%'}"
+                                        [class.ng-invalid]="volFormGroup.get('typeVol')?.invalid && volFormGroup.get('typeVol')?.touched">
+                                    </p-dropdown>
+                                    <small class="p-error"
+                                        *ngIf="volFormGroup.get('typeVol')?.invalid && volFormGroup.get('typeVol')?.touched">
+                                        Le type de vol est requis
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- Compagnie -->
+                            <div class="col-12">
+                                <div class="field">
+                                    <label for="compagnie">
+                                        Compagnie aérienne
+                                        <span class="required" style="color: red !important;">*</span>
+                                    </label>
+                                    <p-dropdown id="compagnie" [options]="compagnies" formControlName="compagnie"
+                                        optionLabel="nomCompagine" placeholder="Sélectionnez une compagnie"
+                                        [showClear]="true" [filter]="true" filterBy="nomCompagine"
+                                        [style]="{'width': '100%'}"
+                                        [class.ng-invalid]="volFormGroup.get('compagnie')?.invalid && volFormGroup.get('compagnie')?.touched">
+                                        <ng-template let-compagnie pTemplate="item">
+                                            <div class="flex align-items-center">
+                                                <i class="pi pi-building mr-2"></i>
+                                                <span>{{compagnie.nomCompagine}}</span>
+                                            </div>
+                                        </ng-template>
+                                    </p-dropdown>
+                                    <small class="p-error"
+                                        *ngIf="volFormGroup.get('compagnie')?.invalid && volFormGroup.get('compagnie')?.touched">
+                                        La compagnie est requise
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- Aéroport -->
+                            <div class="col-12">
+                                <div class="field">
+                                    <label for="aeroport">
+                                        Aéroport
+                                        <span class="required" style="color: red !important;">*</span>
+                                    </label>
+                                    <p-dropdown id="aeroport" [options]="aeroports" formControlName="aeroport"
+                                        optionLabel="nomAeroport" placeholder="Sélectionnez un aéroport"
+                                        [showClear]="true" [filter]="true" filterBy="nomAeroport"
+                                        [style]="{'width': '100%'}"
+                                        [class.ng-invalid]="volFormGroup.get('aeroport')?.invalid && volFormGroup.get('aeroport')?.touched">
+                                        <ng-template let-aeroport pTemplate="item">
+                                            <div class="flex align-items-center">
+                                                <i class="pi pi-send mr-2"></i>
+                                                <span>{{aeroport.nomAeroport}} - {{aeroport.code_oaci}}</span>
+                                            </div>
+                                        </ng-template>
+                                    </p-dropdown>
+                                    <small class="p-error"
+                                        *ngIf="volFormGroup.get('aeroport')?.invalid && volFormGroup.get('aeroport')?.touched">
+                                        L'aéroport est requis
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- Statut -->
+                            <div class="col-12">
+                                <div class="field">
+                                    <label for="statut">
+                                        Statut
+                                        <span class="required" style="color: red !important;">*</span>
+                                    </label>
+                                    <p-dropdown id="statut" [options]="statutsVol" formControlName="statut"
+                                        optionLabel="label" optionValue="value" placeholder="Sélectionnez un statut"
+                                        [style]="{'width': '100%'}" 
+                                        [class.ng-invalid]="volFormGroup.get('statut')?.invalid && volFormGroup.get('statut')?.touched">
+                                    </p-dropdown>
+                                    <small class="p-error"
+                                        *ngIf="volFormGroup.get('statut')?.invalid && volFormGroup.get('statut')?.touched">
+                                        Le statut est requis
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </p-fieldset>
+                </div>
+
+                <!-- Colonne Droite -->
+                <div class="col-12 lg:col-6">
+                    <!-- Section: Itinéraire -->
+                    <p-fieldset legend="Itinéraire" [toggleable]="false" styleClass="mb-3">
+                        <div class="grid">
+                            <!-- Ville de départ -->
+                            <div class="col-12">
+                                <div class="field">
+                                    <label for="villeDepart">
+                                        Ville de départ
+                                        <span class="required" style="color: red !important;">*</span>
+                                    </label>
+                                    <p-dropdown id="villeDepart" [options]="villes" formControlName="villeDepart"
+                                        optionLabel="nom" placeholder="Sélectionnez une ville" [showClear]="true"
+                                        [filter]="true" filterBy="nom" [style]="{'width': '100%'}"
+                                        [class.ng-invalid]="volFormGroup.get('villeDepart')?.invalid && volFormGroup.get('villeDepart')?.touched">
+                                        <ng-template let-ville pTemplate="item">
+                                            <div class="flex align-items-center">
+                                                <i class="pi pi-map-marker mr-2"></i>
+                                                <span>{{ville.nom}} - {{ville.pays}}</span>
+                                            </div>
+                                        </ng-template>
+                                    </p-dropdown>
+                                    <small class="p-error"
+                                        *ngIf="volFormGroup.get('villeDepart')?.invalid && volFormGroup.get('villeDepart')?.touched">
+                                        La ville de départ est requise
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- Ville d'arrivée -->
+                            <div class="col-12">
+                                <div class="field">
+                                    <label for="villeArrivee">
+                                        Ville d'arrivée
+                                        <span class="required" style="color: red !important;">*</span>
+                                    </label>
+                                    <p-dropdown id="villeArrivee" [options]="villes" formControlName="villeArrivee"
+                                        optionLabel="nom" placeholder="Sélectionnez une ville" [showClear]="true"
+                                        [filter]="true" filterBy="nom" [style]="{'width': '100%'}"
+                                        [class.ng-invalid]="volFormGroup.get('villeArrivee')?.invalid && volFormGroup.get('villeArrivee')?.touched">
+                                        <ng-template let-ville pTemplate="item">
+                                            <div class="flex align-items-center">
+                                                <i class="pi pi-map-marker mr-2"></i>
+                                                <span>{{ville.nom}} - {{ville.pays}}</span>
+                                            </div>
+                                        </ng-template>
+                                    </p-dropdown>
+                                    <small class="p-error"
+                                        *ngIf="volFormGroup.get('villeArrivee')?.invalid && volFormGroup.get('villeArrivee')?.touched">
+                                        La ville d'arrivée est requise
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- Date de départ -->
+                            <div class="col-12">
+                                <div class="field">
+                                    <label for="dateDepart">
+                                        Date et heure de départ
+                                        <span class="required" style="color: red !important;">*</span>
+                                    </label>
+                                    <p-calendar id="dateDepart" formControlName="dateDepart" [showTime]="true"
+                                        [showSeconds]="false" dateFormat="dd/mm/yy" hourFormat="24"
+                                        placeholder="Sélectionnez la date et l'heure" [style]="{'width': '100%'}"
+                                        [class.ng-invalid]="volFormGroup.get('dateDepart')?.invalid && volFormGroup.get('dateDepart')?.touched">
+                                    </p-calendar>
+                                    <small class="p-error"
+                                        *ngIf="volFormGroup.get('dateDepart')?.invalid && volFormGroup.get('dateDepart')?.touched">
+                                        La date de départ est requise
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- Date d'arrivée -->
+                            <div class="col-12">
+                                <div class="field">
+                                    <label for="dateArrivee">
+                                        Date et heure d'arrivée
+                                        <span class="required" style="color: red !important;">*</span>
+                                    </label>
+                                    <p-calendar id="dateArrivee" formControlName="dateArrivee" [showTime]="true"
+                                        [showSeconds]="false" dateFormat="dd/mm/yy" hourFormat="24"
+                                        placeholder="Sélectionnez la date et l'heure" [style]="{'width': '100%'}"
+                                        [class.ng-invalid]="volFormGroup.get('dateArrivee')?.invalid && volFormGroup.get('dateArrivee')?.touched">
+                                    </p-calendar>
+                                    <small class="p-error"
+                                        *ngIf="volFormGroup.get('dateArrivee')?.invalid && volFormGroup.get('dateArrivee')?.touched">
+                                        La date d'arrivée est requise
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </p-fieldset>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-content-end gap-2 mt-3 pt-3" style="border-top: 2px solid #dee2e6;">
+            <button pButton label="Annuler" icon="pi pi-times" class="p-button-secondary" type="button"
+                (click)="cancel()">
+            </button>
+
+            <button pButton label="Enregistrer" icon="pi pi-check" class="p-button-success" type="submit"
+                [disabled]="volFormGroup.invalid">
+            </button>
+        </div>
+    </form>
+</p-dialog>
+
+<p-dialog [(visible)]="filterDialog" [modal]="true" [draggable]="false" [resizable]="false" [style]="{width: '500px'}"
+    header="Filtrer les vols par période" styleClass="p-fluid">
+
+    <ng-template pTemplate="content">
+        <form [formGroup]="filterFormGroup">
+            <div class="grid">
+                <!-- Date de début -->
+                <div class="col-12 md:col-6">
+                    <label for="dateDebut" class="block mb-2 font-semibold">
+                        Date de début <span class="text-red-500">*</span>
+                    </label>
+                    <p-calendar id="dateDebut" formControlName="dateDebut" dateFormat="dd/mm/yy" [showIcon]="true"
+                        placeholder="Sélectionner une date" [maxDate]="filterFormGroup.get('dateFin')?.value">
+                    </p-calendar>
+                    <small class="text-red-500"
+                        *ngIf="filterFormGroup.get('dateDebut')?.invalid && filterFormGroup.get('dateDebut')?.touched">
+                        La date de début est requise
+                    </small>
+                </div>
+
+                <!-- Date de fin -->
+                <div class="col-12 md:col-6">
+                    <label for="dateFin" class="block mb-2 font-semibold">
+                        Date de fin <span class="text-red-500">*</span>
+                    </label>
+                    <p-calendar id="dateFin" formControlName="dateFin" dateFormat="dd/mm/yy" [showIcon]="true"
+                        placeholder="Sélectionner une date" [minDate]="filterFormGroup.get('dateDebut')?.value">
+                    </p-calendar>
+                    <small class="text-red-500"
+                        *ngIf="filterFormGroup.get('dateFin')?.invalid && filterFormGroup.get('dateFin')?.touched">
+                        La date de fin est requise
+                    </small>
+                </div>
+
+                <!-- Statuts -->
+                <div class="col-12">
+                    <label for="statutVols" class="block mb-2 font-semibold">
+                        Statuts des vols
+                    </label>
+                    <p-multiSelect 
+                        id="statutVols"
+                        formControlName="statutVols" apendTo="body"
+                        [options]="statutsVol"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Sélectionner les statuts"
+                        [filter]="true"
+                        filterPlaceHolder="Rechercher..."
+                        [showClear]="true"
+                        display="chip">
+                    </p-multiSelect>
+                    
+                    <small class="text-gray-500">
+                        Laissez vide pour tous les statuts
+                    </small>
+                </div>
+            </div>
+        </form>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2">
+            <button pButton label="Annuler" icon="pi pi-times" class="p-button-text p-button-secondary"
+                (click)="closeFilterDialog()">
+            </button>
+            <button pButton label="Réinitialiser" icon="pi pi-refresh" class="p-button-text p-button-warning"
+                (click)="resetFilters()">
+            </button>
+            <button pButton label="Appliquer" icon="pi pi-check" class="p-button-primary"
+                [disabled]="filterFormGroup.invalid" (click)="applyFilters()">
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>
+<!-- Toast pour les notifications -->
+<p-toast [style]="{marginTop: '80px'}" position="top-center"></p-toast>
+
+<!-- Dialog de confirmation -->
+<p-confirmDialog></p-confirmDialog>
+<app-loading-spinner></app-loading-spinner>

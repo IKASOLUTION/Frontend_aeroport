@@ -51,6 +51,11 @@ export class Endpoints {
         mock: `assets/mock/aeroport.mock.json`
     };
 
+
+    static readonly VOL = {
+        prod: `${SERVICE_PREFIX}/vols`,
+        mock: `assets/mock/vol.mock.json`
+    };
      static readonly ListeNoire = {
         prod: `${SERVICE_PREFIX}/liste-noires`,
         mock: `assets/mock/listeNoire.mock.json`

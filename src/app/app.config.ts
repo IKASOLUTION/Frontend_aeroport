@@ -37,10 +37,12 @@ import { AeroportEffects } from './store/aeroport/effect';
 import { AeroportReducer } from './store/aeroport/reducer';
 import { CompagnieReducer } from './store/compagnie/reducer';
 import { CompagnieEffects } from './store/compagnie/effect';
-import { ListeNoireReducer } from './store/listeNoir/reducer';
-import { ListeNoireEffects } from './store/listeNoir/effect';
-import { MotifVoyageReducer } from './store/motifVoyage/reducer';
+import { VolReducer } from './store/vol/reducer';
+import { VolEffects } from './store/vol/effect';
 import { MotifVoyageEffects } from './store/motifVoyage/effect';
+import { ListeNoireEffects } from './store/listeNoir/effect';
+import { ListeNoireReducer } from './store/listeNoir/reducer';
+import { MotifVoyageReducer } from './store/motifVoyage/reducer';
 
 
 
@@ -59,18 +61,14 @@ export const appConfig: ApplicationConfig = {
     ),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideAnimations(),
-
-    // provideStore({globalState: GlobalConfigreducer, profilState: reducer , userState: UserReducer, villeState: VilleReducer, paysState: PaysReducer, aeroportState: AeroportReducer,compagnieState: CompagnieReducer, menuActionState: Menureducer, motifVoyageState: MotifVoyageReducer, listeNoireState: ListeNoireReducer, moduleParamState: Modulereducer,
-    // dashboard: dashboardReducer
-    //  }),
-    // provideEffects([ProfilEffects, UserEffects, MenuActionEffects, ModuleParamEffects,DashboardEffects, PaysEffects, VilleEffects, AeroportEffects, CompagnieEffects, ListeNoireEffects, MotifVoyageEffects,]),
-
-
-    provideStore({globalState: GlobalConfigreducer, profilState: reducer , userState: UserReducer, menuActionState: Menureducer, moduleParamState: Modulereducer, villeState: VilleReducer, paysState: PaysReducer, aeroportState: AeroportReducer,compagnieState: CompagnieReducer,motifVoyageState: MotifVoyageReducer, listeNoireState: ListeNoireReducer,
-    enregistrementState: Enregistrementreducer, donneeBiometriqueState: biometricReducer
+    provideStore({globalState: GlobalConfigreducer, profilState: reducer , userState: UserReducer, menuActionState: Menureducer, moduleParamState: Modulereducer, villeState: VilleReducer, paysState: PaysReducer, aeroportState: AeroportReducer,compagnieState: CompagnieReducer,
+    enregistrementState: Enregistrementreducer, donneeBiometriqueState: biometricReducer, volState: VolReducer
     }),
-    provideEffects([ProfilEffects, UserEffects, MenuActionEffects, ModuleParamEffects, EnregistrementEffects,DonneeBiometriqueEffects, PaysEffects, VilleEffects, AeroportEffects, CompagnieEffects, ListeNoireEffects, MotifVoyageEffects]),
-    provideRouter(routes),
+    provideEffects([ProfilEffects, UserEffects, MenuActionEffects, ModuleParamEffects, EnregistrementEffects,DonneeBiometriqueEffects,
+       PaysEffects, VilleEffects, AeroportEffects, CompagnieEffects, VolEffects, ListeNoireEffects, MotifVoyageEffects]),
+
+
+   provideRouter(routes),
     provideStoreDevtools({
       maxAge: 25,
       logOnly: false

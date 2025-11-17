@@ -27,7 +27,7 @@ export interface Enregistrement {
   adresseEtranger?: string | null;
   
   // Voyage
-  vol_id?: number | null;
+  volId?: number | null;
   villeDepart?: string;
   villeDestination?: string;
   dateVoyage?: string;

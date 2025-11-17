@@ -98,6 +98,7 @@ export class AppMenuComponent implements OnInit {
                      {
                         label: 'Gestion des Vols',
                         icon: 'pi pi-send',
+                        routerLink: ['/admin/vol']
                        
                     },
                     

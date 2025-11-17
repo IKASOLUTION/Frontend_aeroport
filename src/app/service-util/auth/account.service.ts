@@ -30,7 +30,8 @@ export class AccountService {
 
     // Correction de la faute de frappe "reunitialise" -> "reinitialize"
     reinitialize(email: string, currentPassword: string): Observable<any> {
-    return this.http.post('/api/users/account/reinitialize', { email, currentPassword });
+        
+    return this.http.post('/api/users/account/reunitialiser', { email, currentPassword });
     }
 
     save(account: Account): Observable<HttpResponse<any>> {

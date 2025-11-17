@@ -58,4 +58,20 @@ export class UserEffects {
         ))
                     
     ));
+
+
+     activerDesactiver$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(featureActions.activerDesactiver),
+            mergeMap((user: User) =>
+                this.userService.activerDesactiver(user).pipe(
+                    switchMap(value => [
+                        GlobalConfig.setStatus(StatusEnum.success, this.successMsg),
+                        featureActions.loadUser()
+                        
+                    ]),
+                    catchError(error => of(GlobalConfig.setStatus(StatusEnum.error, error)))
+                    
+                ))
+            ));
 }
