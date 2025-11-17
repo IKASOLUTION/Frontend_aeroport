@@ -3,7 +3,7 @@ import { Actions, createEffect, ofType } from "@ngrx/effects";
 import { EnregistrementService } from "./service";
 import { GlobalConfig } from "src/app/config/global.config";
 import { StatusEnum } from "../global-config/model";
-import { catchError, mergeMap, of, switchMap } from "rxjs";
+import { catchError, map, mergeMap, of, switchMap, tap } from "rxjs";
 import * as featureActions from './action';
 import { Enregistrement } from "./model";
 import { HttpErrorResponse } from "@angular/common/http";
@@ -66,7 +66,26 @@ export class EnregistrementEffects {
 
     ));
 
-
+loadEnregistrementsByPeriode$ = createEffect(() =>
+    this.actions$.pipe(
+        ofType(featureActions.loadEnregistrementsByPeriode),
+        tap(action => console.log('Action déclenchée:', action)),
+        switchMap(action =>
+            this.enregistrementService.getEnregistrementsByPeriode(action.searchDto).pipe(
+                tap(response => console.log('Réponse reçue:', response)),
+                map(response =>  featureActions.loadEnregistrementsByPeriodeSuccess({ 
+                    enregistrements: response.content, 
+                    totalItems: response.totalElements 
+                })),
+                catchError(error => {
+                    console.error('Erreur:', error);
+                       return of(GlobalConfig.setStatus(StatusEnum.error, error.error.error)
+                    );
+                })
+            )
+        )
+    )
+);
    
 
  deleteEnregistrement$ = createEffect(() =>

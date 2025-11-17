@@ -239,34 +239,6 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   loadVols(): void {
     // Dispatch action pour charger les vols depuis le store
     this.store.dispatch(volAction.loadVol());
-
-    // Ou simuler temporairement
-    /* this.vols.set([
-      {
-        id: 1,
-        numero_vol: 'AF1234',
-        villeDepart: 'Ouagadougou',
-        ville_arrivee: 'Paris',
-        date_vol: '2025-11-15',
-        heure_depart: '10:30'
-      },
-      {
-        id: 2,
-        numero_vol: 'ET5678',
-        villeDepart: 'Addis-Abeba',
-        ville_arrivee: 'Ouagadougou',
-        date_vol: '2025-11-16',
-        heure_depart: '14:45'
-      },
-      {
-        id: 3,
-        numero_vol: 'TK9012',
-        villeDepart: 'Ouagadougou',
-        ville_arrivee: 'Istanbul',
-        date_vol: '2025-11-17',
-        heure_depart: '08:15'
-      }
-    ]); */
   }
 
   loadMotifs(): void {

@@ -62,7 +62,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideAnimations(),
     provideStore({globalState: GlobalConfigreducer, profilState: reducer , userState: UserReducer, menuActionState: Menureducer, moduleParamState: Modulereducer, villeState: VilleReducer, paysState: PaysReducer, aeroportState: AeroportReducer,compagnieState: CompagnieReducer,
-    enregistrementState: Enregistrementreducer, donneeBiometriqueState: biometricReducer, volState: VolReducer
+    enregistrementState: Enregistrementreducer, donneeBiometriqueState: biometricReducer, volState: VolReducer, motifVoyageState: MotifVoyageReducer, listeNoireState: ListeNoireReducer
     }),
     provideEffects([ProfilEffects, UserEffects, MenuActionEffects, ModuleParamEffects, EnregistrementEffects,DonneeBiometriqueEffects,
        PaysEffects, VilleEffects, AeroportEffects, CompagnieEffects, VolEffects, ListeNoireEffects, MotifVoyageEffects]),

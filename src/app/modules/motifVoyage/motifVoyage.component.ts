@@ -100,9 +100,10 @@ export class MotifVoyageComponent implements OnInit, OnDestroy {
        
            this.createFormMotifVoyage();
        
-           this.store.dispatch(motifVoyageAction.loadMotifVoyage());
+          this.store.dispatch(motifVoyageAction.loadMotifVoyage());
            this.store.pipe(select(motifVoyageSelector.motifVoyageList), takeUntil(this.destroy$)).subscribe(data => {
-             this.motifVoyages = data || [];
+            console.log("===== COMPOSANT - Données reçues du store =====", data); 
+            this.motifVoyages = data || [];
              this.loading = false;
            });
 

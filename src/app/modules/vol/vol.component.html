@@ -42,6 +42,7 @@
                     <th style="font-weight: bold;">Compagnie
                         <p-columnFilter type="text" display="menu" field="villeNomD"></p-columnFilter>
                     </th>
+
                     <th style="font-weight: bold;">Itinéraire
                         <p-columnFilter type="text" display="menu" field="villeNomA"></p-columnFilter>
                     </th>
@@ -60,10 +61,19 @@
             </ng-template>
 
             <ng-template pTemplate="body" let-vol>
-                <tr [pSelectableRow]="vol">
-                    <td class="table-separator">{{vol.numero || vol.typeVol}}</td>
-                    <td class="table-separator">{{vol.compagnie?.nomCompagine}}</td>
-                    <td class="table-separator">{{ vol.villeArrivee?.nom }}</td>
+                <tr>
+                    <td class="table-separator">
+                        <div class="text-sm font-medium text-gray-900">{{ vol.numero }}</div>
+                        <div class="text-sm text-gray-500">{{ vol.typeVol }}</div>
+                    </td>
+                    <td class="table-separator px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">{{ vol.compagnie?.nomCompagine }}</div>
+                    </td>
+                    <td class="table-separator px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ vol.villeDepart?.nom }}
+                        <i class="fa-solid fa-arrow-right pi pi-arrow-right mr-2 mx-1 text-gray-400"></i>
+                        {{ vol.villeArrivee?.nom }}
+                    </td>
                     <td class="table-separator">{{vol.dateDepart | date:'dd/MM/yyyy HH:mm' || 'N/A'}}</td>
                     <td class="table-separator">{{vol.dateDepart | date:'dd/MM/yyyy HH:mm' || 'N/A'}}</td>
                     <td class="table-separator">
@@ -72,15 +82,14 @@
                         </span>
                     </td>
                     <td class="text-center">
+                        <button pButton icon="pi pi-eye" class="p-button-rounded p-button-primary mr-2"
+                            pTooltip="Voir détail" tooltipPosition="top" (click)="openDetailModal(vol)">
+                        </button>
                         <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-info mr-2"
                             pTooltip="Modifier" tooltipPosition="top" (click)="update(vol)">
                         </button>
 
-                        <button pButton [icon]="vol.statut === 'CONFIRME' ? 'pi pi-ban' : 'pi pi-check-circle'"
-                            [class]="'p-button-rounded mr-2 ' + (vol.statut === 'CONFIRME' ? 'p-button-warning' : 'p-button-success')"
-                            [pTooltip]="vol.statut === 'CONFIRME' ? 'Annuler' : 'Confirmer'" tooltipPosition="top"
-                            (click)="confirmChangeStatus(vol)">
-                        </button>
+
 
                         <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger" pTooltip="Supprimer"
                             tooltipPosition="top" (click)="confirmDelete(vol)">
@@ -99,6 +108,9 @@
         </p-table>
     </div>
 </div>
+
+
+
 
 <p-dialog [(visible)]="volDialog" [modal]="true" [closable]="false"
     [style]="{ width: '95vw', maxWidth: '1200px', maxHeight: '95vh' }" [header]="popupHeader"
@@ -209,7 +221,7 @@
                                     </label>
                                     <p-dropdown id="statut" [options]="statutsVol" formControlName="statut"
                                         optionLabel="label" optionValue="value" placeholder="Sélectionnez un statut"
-                                        [style]="{'width': '100%'}" 
+                                        [style]="{'width': '100%'}"
                                         [class.ng-invalid]="volFormGroup.get('statut')?.invalid && volFormGroup.get('statut')?.touched">
                                     </p-dropdown>
                                     <small class="p-error"
@@ -371,21 +383,13 @@
                     <label for="statutVols" class="block mb-2 font-semibold">
                         Statuts des vols
                     </label>
-                    <p-multiSelect 
-                        id="statutVols"
-                        formControlName="statutVols" apendTo="body"
-                        [options]="statutsVol"
-                        optionLabel="label"
-                        optionValue="value"
-                        placeholder="Sélectionner les statuts"
-                        [filter]="true"
-                        filterPlaceHolder="Rechercher..."
-                        [showClear]="true"
-                        display="chip">
+                    <p-multiSelect id="statutVols" formControlName="statutVols" appendTo="body" [options]="statutsVol"
+                        optionLabel="label" optionValue="value" placeholder="Sélectionner les statuts" [filter]="true"
+                        filterPlaceHolder="Rechercher..." [showClear]="true" display="chip">
                     </p-multiSelect>
-                    
+
                     <small class="text-gray-500">
-                        Laissez vide pour tous les statuts
+                        Cocher tout pour tous les statuts
                     </small>
                 </div>
             </div>
@@ -406,6 +410,172 @@
         </div>
     </ng-template>
 </p-dialog>
+
+
+<!-- Modal Détail Vol avec PrimeNG -->
+<!-- Modal Détail Vol avec PrimeNG -->
+<!-- Modal Détail Vol avec PrimeNG -->
+<p-dialog [(visible)]="isDetailModalOpen" [style]="{width: '900px'}" header="Détails du vol" [modal]="true"
+    [closable]="true" [draggable]="false" class="p-fluid">
+
+    <div class="p-fluid grid mt-2">
+
+        <!-- Numéro de vol -->
+        <div class="field col-12 md:col-6">
+            <span class="font-bold">
+                <i class="pi pi-tag mr-2"></i>Numéro de vol:
+            </span>
+            {{ selectedVol.numero || 'N/A' }}
+        </div>
+
+        <!-- Compagnie Aérienne -->
+        <div class="field col-12 md:col-6">
+            <span class="font-bold">
+                <i class="pi pi-building mr-2"></i>Compagnie Aérienne:
+            </span>
+            {{ selectedVol.compagnie?.nomCompagine || 'N/A' }}
+        </div>
+
+        <!-- Aéroport -->
+        <div class="field col-12 md:col-6">
+            <span class="font-bold">
+                <i class="pi pi-map-marker mr-2"></i>Aéroport:
+            </span>
+            {{ selectedVol.aeroport?.nomAeroport || 'N/A' }}
+        </div>
+
+        <!-- Type de vol -->
+        <div class="field col-12 md:col-6">
+            <span class="font-bold">
+                <i class="pi pi-directions mr-2"></i>Type de vol:
+            </span>
+            <p-tag [value]="selectedVol.typeVol != null ? selectedVol.typeVol.toString() : 'N/A'"
+                [severity]="getTypeVolSeverity(selectedVol.typeVol)" styleClass="text-sm ml-2">
+            </p-tag>
+        </div>
+
+        <!-- Ville de départ -->
+        <div class="field col-12 md:col-6">
+            <span class="font-bold">
+                <i class="pi pi-arrow-circle-up mr-2"></i>Ville de départ:
+            </span>
+            {{ selectedVol.villeDepart?.nom || selectedVol.villeNomD || 'N/A' }}
+        </div>
+
+        <!-- Ville d'arrivée -->
+        <div class="field col-12 md:col-6">
+            <span class="font-bold">
+                <i class="pi pi-arrow-circle-down mr-2"></i>Ville d'arrivée:
+            </span>
+            {{ selectedVol.villeArrivee?.nom || selectedVol.villeNomA || 'N/A' }}
+        </div>
+
+        <!-- Date et Heure de départ -->
+        <div class="field col-12 md:col-6">
+            <span class="font-bold">
+                <i class="pi pi-calendar mr-2"></i>Date de départ:
+            </span>
+            {{ selectedVol.dateDepart | date: 'dd/MM/yyyy HH:mm' || 'N/A' }}
+        </div>
+
+        <!-- Date et Heure d'arrivée -->
+        <div class="field col-12 md:col-6">
+            <span class="font-bold">
+                <i class="pi pi-calendar-plus mr-2"></i>Date d'arrivée:
+            </span>
+            {{ selectedVol.dateArrivee | date: 'dd/MM/yyyy HH:mm' || 'N/A' }}
+        </div>
+
+        <!-- Statut -->
+        <div class="field col-12 md:col-6">
+            <span class="font-bold">
+                <i class="pi pi-info-circle mr-2"></i>Statut:
+            </span>
+            <p-tag [value]="selectedVol.statut != null ? selectedVol.statut.toString() : 'N/A'"
+                [severity]="getStatutDetail(selectedVol.statut)" styleClass="text-sm ml-2">
+            </p-tag>
+        </div>
+
+        <!-- Date de saisie (si disponible) -->
+        <div class="field col-12 md:col-6" *ngIf="selectedVol.dateSaisie">
+            <span class="font-bold">
+                <i class="pi pi-clock mr-2"></i>Date de saisie:
+            </span>
+            {{ selectedVol.dateSaisie | date: 'dd/MM/yyyy HH:mm' }}
+        </div>
+
+    </div>
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Fermer" icon="pi pi-times" class="p-button-danger" (click)="closeDetailModal()">
+        </button>
+    </ng-template>
+
+</p-dialog>
+
+
+<!-- IMPORTS NÉCESSAIRES DANS LE MODULE/COMPONENT -->
+<!-- 
+import { DialogModule } from 'primeng/dialog';
+import { TagModule } from 'primeng/tag';
+import { ButtonModule } from 'primeng/button';
+import { CommonModule } from '@angular/common';
+-->
+
+
+<!-- PROPRIÉTÉS ET MÉTHODES DU COMPONENT TypeScript -->
+<!-- 
+export class VolsComponent {
+  isDetailModalOpen = false;
+  selectedVol: Vol | null = null;
+  
+  // Ouvrir le modal de détail
+  openDetailModal(vol: Vol) {
+    this.selectedVol = vol;
+    this.isDetailModalOpen = true;
+  }
+  
+  // Fermer le modal de détail
+  closeDetailModal() {
+    this.isDetailModalOpen = false;
+    this.selectedVol = null;
+  }
+  
+  // Définir la sévérité pour le type de vol
+  getTypeVolSeverity(type: TypeVol | undefined): string {
+    switch (type) {
+      case TypeVol.ARRIVEE:
+        return 'info';
+      case TypeVol.DEPART:
+        return 'success';
+      default:
+        return 'secondary';
+    }
+  }
+  
+  // Définir la sévérité pour le statut
+  getStatutDetail(statut: StatutVol | undefined): string {
+    console.log('=== getStatutClass statut ===', statut);
+    if (!statut) return 'secondary';
+    
+    switch (statut.toString()) {
+      case StatutVol.CONFIRME.toString():
+        return 'primary';
+      case StatutVol.EFFECTUE.toString():
+        return 'success';
+      case StatutVol.ANNULE.toString():
+        return 'danger';
+      case StatutVol.PROGRAMME.toString():
+        console.log('=== PROGRAMME ===');
+        return 'warning';
+      case StatutVol.RETARDE.toString():
+        return 'warning';
+      default:
+        return 'secondary';
+    }
+  }
+}
+-->
 <!-- Toast pour les notifications -->
 <p-toast [style]="{marginTop: '80px'}" position="top-center"></p-toast>
 

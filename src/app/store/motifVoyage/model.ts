@@ -17,3 +17,9 @@ export interface MotifVoyageList {
   error: string | null;
 }
 
+
+export enum StatutVoyageur {
+    
+    EN_ATTENTE,VALIDE,REJETE,ANNULE
+    
+}

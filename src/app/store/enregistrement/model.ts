@@ -35,6 +35,8 @@ export interface Enregistrement {
   motifVoyage?: MotifVoyage;
   etatVoyage?: 'ALLER' | 'RETOUR' | 'ALLER_RETOUR';
   dureeSejour?: number | null;
+  nbreVoyage?: number | 0;
+  statut?: string;
 }
 
 
