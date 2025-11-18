@@ -68,6 +68,12 @@ export class Endpoints {
     };
 
 
+     static readonly Notification = {
+        prod: `${SERVICE_PREFIX}/notifications`,
+        mock: `assets/mock/notification.mock.json`
+    };
+
+
     
 
 

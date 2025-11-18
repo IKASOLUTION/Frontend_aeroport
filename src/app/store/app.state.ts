@@ -15,6 +15,7 @@ import { VolState } from "./vol/state";
 import { ListeNoireState } from "./listeNoir/state";
 import { M } from "@fullcalendar/core/internal-common";
 import { MotifVoyageState } from "./motifVoyage/state";
+import { NotificationState } from "./notification/state";
 
 
 
@@ -35,5 +36,7 @@ export interface AppState {
   volState: VolState;
   listeNoireState: ListeNoireState;
   motifVoyageState: MotifVoyageState;
+  notificationState: NotificationState;
+
 
 }

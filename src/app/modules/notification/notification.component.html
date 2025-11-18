@@ -1,0 +1,122 @@
+<div class="grid">
+    <div class="col-12 md:col-12">
+       <p-table #dt styleClass="p-datatable-gridlines p-datatable-sm p-datatable" [value]="notifications" [columns]="cols"
+    [rows]="5" [paginator]="true" [rowsPerPageOptions]="[5, 10, 20, 30]" [showCurrentPageReport]="true"
+    [globalFilterFields]="['numeroNip', 'nom', 'prenom', 'aeroport.nomAeroport', 'numeroCnib']"
+    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+    [(selection)]="selectedNotification" selectionMode="single" [rowHover]="true" dataKey="id" [loading]="loading">
+
+    <ng-template pTemplate="caption">
+        <div class="flex justify-content-between flex-column sm:flex-row">
+            <div class="flex gap-2">
+                <button pButton label="Filtrer par période" class="p-button-info mb-2" icon="pi pi-filter"
+                    (click)="openFilterDialog()">
+                </button>
+                <button pButton label="Réinitialiser" class="p-button-secondary mb-2" icon="pi pi-refresh"
+                    (click)="resetFilters()">
+                </button>
+            </div>
+            <div class="flex flex-column align-items-end">
+                <span class="p-input-icon-left mb-2">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" #filter (input)="onGlobalFilter(dt, $event)"
+                        placeholder="Rechercher" class="w-full" />
+                </span>
+                <!-- <small class="text-500" *ngIf="dateDebut && dateFin">
+                    Période: {{dateDebut | date:'dd/MM/yyyy'}} - {{dateFin | date:'dd/MM/yyyy'}}
+                    <span *ngIf="selectedStatuts.length > 0"> | Statuts: {{selectedStatuts.length}}
+                        sélectionné(s)</span>
+                </small> -->
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+        <tr>
+            <th style="font-weight: bold;">Personne Détectée
+                <p-columnFilter type="text" display="menu" field="nom"></p-columnFilter>
+            </th>
+            <th style="font-weight: bold;">Date / Heure
+                <p-columnFilter type="text" display="menu" field="date"></p-columnFilter>
+            </th>
+            <th style="font-weight: bold;">NIP
+                <p-columnFilter type="text" display="menu" field="numeroNip"></p-columnFilter>
+            </th>
+            <th style="font-weight: bold;">CNIB
+                <p-columnFilter type="text" display="menu" field="numeroCnib"></p-columnFilter>
+            </th>
+            <th style="font-weight: bold;">Aéroport
+                <p-columnFilter type="text" display="menu" field="aeroport.nomAeroport"></p-columnFilter>
+            </th>
+            <th style="font-weight: bold;">Agent en charge
+                <p-columnFilter type="text" display="menu" field="user.nom"></p-columnFilter>
+            </th>
+            <th style="font-weight: bold;">Statut
+                <p-columnFilter type="text" display="menu" field="statut"></p-columnFilter>
+            </th>
+            <th style="font-weight: bold;" class="text-center">Actions</th>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-notification>
+        <tr>
+            <td class="table-separator">
+                <div class="text-sm font-medium text-gray-900">
+                    {{ notification.nom }} {{ notification.prenom }}
+                </div>
+            </td>
+            <td class="table-separator">
+                <div class="text-sm text-gray-900">
+                    {{ notification.date | date:'dd/MM/yyyy HH:mm' || 'N/A' }}
+                </div>
+            </td>
+            <td class="table-separator">
+                <div class="text-sm text-gray-900">{{ notification.numeroNip || 'N/A' }}</div>
+            </td>
+            <td class="table-separator">
+                <div class="text-sm text-gray-900">{{ notification.numeroCnib || 'N/A' }}</div>
+            </td>
+            <td class="table-separator">
+                <div class="text-sm text-gray-900">{{ notification.aeroport?.nomAeroport || 'N/A' }}</div>
+            </td>
+            <td class="table-separator">
+                <div class="text-sm text-gray-900">
+                    {{ notification.user?.nom }} {{ notification.user?.prenom }}
+                </div>
+            </td>
+            <td class="table-separator">
+                
+                    {{ notification.statut || 'N/A' }}
+               
+            </td>
+            <td class="text-center">
+                <!-- <button pButton icon="pi pi-eye" class="p-button-rounded p-button-primary mr-2"
+                    pTooltip="Voir détail" tooltipPosition="top" (click)="openDetailModal(notification)">
+                </button>
+                <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-info mr-2"
+                    pTooltip="Modifier" tooltipPosition="top" (click)="update(notification)">
+                </button>
+                <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger" 
+                    pTooltip="Supprimer" tooltipPosition="top" (click)="confirmDelete(notification)">
+                </button> -->
+            </td>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td colspan="8" style="text-align: center; font-size: 1.2em; color: red; font-weight: bold;">
+                <span class="text-danger">Aucune Notification trouvée !</span>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+    </div>
+</div>
+
+<!-- Toast pour les notifications -->
+<p-toast [style]="{marginTop: '80px'}" position="top-center"></p-toast>
+
+<!-- Dialog de confirmation -->
+<p-confirmDialog></p-confirmDialog>
+<app-loading-spinner></app-loading-spinner>
