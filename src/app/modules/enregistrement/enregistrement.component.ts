@@ -12,7 +12,6 @@ import * as globalSelector from '../../store/global-config/selector';
 import * as volAction from '../../store/vol/action';
 import * as volSelector from '../../store/vol/selector';
 
-
 // PrimeNG Imports
 import { CardModule } from 'primeng/card';
 import { FieldsetModule } from 'primeng/fieldset';
@@ -28,22 +27,20 @@ import { PanelModule } from 'primeng/panel';
 import { ToastModule } from 'primeng/toast';
 import { Enregistrement, InformationPersonnelle, MotifVoyage, TypeDocument } from 'src/app/store/enregistrement/model';
 import { DonneeBiometrique } from 'src/app/store/biometric/model';
-import { co } from '@fullcalendar/core/internal-common';
 import { LoadingSpinnerComponent } from '../loading-spinner.component';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { Vol } from 'src/app/store/vol/model';
-
-
-
-
-
-
 
 interface Passager {
   id: number;
   nom_complet: string;
   numeroDocument: string;
-  informationPersonnelleId?: number,
+  informationPersonnelleId?: number;
+}
+
+interface EmpreinteCapture {
+  image: string | null;
+  capturee: boolean;
 }
 
 @Component({
@@ -95,21 +92,24 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
 
   selectedVolInfo = signal<Vol | null>(null);
 
-  // Modale Biométrique
+  // Modale Biométrique - Empreintes avec images
   isCaptureBiometriqueModalOpen = signal<boolean>(false);
   passagerPourBiometrie = signal<Passager | null>(null);
-  empreinteGaucheCapturee = signal<boolean>(false);
-  empreinteDroiteCapturee = signal<boolean>(false);
-  empreintePoucesCapturee = signal<boolean>(false);
+  
+  // Empreintes avec images
+  empreinteGauche = signal<EmpreinteCapture>({ image: null, capturee: false });
+  empreinteDroite = signal<EmpreinteCapture>({ image: null, capturee: false });
+  empreintePouces = signal<EmpreinteCapture>({ image: null, capturee: false });
+  
   capturedPhotoPourBiometrie = signal<string | null>(null);
   biometric = signal<DonneeBiometrique | null>(null);
   enregistrementSelect = signal<Enregistrement | null>(null);
-  informationPersonnel: InformationPersonnelle =  {};
+  informationPersonnel: InformationPersonnelle = {};
 
   // Modale Caméra
   isCameraModalOpen = signal<boolean>(false);
   capturedPhotoBase64 = signal<string | null>(null);
-  currentCameraTarget = signal<'recto' | 'verso' | 'profil' | 'biometrique' | null>(null);
+  currentCameraTarget = signal<'recto' | 'verso' | 'profil' | 'biometrique' | 'empreinteGauche' | 'empreinteDroite' | 'empreintePouces' | null>(null);
   private mediaStream: MediaStream | null = null;
 
   // Options pour les dropdowns
@@ -118,7 +118,6 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initializeFormData();
-    // this.loadEnregistrements();
     this.subscribeToStoreUpdates();
     this.loadVols();
     this.loadMotifs();
@@ -129,7 +128,6 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   }
 
   private subscribeToStoreUpdates(): void {
-    // Écouter la liste des enregistrements
     this.store.pipe(
       select(enregistrementSelector.enregistrementList),
       takeUntil(this.destroy$)
@@ -139,7 +137,8 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
         this.enregistrementList.set(value);
       }
     });
-     this.store.pipe(
+
+    this.store.pipe(
       select(volSelector.volList),
       takeUntil(this.destroy$)
     ).subscribe(value => {
@@ -148,9 +147,6 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
       }
     });
 
-
-    
-    // Écouter les statuts globaux (succès/erreur)
     this.store.pipe(
       select(globalSelector.status),
       takeUntil(this.destroy$)
@@ -159,24 +155,6 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
         this.showToast(status.status, status.message);
       }
     });
-
-    // // Écouter l'état de chargement
-    // this.store.pipe(
-    //   select(enregistrementSelector.loading),
-    //   takeUntil(this.destroy$)
-    // ).subscribe(loading => {
-    //   this.isSaving.set(loading);
-    // });
-
-    // // Écouter les erreurs
-    // this.store.pipe(
-    //   select(enregistrementSelector.error),
-    //   takeUntil(this.destroy$)
-    // ).subscribe(error => {
-    //   if (error) {
-    //     this.showToast('error', error);
-    //   }
-    // });
   }
 
   private showToast(severity: string, message: string): void {
@@ -239,17 +217,11 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   }
 
   loadVols(): void {
-    // Dispatch action pour charger les vols depuis le store
     this.store.dispatch(volAction.loadVol());
   }
 
   loadMotifs(): void {
-    // Dispatch action pour charger les motifs depuis le store
-    // this.store.dispatch(motifAction.loadMotifs());
-
-    // Ou simuler temporairement
     this.motifs.set([
-
       { libelle: 'Affaires', value: MotifVoyage.AFFAIRES },
       { libelle: 'Tourisme', value: MotifVoyage.TOURISME },
       { libelle: 'Famille', value: MotifVoyage.FAMILLE },
@@ -261,7 +233,6 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   updateFormDataField(field: keyof Enregistrement, value: any): void {
     this.formData.update(data => ({ ...data, [field]: value }));
 
-    // Effacer l'erreur pour ce champ si elle existe
     if (this.formErrors()[field]) {
       this.formErrors.update(errors => {
         const newErrors = { ...errors };
@@ -273,8 +244,6 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
 
   onVolSelectionChange(volId: number): void {
     const selectedVol = this.volList().find(v => v.id === volId);
-    console.log('Vol sélectionné:', selectedVol);
-    console.log('volList:', this.volList());
     if (selectedVol) {
       this.selectedVolInfo.set(selectedVol);
       this.formData.update(data => ({
@@ -282,12 +251,12 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
         volId: volId,
         villeDepart: selectedVol.villeDepart?.nom,
         villeDestination: selectedVol.villeArrivee?.nom,
-       dateVoyage: selectedVol.dateDepart
-        ? new Date(selectedVol.dateDepart).toISOString().split('T')[0]
-        : '',
-      heureVoyage: selectedVol.dateDepart
-        ? new Date(selectedVol.dateDepart).toISOString().split('T')[1].substring(0, 5)
-        : ''
+        dateVoyage: selectedVol.dateDepart
+          ? new Date(selectedVol.dateDepart).toISOString().split('T')[0]
+          : '',
+        heureVoyage: selectedVol.dateDepart
+          ? new Date(selectedVol.dateDepart).toISOString().split('T')[1].substring(0, 5)
+          : ''
       }));
     }
   }
@@ -296,72 +265,25 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
     const errors: Record<string, string> = {};
     const data = this.formData();
 
-    // Validation Document
-    if (!data.numeroDocument?.trim()) {
-      errors['numeroDocument'] = 'Le numéro de document est requis';
-    }
-    if (!data.dateDelivrance) {
-      errors['dateDelivrance'] = 'La date de délivrance est requise';
-    }
-    if (!data.lieuDelivrance?.trim()) {
-      errors['lieuDelivrance'] = 'Le lieu de délivrance est requis';
-    }
-    if (!data.imageRecto) {
-      errors['imageRecto'] = 'L\'image recto est requise';
-    }
-    if (!data.imageVerso) {
-      errors['imageVerso'] = 'L\'image verso est requise';
-    }
-    if (!data.photoProfil) {
-      errors['photoProfil'] = 'La photo de enregistrement est requise';
-    }
-
-    // Validation Informations Personnelles
-    if (!data.prenom?.trim()) {
-      errors['prenom'] = 'Le prénom est requis';
-    }
-    if (!data.nomFamille?.trim()) {
-      errors['nomFamille'] = 'Le nom de famille est requis';
-    }
-    if (!data.dateNaissance) {
-      errors['dateNaissance'] = 'La date de naissance est requise';
-    }
-    if (!data.lieuNaissance?.trim()) {
-      errors['lieuNaissance'] = 'Le lieu de naissance est requis';
-    }
-    if (!data.nationalite?.trim()) {
-      errors['nationalite'] = 'La nationalité est requise';
-    }
-    if (!data.profession?.trim()) {
-      errors['profession'] = 'La profession est requise';
-    }
-
-    // Validation Coordonnées
-    if (!data.paysResidence?.trim()) {
-      errors['paysResidence'] = 'Le pays de résidence est requis';
-    }
-    if (!data.adresseBurkina?.trim()) {
-      errors['adresseBurkina'] = 'L\'adresse au Burkina est requise';
-    }
-    if (!data.adresseEtranger?.trim()) {
-      errors['adresseEtranger'] = 'L\'adresse à l\'étranger est requise';
-    }
-
-    // Validation email si fourni
-    if (data.emailContact && !this.isValidEmail(data.emailContact)) {
-      errors['emailContact'] = 'L\'email n\'est pas valide';
-    }
-
-    // Validation Voyage
-    if (!data.volId) {
-      errors['volId'] = 'Le vol est requis';
-    }
-    if (data.motifVoyage === undefined) {
-      errors['motifVoyage'] = 'Le motif du voyage est requis';
-    }
-    if (!data.dureeSejour || data.dureeSejour < 1) {
-      errors['dureeSejour'] = 'La durée du séjour doit être d\'au moins 1 jour';
-    }
+    if (!data.numeroDocument?.trim()) errors['numeroDocument'] = 'Le numéro de document est requis';
+    if (!data.dateDelivrance) errors['dateDelivrance'] = 'La date de délivrance est requise';
+    if (!data.lieuDelivrance?.trim()) errors['lieuDelivrance'] = 'Le lieu de délivrance est requis';
+    if (!data.imageRecto) errors['imageRecto'] = 'L\'image recto est requise';
+    if (!data.imageVerso) errors['imageVerso'] = 'L\'image verso est requise';
+    if (!data.photoProfil) errors['photoProfil'] = 'La photo de profil est requise';
+    if (!data.prenom?.trim()) errors['prenom'] = 'Le prénom est requis';
+    if (!data.nomFamille?.trim()) errors['nomFamille'] = 'Le nom de famille est requis';
+    if (!data.dateNaissance) errors['dateNaissance'] = 'La date de naissance est requise';
+    if (!data.lieuNaissance?.trim()) errors['lieuNaissance'] = 'Le lieu de naissance est requis';
+    if (!data.nationalite?.trim()) errors['nationalite'] = 'La nationalité est requise';
+    if (!data.profession?.trim()) errors['profession'] = 'La profession est requise';
+    if (!data.paysResidence?.trim()) errors['paysResidence'] = 'Le pays de résidence est requis';
+    if (!data.adresseBurkina?.trim()) errors['adresseBurkina'] = 'L\'adresse au Burkina est requise';
+    if (!data.adresseEtranger?.trim()) errors['adresseEtranger'] = 'L\'adresse à l\'étranger est requise';
+    if (data.emailContact && !this.isValidEmail(data.emailContact)) errors['emailContact'] = 'L\'email n\'est pas valide';
+    if (!data.volId) errors['volId'] = 'Le vol est requis';
+    if (data.motifVoyage === undefined) errors['motifVoyage'] = 'Le motif du voyage est requis';
+    if (!data.dureeSejour || data.dureeSejour < 1) errors['dureeSejour'] = 'La durée du séjour doit être d\'au moins 1 jour';
 
     this.formErrors.set(errors);
     return Object.keys(errors).length === 0;
@@ -373,10 +295,6 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   }
 
   submitEnregistrement(): void {
-    // Dispatch action pour créer l'enregistrement
-    const enregistrementData = this.prepareEnregistrementData();
-    this.store.dispatch(enregistrementAction.createEnregistrement(enregistrementData
-    ));
     if (!this.validateForm()) {
       this.messageService.add({
         severity: 'error',
@@ -387,25 +305,21 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const enregistrementData = this.prepareEnregistrementData();
+    this.store.dispatch(enregistrementAction.createEnregistrement(enregistrementData));
 
-
-    // Ouvrir la modale biométrique après succès (géré via subscription au store)
     this.store.pipe(
       select(enregistrementSelector.selectedEnregistrement),
       takeUntil(this.destroy$)
     ).subscribe(created => {
-      console.log("==============created=================", created)
       if (created && created.id) {
-        
         this.enregistrementSelect.set(created);
         this.passagerPourBiometrie.set({
           id: created.id,
-          
           nom_complet: `${created.prenom} ${created.nomFamille}`,
           numeroDocument: created.numeroDocument || '',
           informationPersonnelleId: created.informationPersonnelleId
         });
-        console.log("==============passagerPourBiometrie=================", this.passagerPourBiometrie())
         this.isCaptureBiometriqueModalOpen.set(true);
       }
     });
@@ -413,8 +327,6 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
 
   private prepareEnregistrementData(): Enregistrement {
     const data = this.formData();
-
-    // Convertir les dates si nécessaire
     return {
       ...data,
       dateDelivrance: this.formatDate(data.dateDelivrance),
@@ -425,11 +337,9 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
 
   private formatDate(date: any): string {
     if (!date) return '';
-
     if (date instanceof Date) {
       return date.toISOString().split('T')[0];
     }
-
     return date;
   }
 
@@ -446,7 +356,34 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Gestion de la caméra
+  // Gestion de la caméra pour empreintes
+  async capturerEmpreinte(type: 'empreinteGauche' | 'empreinteDroite' | 'empreintePouces'): Promise<void> {
+    this.currentCameraTarget.set(type);
+    this.capturedPhotoBase64.set(null);
+    this.isCameraModalOpen.set(true);
+
+    try {
+      await this.waitForView();
+
+      this.mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: 1280, height: 720 }
+      });
+
+      if (this.videoElement && this.videoElement.nativeElement) {
+        this.videoElement.nativeElement.srcObject = this.mediaStream;
+      }
+    } catch (error) {
+      console.error('Erreur d\'accès à la caméra:', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur caméra',
+        detail: 'Impossible d\'accéder à la caméra',
+        life: 3000
+      });
+      this.isCameraModalOpen.set(false);
+    }
+  }
+
   async demarrerCamera(target: 'recto' | 'verso' | 'profil' | 'biometrique'): Promise<void> {
     this.currentCameraTarget.set(target);
     this.capturedPhotoBase64.set(null);
@@ -507,6 +444,12 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
 
     if (target === 'biometrique') {
       this.capturedPhotoPourBiometrie.set(photo);
+    } else if (target === 'empreinteGauche') {
+      this.empreinteGauche.set({ image: photo, capturee: true });
+    } else if (target === 'empreinteDroite') {
+      this.empreinteDroite.set({ image: photo, capturee: true });
+    } else if (target === 'empreintePouces') {
+      this.empreintePouces.set({ image: photo, capturee: true });
     } else {
       this.formData.update(data => ({
         ...data,
@@ -527,19 +470,18 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
     this.currentCameraTarget.set(null);
   }
 
-  // Gestion de la modale biométrique
   closeBiometricModal(): void {
     this.isCaptureBiometriqueModalOpen.set(false);
     this.passagerPourBiometrie.set(null);
-    this.empreinteGaucheCapturee.set(false);
-    this.empreinteDroiteCapturee.set(false);
-    this.empreintePoucesCapturee.set(false);
+    this.empreinteGauche.set({ image: null, capturee: false });
+    this.empreinteDroite.set({ image: null, capturee: false });
+    this.empreintePouces.set({ image: null, capturee: false });
     this.capturedPhotoPourBiometrie.set(null);
   }
 
   validerAvecBiometrie(): void {
-    if (!this.empreinteGaucheCapturee() || !this.empreinteDroiteCapturee() ||
-      !this.empreintePoucesCapturee() || !this.capturedPhotoPourBiometrie()) {
+    if (!this.empreinteGauche().capturee || !this.empreinteDroite().capturee ||
+      !this.empreintePouces().capturee || !this.capturedPhotoPourBiometrie()) {
       this.messageService.add({
         severity: 'warn',
         summary: 'Données incomplètes',
@@ -552,40 +494,44 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
     const passager = this.passagerPourBiometrie();
     if (!passager) return;
 
+    // Convertir les images en fichiers
+    const empreinteGaucheFile = this.convertBase64ToFile(this.empreinteGauche().image, 'empreinte_gauche.jpg');
+    const empreinteDroiteFile = this.convertBase64ToFile(this.empreinteDroite().image, 'empreinte_droite.jpg');
+    const empreintePoucesFile = this.convertBase64ToFile(this.empreintePouces().image, 'empreinte_pouces.jpg');
+    const photoBiometriqueFile = this.convertBase64ToFile(this.capturedPhotoPourBiometrie(), 'photo_biometrique.jpg');
+
+    // Vérifier que toutes les conversions ont réussi
+    if (!empreinteGaucheFile || !empreinteDroiteFile || !empreintePoucesFile || !photoBiometriqueFile) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur de conversion',
+        detail: 'Impossible de convertir les images capturées',
+        life: 3000
+      });
+      return;
+    }
+
     this.biometric.set({
-      informationPersonnelleId:this.enregistrementSelect()?.informationPersonnelleId,
-      empreinteGauche: true,
-      empreinteDroite: true,
-      empreintePouces: true,
-      photoBiometrique: this.convertBase64ToFile(this.capturedPhotoPourBiometrie())
+      informationPersonnelleId: this.enregistrementSelect()?.informationPersonnelleId,
+      empreinteGauche: empreinteGaucheFile,
+      empreinteDroite: empreinteDroiteFile,
+      empreintePouces: empreintePoucesFile,
+      photoBiometrique: photoBiometriqueFile
     });
+
     const biometricData = this.biometric();
     if (biometricData) {
       this.store.dispatch(biometricAction.createDonneeBiometrique(biometricData));
-    } else {
-      console.error('Données biométriques invalides');
     }
 
-    // Fermer la modale et réinitialiser après succès (géré via subscription)
-    /* this.store.pipe(
-      select(globalSelector.status),
-      takeUntil(this.destroy$)
-    ).subscribe(status => {
-      console.log('Statut global reçu dans la modale biométrique:', status);
-      if (status && status.status === 'success') {
-        
-      }
-    }); */
     this.closeBiometricModal();
     this.resetForm();
   }
-
 
   private convertBase64ToFile(base64String: string | null, filename: string = 'photo.jpg'): File | undefined {
     if (!base64String) return undefined;
 
     try {
-      // Supprimer le préfixe data:image/...;base64, si présent
       const base64Data = base64String.split(',')[1] || base64String;
       const byteString = atob(base64Data);
       const arrayBuffer = new ArrayBuffer(byteString.length);
@@ -602,7 +548,6 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
       return undefined;
     }
   }
-
 
   ngOnDestroy(): void {
     this.arreterCamera();
