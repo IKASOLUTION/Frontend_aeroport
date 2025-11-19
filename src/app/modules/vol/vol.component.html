@@ -514,68 +514,6 @@
 </p-dialog>
 
 
-<!-- IMPORTS NÉCESSAIRES DANS LE MODULE/COMPONENT -->
-<!-- 
-import { DialogModule } from 'primeng/dialog';
-import { TagModule } from 'primeng/tag';
-import { ButtonModule } from 'primeng/button';
-import { CommonModule } from '@angular/common';
--->
-
-
-<!-- PROPRIÉTÉS ET MÉTHODES DU COMPONENT TypeScript -->
-<!-- 
-export class VolsComponent {
-  isDetailModalOpen = false;
-  selectedVol: Vol | null = null;
-  
-  // Ouvrir le modal de détail
-  openDetailModal(vol: Vol) {
-    this.selectedVol = vol;
-    this.isDetailModalOpen = true;
-  }
-  
-  // Fermer le modal de détail
-  closeDetailModal() {
-    this.isDetailModalOpen = false;
-    this.selectedVol = null;
-  }
-  
-  // Définir la sévérité pour le type de vol
-  getTypeVolSeverity(type: TypeVol | undefined): string {
-    switch (type) {
-      case TypeVol.ARRIVEE:
-        return 'info';
-      case TypeVol.DEPART:
-        return 'success';
-      default:
-        return 'secondary';
-    }
-  }
-  
-  // Définir la sévérité pour le statut
-  getStatutDetail(statut: StatutVol | undefined): string {
-    console.log('=== getStatutClass statut ===', statut);
-    if (!statut) return 'secondary';
-    
-    switch (statut.toString()) {
-      case StatutVol.CONFIRME.toString():
-        return 'primary';
-      case StatutVol.EFFECTUE.toString():
-        return 'success';
-      case StatutVol.ANNULE.toString():
-        return 'danger';
-      case StatutVol.PROGRAMME.toString():
-        console.log('=== PROGRAMME ===');
-        return 'warning';
-      case StatutVol.RETARDE.toString():
-        return 'warning';
-      default:
-        return 'secondary';
-    }
-  }
-}
--->
 <!-- Toast pour les notifications -->
 <p-toast [style]="{marginTop: '80px'}" position="top-center"></p-toast>
 

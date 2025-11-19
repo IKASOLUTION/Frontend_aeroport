@@ -54,8 +54,8 @@ private convertToFormData(donneeBiometrique: DonneeBiometrique): FormData {
   }
   
   // Ajouter l'ID de l'enregistrement
-  if (donneeBiometrique.enregistrementId !== undefined) {
-    formData.append('enregistrementId', donneeBiometrique.enregistrementId.toString());
+  if (donneeBiometrique.informationPersonnelleId !== undefined) {
+    formData.append('informationPersonnelleId', donneeBiometrique.informationPersonnelleId.toString());
   }
   
   // Ajouter la photo

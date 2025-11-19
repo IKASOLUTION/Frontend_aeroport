@@ -138,12 +138,10 @@ export class AuthServerProvider {
    */
   refreshToken(): Observable<any> {
       const refreshToken = this.getRefreshToken();
-
       if (!refreshToken) {
           this.logout();
           return throwError(() => new Error('Aucun token de rafraîchissement disponible'));
       }
-
       return this.http.post('api/users/refresh', {
           refreshToken: refreshToken
       }).pipe(
@@ -154,7 +152,7 @@ export class AuthServerProvider {
               }
           }),
           catchError((error) => {
-              console.error('Erreur lors du rafraîchissement du token:', error);
+              console.log('Erreur lors du rafraîchissement du token:', error);
               this.logout();
               return throwError(() => error);
           })

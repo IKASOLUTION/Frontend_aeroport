@@ -1,0 +1,395 @@
+<div class="grid">
+    <div class="col-12 md:col-12">
+        <p-table #dt styleClass="p-datatable-gridlines p-datatable-sm p-datatable" [value]="enregistrementList()"
+            [columns]="cols" [rows]="10" [paginator]="true" [rowsPerPageOptions]="[5, 10, 20, 30]"
+            [showCurrentPageReport]="true"
+            [globalFilterFields]="['nomFamille', 'prenom', 'numeroDocument', 'nationalite', 'villeDepart', 'villeDestination']"
+            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+            [(selection)]="selectedEnregistrement" selectionMode="single" [rowHover]="true" dataKey="id"
+            [loading]="loading()">
+
+            <ng-template pTemplate="caption">
+                <div class="flex justify-content-between flex-column sm:flex-row">
+                    <div class="flex gap-2">
+                        <button pButton label="Nouvel enregistrement" [routerLink]="['/admin/gestion-enregistrements']"
+                            class="p-button-success mb-2" icon="pi pi-plus">
+                        </button>
+                        <button pButton label="Filtrer par période" class="p-button-info mb-2" icon="pi pi-filter"
+                            (click)="openFilterDialog()">
+                        </button>
+                        <button pButton label="Réinitialiser" class="p-button-secondary mb-2" icon="pi pi-refresh"
+                            (click)="resetFilters()">
+                        </button>
+                    </div>
+                    <div class="flex flex-column align-items-end">
+                        <span class="p-input-icon-left mb-2">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" #filter (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Rechercher" class="w-full" />
+                        </span>
+                        <small class="text-500" *ngIf="dateDebut && dateFin">
+                            Période: {{dateDebut | date:'dd/MM/yyyy'}} - {{dateFin | date:'dd/MM/yyyy'}}
+                        </small>
+                    </div>
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="font-weight: bold;">Passager
+                        <p-columnFilter type="text" display="menu" field="nomFamille"></p-columnFilter>
+                    </th>
+                    <th style="font-weight: bold;">Document
+                        <p-columnFilter type="text" display="menu" field="typeDocument"></p-columnFilter>
+                    </th>
+                    <th style="font-weight: bold;">Nationalité
+                        <p-columnFilter type="text" display="menu" field="nationalite"></p-columnFilter>
+                    </th>
+                    <th style="font-weight: bold;">Itinéraire
+                        <p-columnFilter type="text" display="menu" field="villeDepart"></p-columnFilter>
+                    </th>
+                    <th style="font-weight: bold;">Voyage
+                        <p-columnFilter type="text" display="menu" field="dateVoyage"></p-columnFilter>
+                    </th>
+                    <th style="font-weight: bold;">Statut
+                        <p-columnFilter type="text" display="menu" field="motifVoyage"></p-columnFilter>
+                    </th>
+                    <th style="font-weight: bold;" class="text-center">Actions</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-enregistrement>
+                <tr>
+                    <td class="table-separator">
+                        <div class="text-sm font-medium text-gray-900">{{ enregistrement.nomFamille }} {{
+                            enregistrement.prenom }}</div>
+                        
+                    </td>
+                    <td class="table-separator">
+                        <div class="text-sm text-gray-900">{{ enregistrement.typeDocument }}</div>
+                        <div class="text-sm text-gray-500">{{ enregistrement.numeroDocument }}</div>
+                    </td>
+                    <td class="table-separator px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ enregistrement.nationalite || 'N/A' }}
+                    </td>
+                    <td class="table-separator px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ enregistrement.villeDepart }}
+                        <i class="fa-solid fa-arrow-right pi pi-arrow-right mr-2 mx-1 text-gray-400"></i>
+                        {{ enregistrement.villeDestination }}
+                    </td>
+                    <td class="table-separator">
+                        <div class="text-sm text-gray-900">{{ enregistrement.dateVoyage | date:'dd/MM/yyyy' || 'N/A' }}
+                        </div>
+                        <div class="text-sm text-gray-500">{{ enregistrement.heureVoyage || 'N/A' }}</div>
+                    </td>
+                    <td class="table-separator">
+                        <p-tag [value]="enregistrement.statut || 'N/A'">
+                        </p-tag>
+                    </td>
+                    <td class="text-center">
+                        <button pButton icon="pi pi-eye" class="p-button-rounded p-button-primary mr-2"
+                            pTooltip="Voir détail" tooltipPosition="top" (click)="selectEnregistrement(enregistrement)">
+                        </button>
+                        <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger"
+                            pTooltip="Voir détail" tooltipPosition="top" (click)="confirmDelete(enregistrement)">
+                        </button>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="7" style="text-align: center; font-size: 1.2em; color: red; font-weight: bold;">
+                        <span class="text-danger">Aucun enregistrement trouvé !</span>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+
+<!-- Dialog Filtre par période -->
+<p-dialog [(visible)]="filterDialog" [modal]="true" [draggable]="false" [resizable]="false" [style]="{width: '500px'}"
+    header="Filtrer les enregistrements par période" styleClass="p-fluid">
+
+    <ng-template pTemplate="content">
+        <form [formGroup]="filterFormGroup">
+            <div class="grid">
+                <!-- Date de début -->
+                <div class="col-12 md:col-6">
+                    <label for="dateDebut" class="block mb-2 font-semibold">
+                        Date de début
+                    </label>
+                    <p-calendar id="dateDebut" formControlName="dateDebut" dateFormat="dd/mm/yy" [showIcon]="true"
+                        placeholder="Sélectionner une date" [maxDate]="filterFormGroup.get('dateFin')?.value">
+                    </p-calendar>
+                </div>
+
+                <!-- Date de fin -->
+                <div class="col-12 md:col-6">
+                    <label for="dateFin" class="block mb-2 font-semibold">
+                        Date de fin
+                    </label>
+                    <p-calendar id="dateFin" formControlName="dateFin" dateFormat="dd/mm/yy" [showIcon]="true"
+                        placeholder="Sélectionner une date" [minDate]="filterFormGroup.get('dateDebut')?.value">
+                    </p-calendar>
+                </div>
+
+                <div class="col-12 md:col-6">
+                    <label for="aeroport" class="block mb-2 font-semibold">
+                        Aéroport
+                        <span class="required" style="color: red !important;"></span>
+                    </label>
+                    <p-dropdown id="aeroport" [options]="aeroports" formControlName="aeroport" optionLabel="nomAeroport"
+                        placeholder="Sélectionnez un aéroport" appendTo="body" [showClear]="true" [filter]="true"
+                        filterBy="nomAeroport" [style]="{'width': '100%'}"
+                        [class.ng-invalid]="filterFormGroup.get('aeroport')?.invalid && filterFormGroup.get('aeroport')?.touched">
+                        <ng-template let-aeroport pTemplate="item">
+                            <div class="flex align-items-center">
+                                <i class="pi pi-send mr-2"></i>
+                                <span>{{aeroport.nomAeroport}} - {{aeroport.code_oaci}}</span>
+                            </div>
+                        </ng-template>
+                    </p-dropdown>
+                </div>
+
+               
+
+            </div>
+        </form>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2">
+            <button pButton label="Annuler" icon="pi pi-times" class="p-button-text p-button-secondary"
+                (click)="closeFilterDialog()">
+            </button>
+            <button pButton label="Réinitialiser" icon="pi pi-refresh" class="p-button-text p-button-warning"
+                (click)="resetFilters()">
+            </button>
+            <button pButton label="Appliquer" icon="pi pi-check" class="p-button-primary" (click)="applyFilters()">
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- Modal Détail Enregistrement -->
+<p-dialog [(visible)]="isDetailModalOpen" [style]="{width: '1000px'}" header="Détails de l'enregistrement"
+    [modal]="true" [closable]="true" [draggable]="false" class="p-fluid">
+
+    <div class="p-fluid">
+
+        <!-- Section: Informations Document -->
+        <p-fieldset legend="Informations Document" [toggleable]="false" styleClass="mb-3">
+            <div class="grid">
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold">
+                        <i class="pi pi-id-card mr-2"></i>Type de document:
+                    </span>
+                    {{ selectedEnregistrement.typeDocument || 'N/A' }}
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold">
+                        <i class="pi pi-hashtag mr-2"></i>Numéro de document:
+                    </span>
+                    {{ selectedEnregistrement.numeroDocument || 'N/A' }}
+                </div>
+
+                <div class="field col-12 md:col-6" *ngIf="selectedEnregistrement.numeroNip">
+                    <span class="font-bold">
+                        <i class="pi pi-key mr-2"></i>Numéro NIP:
+                    </span>
+                    {{ selectedEnregistrement.numeroNip }}
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold">
+                        <i class="pi pi-calendar mr-2"></i>Date de délivrance:
+                    </span>
+                    {{ selectedEnregistrement.dateDelivrance | date: 'dd/MM/yyyy' || 'N/A' }}
+                </div>
+
+                <div class="field col-12">
+                    <span class="font-bold">
+                        <i class="pi pi-map-marker mr-2"></i>Lieu de délivrance:
+                    </span>
+                    {{ selectedEnregistrement.lieuDelivrance || 'N/A' }}
+                </div>
+            </div>
+        </p-fieldset>
+
+        <!-- Section: Informations Personnelles -->
+        <p-fieldset legend="Informations Personnelles" [toggleable]="false" styleClass="mb-3">
+            <div class="grid">
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold">
+                        <i class="pi pi-user mr-2"></i>Nom de famille:
+                    </span>
+                    {{ selectedEnregistrement.nomFamille || 'N/A' }}
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold">
+                        <i class="pi pi-user mr-2"></i>Prénom:
+                    </span>
+                    {{ selectedEnregistrement.prenom || 'N/A' }}
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold">
+                        <i class="pi pi-calendar mr-2"></i>Date de naissance:
+                    </span>
+                    {{ selectedEnregistrement.dateNaissance | date: 'dd/MM/yyyy' || 'N/A' }}
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold">
+                        <i class="pi pi-map-marker mr-2"></i>Lieu de naissance:
+                    </span>
+                    {{ selectedEnregistrement.lieuNaissance || 'N/A' }}
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold">
+                        <i class="pi pi-flag mr-2"></i>Nationalité:
+                    </span>
+                    {{ selectedEnregistrement.nationalite || 'N/A' }}
+                </div>
+
+                <div class="field col-12 md:col-6" *ngIf="selectedEnregistrement.profession">
+                    <span class="font-bold">
+                        <i class="pi pi-briefcase mr-2"></i>Profession:
+                    </span>
+                    {{ selectedEnregistrement.profession }}
+                </div>
+            </div>
+        </p-fieldset>
+
+        <!-- Section: Coordonnées -->
+        <p-fieldset legend="Coordonnées" [toggleable]="false" styleClass="mb-3">
+            <div class="grid">
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold">
+                        <i class="pi pi-globe mr-2"></i>Pays de résidence:
+                    </span>
+                    {{ selectedEnregistrement.paysResidence || 'N/A' }}
+                </div>
+
+                <div class="field col-12 md:col-6" *ngIf="selectedEnregistrement.emailContact">
+                    <span class="font-bold">
+                        <i class="pi pi-envelope mr-2"></i>Email:
+                    </span>
+                    {{ selectedEnregistrement.emailContact }}
+                </div>
+
+                <div class="field col-12 md:col-6" *ngIf="selectedEnregistrement.telephoneBurkina">
+                    <span class="font-bold">
+                        <i class="pi pi-phone mr-2"></i>Téléphone Burkina:
+                    </span>
+                    {{ selectedEnregistrement.telephoneBurkina }}
+                </div>
+
+                <div class="field col-12 md:col-6" *ngIf="selectedEnregistrement.telephoneEtranger">
+                    <span class="font-bold">
+                        <i class="pi pi-phone mr-2"></i>Téléphone Étranger:
+                    </span>
+                    {{ selectedEnregistrement.telephoneEtranger }}
+                </div>
+
+                <div class="field col-12" *ngIf="selectedEnregistrement.adresseBurkina">
+                    <span class="font-bold">
+                        <i class="pi pi-home mr-2"></i>Adresse Burkina:
+                    </span>
+                    {{ selectedEnregistrement.adresseBurkina }}
+                </div>
+
+                <div class="field col-12" *ngIf="selectedEnregistrement.adresseEtranger">
+                    <span class="font-bold">
+                        <i class="pi pi-home mr-2"></i>Adresse Étranger:
+                    </span>
+                    {{ selectedEnregistrement.adresseEtranger }}
+                </div>
+            </div>
+        </p-fieldset>
+
+        <!-- Section: Informations de Voyage -->
+        <p-fieldset legend="Informations du dernier Voyage" [toggleable]="false" styleClass="mb-3">
+            <div class="grid">
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold">
+                        <i class="pi pi-arrow-up mr-2"></i>Ville de départ:
+                    </span>
+                    {{ selectedEnregistrement.villeDepart || 'N/A' }}
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold">
+                        <i class="pi pi-arrow-down mr-2"></i>Ville de destination:
+                    </span>
+                    {{ selectedEnregistrement.villeDestination || 'N/A' }}
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold">
+                        <i class="pi pi-calendar mr-2"></i>Date de voyage:
+                    </span>
+                    {{ selectedEnregistrement.dateVoyage | date: 'dd/MM/yyyy' || 'N/A' }}
+                </div>
+
+                <div class="field col-12 md:col-6" *ngIf="selectedEnregistrement.heureVoyage">
+                    <span class="font-bold">
+                        <i class="pi pi-clock mr-2"></i>Heure de voyage:
+                    </span>
+                    {{ selectedEnregistrement.heureVoyage }}
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold">
+                        <i class="pi pi-info-circle mr-2"></i>Motif du voyage:
+                    </span>
+                    <!--  <p-tag 
+                        [value]="selectedEnregistrement.motifVoyage || 'N/A'" 
+                        [severity]="getMotifVoyageSeverity(selectedEnregistrement.motifVoyage)"
+                        styleClass="text-sm ml-2">
+                    </p-tag> -->
+                </div>
+
+                <div class="field col-12 md:col-6" *ngIf="selectedEnregistrement.etatVoyage">
+                    <span class="font-bold">
+                        <i class="pi pi-directions mr-2"></i>État du voyage:
+                    </span>
+                    {{ selectedEnregistrement.etatVoyage }}
+                </div>
+
+                <div class="field col-12 md:col-6" *ngIf="selectedEnregistrement.dureeSejour">
+                    <span class="font-bold">
+                        <i class="pi pi-hourglass mr-2"></i>Durée de séjour:
+                    </span>
+                    {{ selectedEnregistrement.dureeSejour }} jour(s)
+                </div>
+
+                <div class="field col-12 md:col-6" *ngIf="selectedEnregistrement.volId">
+                    <span class="font-bold">
+                        <i class="pi pi-send mr-2"></i>Vol associé:
+                    </span>
+                    Vol #{{ selectedEnregistrement.volId }}
+                </div>
+            </div>
+        </p-fieldset>
+
+    </div>
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Fermer" icon="pi pi-times" class="p-button-danger" (click)="closeDetailModal()">
+        </button>
+    </ng-template>
+
+</p-dialog>
+
+<!-- Toast pour les notifications -->
+<p-toast [style]="{marginTop: '80px'}" position="top-center"></p-toast>
+
+<!-- Loading Spinner -->
+ <p-confirmDialog></p-confirmDialog>
+<app-loading-spinner></app-loading-spinner>

@@ -7,6 +7,7 @@ import { catchError, map, mergeMap, of, switchMap, tap } from "rxjs";
 import * as featureActions from './action';
 import { Enregistrement } from "./model";
 import { HttpErrorResponse } from "@angular/common/http";
+import { SearchDto } from "../vol/model";
 
 @Injectable()
 export class EnregistrementEffects {
@@ -86,16 +87,38 @@ loadEnregistrementsByPeriode$ = createEffect(() =>
         )
     )
 );
+
+
+loadVoyageurAttenteByPeriode$ = createEffect(() =>
+    this.actions$.pipe(
+        ofType(featureActions.loadVoyageurAttenteByPeriode),
+        tap(action => console.log('Action déclenchée:', action)),
+        switchMap(action =>
+            this.enregistrementService.getVoyageurAttenteByPeriode(action.searchDto).pipe(
+                tap(response => console.log('Réponse reçue:', response)),
+                map(response =>  featureActions.loadVoyageurAttenteByPeriodeSuccess({ 
+                    voyageurAttentes: response.content, 
+                    totalItems: response.totalElements 
+                })),
+                catchError(error => {
+                    console.error('Erreur:', error);
+                       return of(GlobalConfig.setStatus(StatusEnum.error, error.error.error)
+                    );
+                })
+            )
+        )
+    )
+);
    
 
- deleteEnregistrement$ = createEffect(() =>
+ deleteEnregistrementAttente$ = createEffect(() =>
     this.actions$.pipe(
-            ofType(featureActions.deleteEnregistrement),
-            mergeMap((enregistrement: Enregistrement) =>
+            ofType(featureActions.deleteEnregistrementAttente),
+            mergeMap(({enregistrement, search}) =>
                 this.enregistrementService.deleteEnregistrement(enregistrement).pipe(
                     switchMap(value => [
                         GlobalConfig.setStatus(StatusEnum.success, this.successMsg),
-                        featureActions.loadEnregistrement()
+                        featureActions.loadVoyageurAttenteByPeriode({searchDto: search})
 
                     ]),
                     catchError((error: HttpErrorResponse) => {
