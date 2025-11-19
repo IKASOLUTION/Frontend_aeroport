@@ -337,24 +337,29 @@ export class AeroportComponent implements OnInit, OnDestroy {
         this.popupHeader = 'Enregistrer un aéroport';
     }
 
-    confirmDelete(aeroport: Aeroport) {
-        this.confirmationService.confirm({
-            message: `Êtes-vous sûr de vouloir supprimer l'aéroport "${aeroport.nomAeroport}" ?`,
-            header: 'Confirmation de suppression',
-            icon: 'pi pi-exclamation-triangle',
-            acceptButtonStyleClass: 'p-button-danger',
-            rejectButtonStyleClass: 'p-button-secondary',
-            acceptLabel: 'Oui, supprimer',
-            rejectLabel: 'Annuler',
-            accept: () => {
-                this.deleteAeroport(aeroport);
-            }
-        });
-    }
 
-    deleteAeroport(aeroport: Aeroport) {
-        this.store.dispatch(aeroportAction.deleteAeroport(aeroport));
-    }
+     deleteAeroport(aeroport: Aeroport) {
+    
+            this.confirmationService.confirm({
+                message: `Êtes-vous sûr de vouloir supprimer l'aéroport "${aeroport.nomAeroport}" ?`, 
+                header: 'Confirmation',
+                icon: 'pi pi-exclamation-triangle',
+                acceptButtonStyleClass: 'p-button-danger',
+                rejectButtonStyleClass: 'p-button-secondary',
+                acceptLabel: 'Oui',
+                rejectLabel: 'Non',
+                accept: () => {
+                    console.log("Aeroport à supprimer:", aeroport);
+                    if ( aeroport.id){
+                        this.store.dispatch(aeroportAction.deleteAeroport(aeroport));
+                    } 
+                   
+                }
+            });
+                   
+        }
+
+   
 
     confirmChangeStatus(aeroport: Aeroport) {
         const newStatus: StatutAeroport = aeroport.statutAeroport === StatutAeroport.ACTIF ? 

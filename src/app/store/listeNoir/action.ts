@@ -14,7 +14,7 @@ export const updateListeNoire = createAction(
 );
 
 export const deleteListeNoire = createAction(
-    '[Aeroport] Delete ListeNoire', 
+    '[Aeroport] Delete ListeNoire',
     props<ListeNoire>()
 );
 

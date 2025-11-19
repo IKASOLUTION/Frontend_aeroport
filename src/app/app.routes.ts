@@ -25,17 +25,18 @@ export const routes: Routes = [
             { path: 'login', title:'Login', loadComponent: () => import('./modules/login/login.component').then(c => c.LoginComponent) },
             { path: 'module-param', data: { breadcrumb: 'Gestion des modules' }, loadComponent: () => import('./modules/securite/module-param/module-param.component').then(m => m.ModuleParamComponent) },
             { path: 'user', data: { breadcrumb: 'Utilisateurs'}, loadComponent: () => import('./modules/securite/user/user.component').then(m => m.UserComponent) },
-            { path: 'gestion-enregistrements', data: { breadcrumb: 'Gestion des enreistrements'}, loadComponent: () => import('./modules/enregistrement/enregistrement.component').then(m => m.EnregistrementComponent) },
             { path: 'pays', data: { breadcrumb: 'Pays'}, loadComponent: () => import('./modules/pays/pays.component').then(m => m.PaysComponent) },
             { path: 'ville', data: { breadcrumb: 'Ville'}, loadComponent: () => import('./modules/ville/ville.component').then(m => m.VilleComponent) },
             { path: 'aeroport', data: { breadcrumb: 'Aeroport'}, loadComponent: () => import('./modules/aeroport/aeroport.component').then(m => m.AeroportComponent) },
             { path: 'compagnie', data: { breadcrumb: 'Compagnie'}, loadComponent: () => import('./modules/compagnie/compagnie.component').then(m => m.CompagnieComponent) },
-            { path: 'vol', data: { breadcrumb: 'Vol'}, loadComponent: () => import('./modules/vol/vol.component').then(v => v.VolComponent) },
             { path: 'listeNoire', data: { breadcrumb: 'Liste Noire'}, loadComponent: () => import('./modules/listeNoire/listeNoire.component').then(m => m.ListeNoireComponent) },
             {path: 'motifVoyage', data: { breadcrumb: 'Motif de Voyage'}, loadComponent: () => import('./modules/motifVoyage/motifVoyage.component').then(m => m.MotifVoyageComponent) },
+            {path: 'gestion-enregistrements', data: { breadcrumb: 'Gestion des Enregistrements'}, loadComponent: () => import('./modules/enregistrement/enregistrement.component').then(m => m.EnregistrementComponent) },
+            {path: 'vol', data: { breadcrumb: 'Vol'}, loadComponent: () => import('./modules/vol/vol.component').then(m => m.VolComponent) },
             {path: 'registre-passagers', data: { breadcrumb: 'Registre des Passagers'}, loadComponent: () => import('./modules/register/register.component').then(m => m.RegisterComponent) },
             {path: 'voyageur-attente', data: { breadcrumb: 'Voyageur attente'}, loadComponent: () => import('./modules/voyageur-attente/voyageur-attente.component').then(m => m.VoyageurAttenteComponent) },
 
+            {path: 'notification', data: { breadcrumb: 'Notification Urgente'}, loadComponent: () => import('./modules/notification/notification.component').then(m => m.NotificationComponent) },
 
             
 

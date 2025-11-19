@@ -100,4 +100,22 @@ export class ListeNoireEffects {
             )
         )
     );
+
+      deleteListeNoire$ = createEffect(() =>
+            this.actions$.pipe(
+                ofType(featureActions.deleteListeNoire),
+                mergeMap((listeNoire: ListeNoire) =>
+                    this.listeNoireService.deleteListeNoire(listeNoire).pipe(
+                        switchMap(value => [
+                            GlobalConfig.setStatus(StatusEnum.success, this.successMsg),
+                            featureActions.loadListeNoire()
+                        ]),
+                        catchError((error: HttpErrorResponse) => {
+                            const errorMsg = error.error?.message || 'Erreur lors du changement de statut';
+                            return of(GlobalConfig.setStatus(StatusEnum.error, errorMsg));
+                        })
+                    )
+                )
+            )
+        );
 }

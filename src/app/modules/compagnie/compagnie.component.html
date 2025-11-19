@@ -63,11 +63,15 @@
           <td class="table-separator">{{compagnie.nomCompagine}}</td>
           <td class="table-separator">{{compagnie.groupe || 'N/A'}}</td>
           <td class="table-separator">{{compagnie.pays || 'N/A'}}</td>
-          <td class="table-separator">
-            <span [class]="'badge ' + (compagnie.statut === 'ACTIF' ? 'badge-success' : 'badge-danger')">
-              {{compagnie.statut || 'N/A'}}
-            </span>
-          </td>
+            <td class="table-separator">
+                <span [ngClass]="{
+                    'status-badge status-actif': compagnie.statut === 'ACTIF',
+                    'status-badge status-inactif': compagnie.statut === 'INACTIF'
+                }">
+                    <i [class]="compagnie.statut === 'ACTIF' ? 'pi pi-check-circle' : 'pi pi-times-circle'"></i>
+                    {{compagnie.statut}}
+                </span>
+            </td>
           <td class="text-center">
             <button pButton 
                     icon="pi pi-pencil" 

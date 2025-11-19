@@ -33,22 +33,30 @@ export class VilleEffects {
                     )})                ))
             ));
 
-    updateVille$ = createEffect(() =>
-        this.actions$.pipe(
-            ofType(featureActions.updateVille),
-            mergeMap((ville: Ville) =>
-                this.villeService.updateVille(ville).pipe(
-                    switchMap(value => [
+   updateVille$ = createEffect(() =>
+    this.actions$.pipe(
+        ofType(featureActions.updateVille),
+        mergeMap((action) => {  // Changé : on reçoit l'action complète
+            console.log("===== EFFECT - Action complète =====", action);
+            console.log("===== EFFECT - Ville à mettre à jour =====", action.ville);
+            
+            return this.villeService.updateVille(action.ville).pipe(
+                switchMap(value => {
+                    console.log("===== EFFECT - Success =====", value);
+                    return [
                         GlobalConfig.setStatus(StatusEnum.success, this.successMsg),
                         featureActions.loadVille()
-
-                    ]),
-                    catchError((error: HttpErrorResponse) => {
-                       return of(GlobalConfig.setStatus(StatusEnum.error, error.error.error)
-                    )})
-
-                ))
-            ));
+                    ];
+                }),
+                catchError((error: HttpErrorResponse) => {
+                    console.error("===== EFFECT - Error =====", error);
+                    const errorMsg = error.error?.message || error.error?.error || error.message || 'Erreur lors de la modification';
+                    return of(GlobalConfig.setStatus(StatusEnum.error, errorMsg));
+                })
+            );
+        })
+    )
+);
 
     loadVille$ = createEffect(() =>
         this.actions$.pipe(

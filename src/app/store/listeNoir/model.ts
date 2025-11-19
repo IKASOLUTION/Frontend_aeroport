@@ -10,7 +10,6 @@ export interface ListeNoire {
     dateNaissance?: string;
     lieuNaissance?: string;
     motif?: string;
-    photo?: string ;
     statut?: Statut;
    numeroNip?: string;
    numeroCnib?: string

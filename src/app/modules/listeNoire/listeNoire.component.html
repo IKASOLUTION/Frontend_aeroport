@@ -83,10 +83,13 @@
                     <td class="table-separator">{{item.numeroNip || 'N/A'}}</td>
                     <td class="table-separator">{{item.numeroCnib || 'N/A'}}</td>
                     <td class="table-separator">
-                        <span [class]="'badge ' + (item.statut === 'ACTIF' ? 'badge-success' : 'badge-warning')">
-                            {{item.statut}}
-                        </span>
-                    </td>
+                    <span [ngClass]="{
+                        'status-badge status-actif': item.statut === 'ACTIF',
+                        'status-badge status-levee': item.statut === 'LEVEE',
+                        'status-badge status-inactif': item.statut === 'INACTIF'}">
+                        {{item.statut}}
+                    </span>
+                </td>
                     <td class="text-center">
                         <button pButton 
                                 icon="pi pi-pencil"
@@ -195,11 +198,6 @@
               formControlName="statut"
               placeholder="Sélectionnez un statut">
             </p-dropdown>
-          </div>
-
-          <div class="field">
-            <label>Photo (URL)</label>
-            <input pInputText formControlName="photo" placeholder="URL de la photo"/>
           </div>
         </p-fieldset>
       </div>

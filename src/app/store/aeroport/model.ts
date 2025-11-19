@@ -7,7 +7,7 @@ export interface Aeroport {
     id?: number;
     nomAeroport?: string;
     villeId?: number;  // ✅ Ajoutez cette propriété
-    ville?: Ville;     // Pour l'affichage uniquement
+    ville?: Ville;   // Pour l'affichage uniquement
     pays?: string;
     statutAeroport?: StatutAeroport;
     mailResponsable?: string;
