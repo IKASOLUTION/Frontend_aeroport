@@ -156,8 +156,10 @@ export class NotificationComponent implements OnInit, OnDestroy {
         this.notificationList$.pipe(takeUntil(this.destroy$))
             .subscribe(value => {
                 if (value) {
+                    console.log('=== Valeur reçue du store ===', value);
                     this.loading = false;
                     this.notifications = [...value];
+                    console.log('=== Notifications reçues du store ===', this.notifications);
                 } else { 
                     this.loading = false;
                 }

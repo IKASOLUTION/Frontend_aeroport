@@ -15,6 +15,7 @@ export class AppMenuComponent implements OnInit {
     model: any[] = [];
 
     ngOnInit() {
+<<<<<<< HEAD
         this.model = [
             {
                 items: [
@@ -271,4 +272,5 @@ export class AppMenuComponent implements OnInit {
          }
      ]; 
  } */
+    
 }
