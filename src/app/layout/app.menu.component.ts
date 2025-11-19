@@ -29,11 +29,7 @@ export class AppMenuComponent implements OnInit {
             label: 'Gestion des Accès',
             icon: 'fa-solid fa-users',
             items: [
-                {
-                    label: 'Gestion des Rôles',
-                    icon: 'fa-solid fa-user-shield',
-                    routerLink: ['/admin/roles']
-                },
+               
                 {
                     label: 'Gestion des modules',
                     icon: 'fa-solid fa-user-shield',
@@ -86,11 +82,11 @@ export class AppMenuComponent implements OnInit {
                     icon: 'fa-solid fa-address-book',
                     routerLink: ['/admin/registre-passagers']
                 },
-                {
-                    label: 'Voyageurs en Attente',
-                    icon: 'fa-solid fa-user-clock',
-                    routerLink: ['/admin/voyageurs-attente']
-                },
+                // {
+                //     label: 'Voyageurs en Attente',
+                //     icon: 'fa-solid fa-user-clock',
+                //     routerLink: ['/admin/voyageurs-attente']
+                // },
                 {
                     label: 'Gestion des Voyages',
                     icon: 'fa-solid fa-route',
