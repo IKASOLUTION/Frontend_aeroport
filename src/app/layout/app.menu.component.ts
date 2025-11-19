@@ -61,6 +61,12 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/admin/registre-passagers']
                     },
                     {
+                        label: 'Voyageur attente',
+                        icon: 'pi pi-fw pi-id-card',
+                        routerLink: ['/admin/voyageur-attente']
+                    },
+                    
+                    {
                         label: 'Motifs de Voyage',
                         icon: 'pi pi-building',
                         routerLink: ['/admin/motifVoyage']

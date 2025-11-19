@@ -25,7 +25,6 @@ export class DonneeBiometriqueEffects {
                 this.donneeBiometriqueService.createDonneeBiometrique(donneeBiometrique).pipe(
                     switchMap(value => [
                         GlobalConfig.setStatus(StatusEnum.success, this.successMsg),
-                       // featureActions.loadDonneeBiometrique()
                     ]),
                     catchError((error: HttpErrorResponse) => {
                        return of(GlobalConfig.setStatus(StatusEnum.error, error.error.error)

@@ -34,6 +34,8 @@ export const routes: Routes = [
             { path: 'listeNoire', data: { breadcrumb: 'Liste Noire'}, loadComponent: () => import('./modules/listeNoire/listeNoire.component').then(m => m.ListeNoireComponent) },
             {path: 'motifVoyage', data: { breadcrumb: 'Motif de Voyage'}, loadComponent: () => import('./modules/motifVoyage/motifVoyage.component').then(m => m.MotifVoyageComponent) },
             {path: 'registre-passagers', data: { breadcrumb: 'Registre des Passagers'}, loadComponent: () => import('./modules/register/register.component').then(m => m.RegisterComponent) },
+            {path: 'voyageur-attente', data: { breadcrumb: 'Voyageur attente'}, loadComponent: () => import('./modules/voyageur-attente/voyageur-attente.component').then(m => m.VoyageurAttenteComponent) },
+
 
             
 

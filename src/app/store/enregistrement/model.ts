@@ -37,6 +37,8 @@ export interface Enregistrement {
   dureeSejour?: number | null;
   nbreVoyage?: number | 0;
   statut?: string;
+  informationPersonnelle?: InformationPersonnelle;
+  informationPersonnelleId?: number;
 }
 
 
@@ -61,4 +63,23 @@ export enum TypeDocument {
     
     PASSEPORT, CNI, PERMIS_CONDUIRE
     
+}
+
+export class InformationPersonnelle  {
+  id?: number;
+  nomFamille?: string;
+  prenom?: string;
+  dateNaissance?: Date ;
+  lieuNaissance?: string;
+  nationalite?: string;
+  typeDocument?: TypeDocument;
+  numeroDocument?: string;
+  dateDelivrance?: Date;
+  lieuDelivrance?: string;
+  numeroNip?: string;
+  profession?: string;
+  adresseBurkina?: string;
+  telephoneBurkina?: string;
+  paysResidence?: string;
+  emailContact?: string;
 }

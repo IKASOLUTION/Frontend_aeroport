@@ -5,7 +5,8 @@ export interface DonneeBiometrique {
   empreinteDroite?: boolean;
   empreinteGauche?: boolean;
   empreintePouces?: boolean;
-  enregistrementId?: number;
+  informationPersonnelleId?: number;
+
   photoBiometrique?: File | null;
 }
 

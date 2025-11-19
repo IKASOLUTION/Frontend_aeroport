@@ -26,7 +26,7 @@ import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { PanelModule } from 'primeng/panel';
 import { ToastModule } from 'primeng/toast';
-import { Enregistrement, MotifVoyage, TypeDocument } from 'src/app/store/enregistrement/model';
+import { Enregistrement, InformationPersonnelle, MotifVoyage, TypeDocument } from 'src/app/store/enregistrement/model';
 import { DonneeBiometrique } from 'src/app/store/biometric/model';
 import { co } from '@fullcalendar/core/internal-common';
 import { LoadingSpinnerComponent } from '../loading-spinner.component';
@@ -43,6 +43,7 @@ interface Passager {
   id: number;
   nom_complet: string;
   numeroDocument: string;
+  informationPersonnelleId?: number,
 }
 
 @Component({
@@ -103,6 +104,7 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   capturedPhotoPourBiometrie = signal<string | null>(null);
   biometric = signal<DonneeBiometrique | null>(null);
   enregistrementSelect = signal<Enregistrement | null>(null);
+  informationPersonnel: InformationPersonnelle =  {};
 
   // Modale Caméra
   isCameraModalOpen = signal<boolean>(false);
@@ -392,13 +394,18 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
       select(enregistrementSelector.selectedEnregistrement),
       takeUntil(this.destroy$)
     ).subscribe(created => {
+      console.log("==============created=================", created)
       if (created && created.id) {
+        
         this.enregistrementSelect.set(created);
         this.passagerPourBiometrie.set({
           id: created.id,
+          
           nom_complet: `${created.prenom} ${created.nomFamille}`,
-          numeroDocument: created.numeroDocument || ''
+          numeroDocument: created.numeroDocument || '',
+          informationPersonnelleId: created.informationPersonnelleId
         });
+        console.log("==============passagerPourBiometrie=================", this.passagerPourBiometrie())
         this.isCaptureBiometriqueModalOpen.set(true);
       }
     });
@@ -546,7 +553,7 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
     if (!passager) return;
 
     this.biometric.set({
-      enregistrementId: this.enregistrementSelect()?.id || 0,
+      informationPersonnelleId:this.enregistrementSelect()?.informationPersonnelleId,
       empreinteGauche: true,
       empreinteDroite: true,
       empreintePouces: true,

@@ -123,9 +123,10 @@ function handle401Error(
   if (!isRefreshing) {
     isRefreshing = true;
     refreshTokenSubject.next(null);
-
+console.log("=====1111==============22========")
     return authServerProvider.refreshToken().pipe(
       switchMap((response: any) => {
+        console.log("=====1111==========response============",response)
         isRefreshing = false;
         refreshTokenSubject.next(response.accessToken);
         
@@ -134,9 +135,10 @@ function handle401Error(
         return next(addAuthToken(request, authServerProvider));
       }) ,
       catchError((error) => {
+        console.log("=====1111======================",error)
         isRefreshing = false;
         console.log('Échec du rafraîchissement du token, déconnexion...');
-       // loginService.logout();
+        loginService.logout();
        loadingService.forceHide();
         return throwError(() => error);
       }) 

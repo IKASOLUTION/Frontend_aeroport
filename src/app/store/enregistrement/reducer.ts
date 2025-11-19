@@ -5,6 +5,7 @@ import { EnregistrementState } from './state';
 
 const initialState: EnregistrementState = {
   enregistrements: [],
+  voyageurAttentes: [],
   enregistrement: {},
   totalItems: 0,
   loading: false,
@@ -61,7 +62,7 @@ const featureReducer = createReducer<EnregistrementState>(
   }),
   
   // Supprimer un enregistrement - Début
-  on(featureActions.deleteEnregistrement, (state): EnregistrementState => {
+  on(featureActions.deleteEnregistrementAttente, (state): EnregistrementState => {
     return {
       ...state,
       loading: true,
@@ -80,6 +81,14 @@ const featureReducer = createReducer<EnregistrementState>(
   on(featureActions.loadEnregistrementsByPeriodeSuccess, (state, { enregistrements, totalItems }) => ({
           ...state,
           enregistrements,
+          totalItems,
+          loading: false,
+          error: null
+      })),
+
+      on(featureActions.loadVoyageurAttenteByPeriodeSuccess, (state, { voyageurAttentes, totalItems }) => ({
+          ...state,
+          voyageurAttentes,
           totalItems,
           loading: false,
           error: null

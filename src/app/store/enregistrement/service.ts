@@ -75,9 +75,25 @@ getEnregistrementsByPeriode(searchDto: SearchDto): Observable<PageResponse<Enreg
             sort: searchDto.sortBy || 'dateDepart,desc'
         };
 
-        console.log('=== Service - Body envoyé ===', body);
 
         return this.http.put<PageResponse<Enregistrement>>(`${GlobalConfig.getEndpoint(Endpoints.ENREIGISTREMENT)}/periode`, body);
+    }
+
+
+    getVoyageurAttenteByPeriode(searchDto: SearchDto): Observable<PageResponse<Enregistrement>> {
+         // @FIXME: put request
+        const body = {
+            dateDebut: this.formatDate(searchDto.dateDebut),
+            dateFin: this.formatDate(searchDto.dateFin),
+            // status: searchDto.status,
+            aeroportId: searchDto.aeroportId,
+            page: searchDto.page || 0,
+            size: searchDto.size || 10,
+            sort: searchDto.sortBy || 'dateDepart,desc'
+        };
+
+
+        return this.http.put<PageResponse<Enregistrement>>(`${GlobalConfig.getEndpoint(Endpoints.ENREIGISTREMENT)}/periode/voyageur-attente`, body);
     }
 
       private formatDate(date: Date): string {
@@ -109,7 +125,7 @@ updateEnregistrement(enregistrement: Enregistrement): Observable<any> {
 }
 deleteEnregistrement(enregistrement: Enregistrement): Observable<any> {
     // @FIXME: post request
-    return this.http.patch(`${GlobalConfig.getEndpoint(Endpoints.ENREIGISTREMENT)}/${enregistrement.id}`, enregistrement);
+    return this.http.delete(`${GlobalConfig.getEndpoint(Endpoints.ENREIGISTREMENT)}/${enregistrement.id}`);
 }
 
 private getEnumByKey(key: string): any {
