@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MegaMenuItem } from 'primeng/api';
 import { LayoutService } from './service/app.layout.service';
 import { StyleClassModule } from 'primeng/styleclass';
@@ -6,23 +6,33 @@ import { RippleModule } from 'primeng/ripple';
 import { Router, RouterLink } from '@angular/router';
 import { LoginService } from '../service-util/auth/login.service';
 import { AccountService } from '../service-util/auth/account.service';
+import { CommonModule } from '@angular/common';
+import { Observable, Subject, takeUntil } from 'rxjs';
+import { select, Store } from '@ngrx/store';
+import { AppState } from 'src/app/store/app.state';
+import * as notificationSelector from '../store/notification/selector';
+import * as NotificationAction from '../store/notification/action';
+import { Notification } from 'src/app/store/notification/model';
 
 @Component({
     selector: 'app-topbar',
     templateUrl: './app.topbar.component.html',
     standalone: true,
-    imports: [RouterLink, RippleModule, StyleClassModule]
+    imports: [RouterLink, RippleModule, StyleClassModule, CommonModule]
 })
-export class AppTopbarComponent {
+export class AppTopbarComponent implements OnInit, OnDestroy {
     
     @ViewChild('menuButton') menuButton!: ElementRef;
-
     @ViewChild('mobileMenuButton') mobileMenuButton!: ElementRef;
-
     @ViewChild('searchInput') searchInput!: ElementRef;
     
-    constructor(public layoutService: LayoutService, public el: ElementRef,private router:Router, public accountService: AccountService, public loginService: LoginService) {}
-
+    // Gestion des notifications
+    destroy$ = new Subject<boolean>();
+    notificationList$!: Observable<Array<Notification>>;
+    notifications: Notification[] = [];
+    notificationCount: number = 0;
+    recentNotifications: any[] = []; // Pour l'affichage dans le dropdown
+    loading = true;
     activeItem!: number;
 
     model: MegaMenuItem[] = [
@@ -79,10 +89,111 @@ export class AppTopbarComponent {
                         ]
                     }
                 ],
-
             ]
         }
     ];
+
+    constructor(
+        public layoutService: LayoutService, 
+        public el: ElementRef,
+        private router: Router, 
+        public accountService: AccountService, 
+        public loginService: LoginService,
+        private store: Store<AppState>
+    ) {}
+
+    ngOnInit(): void {
+       
+        this.loadRecentNotifications();
+
+        this.store.dispatch(NotificationAction.loadNotification());
+
+        this.store.pipe(select(notificationSelector.notificationList), takeUntil(this.destroy$)).subscribe(data => {
+              this.notifications = data || [];
+                this.notificationCount = data.length;
+              this.loading = false;
+                 // Préparer les notifications pour l'affichage (max 5 dernières)
+                    this.recentNotifications = this.formatNotificationsForDisplay(
+                        data.slice(0, 5)
+                    );
+            });        
+    }
+
+    /**
+     * Charger les notifications récentes (dernières 24h)
+     */
+    loadRecentNotifications(): void {
+        const dateDebut = new Date();
+        dateDebut.setHours(dateDebut.getHours() - 24); // Dernières 24 heures
+        const dateFin = new Date();
+
+        const searchDto = {
+            dateDebut: dateDebut,
+            dateFin: dateFin,
+            page: 0,
+            size: 10, // Limiter à 10 notifications
+            sortBy: 'date,desc'
+        };
+
+        this.store.dispatch(NotificationAction.loadNotification());
+    }
+
+    /**
+     * Formater les notifications pour l'affichage dans le dropdown
+     */
+    formatNotificationsForDisplay(notifications: Notification[]): any[] {
+        return notifications.map(notif => {
+            const nomComplet = `${notif.nom || ''} ${notif.prenom || ''}`.trim();
+            const timeAgo = this.getTimeAgo(notif.dateNotification);
+            
+            return {
+                title: 'Alerte Liste Noire',
+                message: `${nomComplet} - ${notif.aeroport?.nomAeroport || 'Aéroport inconnu'}`,
+                time: timeAgo,
+                icon: 'pi-exclamation-triangle',
+                type: 'danger',
+                data: notif // Garder les données complètes
+            };
+        });
+    }
+
+    /**
+     * Calculer le temps écoulé depuis la notification
+     */
+    getTimeAgo(date: Date | undefined): string {
+        if (!date) return 'Date inconnue';
+        
+        const notifDate = new Date(date);
+        const now = new Date();
+        const diffMs = now.getTime() - notifDate.getTime();
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+
+        if (diffMins < 1) return 'À l\'instant';
+        if (diffMins < 60) return `Il y a ${diffMins} min`;
+        if (diffHours < 24) return `Il y a ${diffHours}h`;
+        if (diffDays < 7) return `Il y a ${diffDays}j`;
+        
+        return notifDate.toLocaleDateString('fr-FR');
+    }
+
+    /**
+     * Naviguer vers la page complète des notifications
+     */
+    viewAllNotifications(): void {
+        this.router.navigate(['/notifications']);
+    }
+
+    /**
+     * Gérer le clic sur une notification
+     */
+    onNotificationClick(notification: any): void {
+        // Naviguer vers la page des notifications avec le détail
+        this.router.navigate(['/notifications'], {
+            queryParams: { id: notification.data?.id }
+        });
+    }
 
     get mobileTopbarActive(): boolean {
         return this.layoutService.state.topbarMenuActive;
@@ -109,5 +220,10 @@ export class AppTopbarComponent {
     logout() {
         this.loginService.logout();
         this.router.navigate(['/admin/login']);
-      }
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next(true);
+        this.destroy$.unsubscribe();
+    }
 }

@@ -257,3 +257,20 @@ $gutter: 1rem; //for primeflex grid system
 .notification-list::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+
+.notification-empty {
+    padding: 3rem 2rem;
+    text-align: center;
+    color: #6c757d;
+}
+
+.notification-empty i {
+    font-size: 3rem;
+    color: #adb5bd;
+    margin-bottom: 1rem;
+}
+
+.notification-empty p {
+    margin: 0;
+    font-size: 0.95rem;
+}

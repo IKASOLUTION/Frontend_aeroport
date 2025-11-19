@@ -16,7 +16,7 @@ export interface Notification {
     dateNaissance?: Date;
     lieuNaissance?: string;
     statut?:Statut;
-    date?: Date;
+    dateNotification?: Date;
     user?: User;
     aeroport?: Aeroport;
    

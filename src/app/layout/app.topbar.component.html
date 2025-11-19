@@ -34,7 +34,7 @@
                         <i class="pi pi-bell notification-icon"></i>
                         <!-- Badge avec nombre de notifications -->
                         <span class="notification-badge" *ngIf="notificationCount > 0">
-                           
+                            {{notificationCount > 99 ? '99+' : notificationCount}}
                         </span>
                     </a>
                     
@@ -42,11 +42,15 @@
                     <div class="ng-hidden notification-dropdown">
                         <div class="notification-header">
                             <h4>Notifications</h4>
-                            <span class="notification-count-text"> nouvelle(s)</span>
+                            <span class="notification-count-text">{{notificationCount}} nouvelle(s)</span>
                         </div>
-                        <ul class="notification-list">
-                            <li class="notification-item-detail" *ngFor="let notification of notifications">
-                                <div class="notification-icon-wrapper" >
+                        
+                        <!-- Liste des notifications -->
+                        <ul class="notification-list" *ngIf="recentNotifications.length > 0">
+                            <li class="notification-item-detail" 
+                                *ngFor="let notification of recentNotifications"
+                                (click)="onNotificationClick(notification)">
+                                <div class="notification-icon-wrapper" [ngClass]="notification.type">
                                     <i [class]="'pi ' + notification.icon"></i>
                                 </div>
                                 <div class="notification-content">
@@ -56,8 +60,16 @@
                                 </div>
                             </li>
                         </ul>
+                        
+                        <!-- Message si aucune notification -->
+                        <div class="notification-empty" *ngIf="recentNotifications.length === 0">
+                            <i class="pi pi-bell-slash"></i>
+                            <p>Aucune notification récente</p>
+                        </div>
+                        
+                        <!-- Footer -->
                         <div class="notification-footer">
-                            <a routerLink="/notifications" class="view-all-link">
+                            <a (click)="viewAllNotifications()" class="view-all-link">
                                 Voir toutes les notifications
                             </a>
                         </div>

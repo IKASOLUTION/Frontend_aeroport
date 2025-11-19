@@ -125,7 +125,7 @@ export class NotificationComponent implements OnInit, OnDestroy {
         // Définir les colonnes du tableau
         this.cols = [
             { field: 'nomComplet', header: 'Personne Détectée' },
-            { field: 'date', header: 'Date / Heure' },
+            { field: 'dateNotification', header: 'Date / Heure' },
             { field: 'numeroNip', header: 'NIP' },
             { field: 'numeroCnib', header: 'CNIB' },
             { field: 'aeroport.nomAeroport', header: 'Aeroport' },
@@ -141,7 +141,7 @@ export class NotificationComponent implements OnInit, OnDestroy {
         this.dateFin = new Date();
         
         // Charger les vols avec filtres par défaut
-        this.loadNotificationsWithFilters();
+       // this.loadNotificationsWithFilters();
         // Charger les aéroports
         this.aeroportList$ = this.store.pipe(select(aeroportSelector.aeroportList));
         this.store.dispatch(aeroportAction.loadAeroport());
@@ -152,18 +152,40 @@ export class NotificationComponent implements OnInit, OnDestroy {
                 }
             });
         // Écouter les résultats des vols
-        this.notificationList$ = this.store.pipe(select(notificationSelector.notificationList));
-        this.notificationList$.pipe(takeUntil(this.destroy$))
-            .subscribe(value => {
-                if (value) {
-                    console.log('=== Valeur reçue du store ===', value);
-                    this.loading = false;
-                    this.notifications = [...value];
-                    console.log('=== Notifications reçues du store ===', this.notifications);
-                } else { 
-                    this.loading = false;
-                }
-            });
+        // this.notificationList$ = this.store.pipe(select(notificationSelector.notificationList));
+        // this.notificationList$.pipe(takeUntil(this.destroy$))
+        //     .subscribe(value => {
+        //         if (value) {
+        //             console.log('=== Valeur reçue du store ===', value);
+        //             this.loading = false;
+        //             this.notifications = [...value];
+        //             console.log('=== Notifications reçues du store ===', this.notifications);
+        //         } else { 
+        //             this.loading = false;
+        //         }
+        //     });
+
+
+         this.store.dispatch(NotificationAction.loadNotification());
+        this.store.pipe(select(notificationSelector.notificationList), takeUntil(this.destroy$)).subscribe(data => {
+                     this.notifications = data || [];
+                     this.loading = false;
+                   });
+        
+                // Écouter les statuts (success, error, warning)
+                this.store.pipe(
+                    select(globalSelector.status),
+                    takeUntil(this.destroy$)
+                ).subscribe(status => {
+                    if (status && status.message) {
+                        this.showToast(status.status, status.message);
+                        
+                        // Recharger après une opération réussie
+                        if (status.status === StatusEnum.success) {
+                            this.store.dispatch(NotificationAction.loadNotification());
+                        }
+                    }
+        });
 
         this.loadNotifications();
         // Écouter le total d'items pour la pagination
@@ -177,19 +199,19 @@ export class NotificationComponent implements OnInit, OnDestroy {
         });
 
         // Écouter les statuts (success, error, warning)
-        this.store.pipe(
-            select(globalSelector.status),
-            takeUntil(this.destroy$)
-        ).subscribe(status => {
-            if (status && status.message) {
-                this.showToast(status.status, status.message);
+        // this.store.pipe(
+        //     select(globalSelector.status),
+        //     takeUntil(this.destroy$)
+        // ).subscribe(status => {
+        //     if (status && status.message) {
+        //         this.showToast(status.status, status.message);
                 
-                // Recharger après une opération réussie
-                if (status.status === StatusEnum.success) {
-                    this.loadNotificationsWithFilters();
-                }
-            }
-        });
+        //         // Recharger après une opération réussie
+        //         if (status.status === StatusEnum.success) {
+        //             this.loadNotificationsWithFilters();
+        //         }
+        //     }
+        // });
     }
 
     // Ouvrir le modal de détail
