@@ -43,15 +43,36 @@ private convertToFormData(donneeBiometrique: DonneeBiometrique): FormData {
   }
   
   // Ajouter les booléens
-  if (donneeBiometrique.empreinteDroite !== undefined) {
-    formData.append('empreinteDroite', donneeBiometrique.empreinteDroite.toString());
+  
+
+   if (donneeBiometrique.empreinteDroite) {
+    if (donneeBiometrique.empreinteDroite instanceof File) {
+      formData.append('empreinteDroite', donneeBiometrique.empreinteDroite);
+    } else if (typeof donneeBiometrique.empreinteDroite === 'string') {
+      const file = this.base64ToFile(donneeBiometrique.empreinteDroite, 'photo.jpg');
+      formData.append('empreinteDroite', file);
+    }
   }
-  if (donneeBiometrique.empreinteGauche !== undefined) {
-    formData.append('empreinteGauche', donneeBiometrique.empreinteGauche.toString());
+
+
+   if (donneeBiometrique.empreinteGauche) {
+    if (donneeBiometrique.empreinteGauche instanceof File) {
+      formData.append('empreinteGauche', donneeBiometrique.empreinteGauche);
+    } else if (typeof donneeBiometrique.empreinteGauche === 'string') {
+      const file = this.base64ToFile(donneeBiometrique.empreinteGauche, 'photo.jpg');
+      formData.append('empreinteGauche', file);
+    }
   }
-  if (donneeBiometrique.empreintePouces !== undefined) {
-    formData.append('empreintePouces', donneeBiometrique.empreintePouces.toString());
+
+  if (donneeBiometrique.empreintePouces) {
+    if (donneeBiometrique.empreintePouces instanceof File) {
+      formData.append('empreintePouces', donneeBiometrique.empreintePouces);
+    } else if (typeof donneeBiometrique.empreintePouces === 'string') {
+      const file = this.base64ToFile(donneeBiometrique.empreintePouces, 'photo.jpg');
+      formData.append('empreintePouces', file);
+    }
   }
+  
   
   // Ajouter l'ID de l'enregistrement
   if (donneeBiometrique.informationPersonnelleId !== undefined) {

@@ -1,8 +1,8 @@
 <p-toast></p-toast>
-<div class="flex justify-between items-center mb-6">
+<!-- <div class="flex justify-between items-center mb-6">
   <h3 class="text-3xl font-semibold text-gray-800">Effectuer un Enregistrement</h3>
 </div>
-
+ -->
 <form (ngSubmit)="submitEnregistrement()" #enregistrementForm="ngForm" novalidate>
   <p-card styleClass="shadow-lg">
 
@@ -222,102 +222,146 @@
   (onHide)="isCaptureBiometriqueModalOpen.set(false)"
   [modal]="true" 
   [closable]="true"
-  [style]="{width: '50rem'}"
-  [breakpoints]="{'960px': '75vw', '640px': '90vw'}"
+  [style]="{width: '60rem'}"
+  [breakpoints]="{'960px': '75vw', '640px': '95vw'}"
   header="Capturer les Données Biométriques">
   
   @if (passagerPourBiometrie(); as passager) {
     
     <p class="text-gray-600 mb-4">Pour : <span class="font-semibold">{{ passager.nom_complet }}</span> ({{passager.numeroDocument}})</p>
     
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-      <!-- Main Gauche -->
-      <div class="p-3 border rounded-lg flex items-center justify-between bg-gray-50">
-        <div class="flex items-center">
-          <i class="pi pi-fingerprint text-3xl text-cyan-500 mr-3"></i>
-          <div>
-            <p class="font-semibold text-gray-700">4 doigts main gauche</p>
-            <p class="text-xs" [class]="empreinteGaucheCapturee() ? 'text-green-600' : 'text-gray-500'">
-              {{ empreinteGaucheCapturee() ? 'Capturé' : 'Prêt pour la capture' }}
-            </p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      
+      <!-- Main Gauche avec image -->
+      <div class="p-4 border rounded-lg bg-gray-50">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center">
+            <i class="pi pi-fingerprint text-3xl text-cyan-500 mr-3"></i>
+            <div>
+              <p class="font-semibold text-gray-700">4 doigts main gauche</p>
+              <p class="text-xs" [class]="empreinteGauche().capturee ? 'text-green-600' : 'text-gray-500'">
+                {{ empreinteGauche().capturee ? 'Capturé' : 'Prêt pour la capture' }}
+              </p>
+            </div>
           </div>
+          <p-button 
+            [label]="empreinteGauche().capturee ? 'Recapturer' : 'Capturer'"
+            severity="info"
+            size="small"
+            (onClick)="capturerEmpreinte('empreinteGauche')">
+          </p-button>
         </div>
-        <p-button 
-          [label]="empreinteGaucheCapturee() ? 'Recapturer' : 'Capturer'"
-          severity="info"
-          size="small"
-          (onClick)="empreinteGaucheCapturee.set(true)">
-        </p-button>
+        
+        @if (empreinteGauche().image) {
+          <div class="w-full h-48 bg-white rounded border-2 border-green-500 overflow-hidden">
+            <img [src]="empreinteGauche().image" alt="Empreinte main gauche" class="w-full h-full object-contain">
+          </div>
+        } @else {
+          <div class="w-full h-48 bg-gray-200 rounded flex items-center justify-center">
+            <i class="pi pi-image text-5xl text-gray-400"></i>
+          </div>
+        }
       </div>
 
-      <!-- Main Droite -->
-      <div class="p-3 border rounded-lg flex items-center justify-between bg-gray-50">
-        <div class="flex items-center">
-          <i class="pi pi-fingerprint text-3xl text-cyan-500 mr-3"></i>
-          <div>
-            <p class="font-semibold text-gray-700">4 doigts main droite</p>
-            <p class="text-xs" [class]="empreinteDroiteCapturee() ? 'text-green-600' : 'text-gray-500'">
-              {{ empreinteDroiteCapturee() ? 'Capturé' : 'Prêt pour la capture' }}
-            </p>
+      <!-- Main Droite avec image -->
+      <div class="p-4 border rounded-lg bg-gray-50">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center">
+            <i class="pi pi-fingerprint text-3xl text-cyan-500 mr-3"></i>
+            <div>
+              <p class="font-semibold text-gray-700">4 doigts main droite</p>
+              <p class="text-xs" [class]="empreinteDroite().capturee ? 'text-green-600' : 'text-gray-500'">
+                {{ empreinteDroite().capturee ? 'Capturé' : 'Prêt pour la capture' }}
+              </p>
+            </div>
           </div>
+          <p-button 
+            [label]="empreinteDroite().capturee ? 'Recapturer' : 'Capturer'"
+            severity="info"
+            size="small"
+            (onClick)="capturerEmpreinte('empreinteDroite')">
+          </p-button>
         </div>
-        <p-button 
-          [label]="empreinteDroiteCapturee() ? 'Recapturer' : 'Capturer'"
-          severity="info"
-          size="small"
-          (onClick)="empreinteDroiteCapturee.set(true)">
-        </p-button>
+        
+        @if (empreinteDroite().image) {
+          <div class="w-full h-48 bg-white rounded border-2 border-green-500 overflow-hidden">
+            <img [src]="empreinteDroite().image" alt="Empreinte main droite" class="w-full h-full object-contain">
+          </div>
+        } @else {
+          <div class="w-full h-48 bg-gray-200 rounded flex items-center justify-center">
+            <i class="pi pi-image text-5xl text-gray-400"></i>
+          </div>
+        }
       </div>
 
-      <!-- Pouces -->
-      <div class="p-3 border rounded-lg flex items-center justify-between bg-gray-50">
-        <div class="flex items-center">
-          <i class="pi pi-thumbs-up text-3xl text-purple-500 mr-3"></i>
-          <div>
-            <p class="font-semibold text-gray-700">Les deux pouces</p>
-            <p class="text-xs" [class]="empreintePoucesCapturee() ? 'text-green-600' : 'text-gray-500'">
-              {{ empreintePoucesCapturee() ? 'Capturé' : 'Prêt pour la capture' }}
-            </p>
+      <!-- Pouces avec image -->
+      <div class="p-4 border rounded-lg bg-gray-50">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center">
+            <i class="pi pi-thumbs-up text-3xl text-purple-500 mr-3"></i>
+            <div>
+              <p class="font-semibold text-gray-700">Les deux pouces</p>
+              <p class="text-xs" [class]="empreintePouces().capturee ? 'text-green-600' : 'text-gray-500'">
+                {{ empreintePouces().capturee ? 'Capturé' : 'Prêt pour la capture' }}
+              </p>
+            </div>
           </div>
+          <p-button 
+            [label]="empreintePouces().capturee ? 'Recapturer' : 'Capturer'"
+            severity="help"
+            size="small"
+            (onClick)="capturerEmpreinte('empreintePouces')">
+          </p-button>
         </div>
-        <p-button 
-          [label]="empreintePoucesCapturee() ? 'Recapturer' : 'Capturer'"
-          severity="help"
-          size="small"
-          (onClick)="empreintePoucesCapturee.set(true)">
-        </p-button>
+        
+        @if (empreintePouces().image) {
+          <div class="w-full h-48 bg-white rounded border-2 border-green-500 overflow-hidden">
+            <img [src]="empreintePouces().image" alt="Empreinte pouces" class="w-full h-full object-contain">
+          </div>
+        } @else {
+          <div class="w-full h-48 bg-gray-200 rounded flex items-center justify-center">
+            <i class="pi pi-image text-5xl text-gray-400"></i>
+          </div>
+        }
       </div>
 
-      <!-- Photo -->
-      <div class="p-3 border rounded-lg flex items-center justify-between bg-gray-50">
-        <div class="flex items-center">
-          @if (capturedPhotoPourBiometrie(); as photo) {
-            <img [src]="photo" alt="Aperçu" class="w-12 h-12 rounded-full object-cover mr-3 border-2 border-green-500">
-          } @else {
+      <!-- Photo d'identité -->
+      <div class="p-4 border rounded-lg bg-gray-50">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center">
             <i class="pi pi-camera text-3xl text-green-500 mr-3"></i>
-          }
-          <div>
-            <p class="font-semibold text-gray-700">Photo d'identité</p>
-            @if (capturedPhotoPourBiometrie()) {
-              <p class="text-xs text-green-600">Photo capturée</p>
-            } @else {
-              <p class="text-xs text-gray-500">Prêt pour la capture</p>
-            }
+            <div>
+              <p class="font-semibold text-gray-700">Photo d'identité</p>
+              @if (capturedPhotoPourBiometrie()) {
+                <p class="text-xs text-green-600">Photo capturée</p>
+              } @else {
+                <p class="text-xs text-gray-500">Prêt pour la capture</p>
+              }
+            </div>
           </div>
+          <p-button 
+            [label]="capturedPhotoPourBiometrie() ? 'Reprendre' : 'Prendre'"
+            severity="success"
+            size="small"
+            (onClick)="demarrerCamera('biometrique')">
+          </p-button>
         </div>
-        <p-button 
-          [label]="capturedPhotoPourBiometrie() ? 'Reprendre' : 'Prendre'"
-          severity="success"
-          size="small"
-          (onClick)="demarrerCamera('biometrique')">
-        </p-button>
+        
+        @if (capturedPhotoPourBiometrie(); as photo) {
+          <div class="w-full h-48 bg-white rounded border-2 border-green-500 overflow-hidden flex items-center justify-center">
+            <img [src]="photo" alt="Photo biométrique" class="max-w-full max-h-full object-contain">
+          </div>
+        } @else {
+          <div class="w-full h-48 bg-gray-200 rounded flex items-center justify-center">
+            <i class="pi pi-user text-5xl text-gray-400"></i>
+          </div>
+        }
       </div>
     </div>
 
-    <div class="flex justify-content-end">
+    <div class="flex justify-content-end gap-2 mt-4">
       <p-button 
         label="Annuler" 
-        class="mr-2"
         severity="secondary"
         (onClick)="closeBiometricModal()">
       </p-button>
@@ -325,6 +369,7 @@
         label="Sauvegarder et Valider" 
         icon="pi pi-save"
         [loading]="isSaving()"
+        [disabled]="!empreinteGauche().capturee || !empreinteDroite().capturee || !empreintePouces().capturee || !capturedPhotoPourBiometrie()"
         (onClick)="validerAvecBiometrie()">
       </p-button>
     </div>
