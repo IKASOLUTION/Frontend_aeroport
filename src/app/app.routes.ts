@@ -37,8 +37,7 @@ export const routes: Routes = [
             {path: 'voyageur-attente', data: { breadcrumb: 'Voyageur attente'}, loadComponent: () => import('./modules/voyageur-attente/voyageur-attente.component').then(m => m.VoyageurAttenteComponent) },
 
             {path: 'notification', data: { breadcrumb: 'Notification Urgente'}, loadComponent: () => import('./modules/notification/notification.component').then(m => m.NotificationComponent) },
-            {path: 'gestion-voyages', data: { breadcrumb: 'Gestion des Voyages'}, loadComponent: () => import('./modules/gestionVoyage/gestionVoyage.component').then(m => m.CompagnieComponent) },
-
+             {path: 'voyage', data: { breadcrumb: 'Gestion des Voyages'}, loadComponent: () => import('./modules/voyage/voyage.component').then(m => m.VoyageComponent) },
             
 
 

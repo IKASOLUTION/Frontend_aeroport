@@ -73,7 +73,11 @@ export class Endpoints {
         mock: `assets/mock/notification.mock.json`
     };
 
-    
+     static readonly Voyage = {
+        prod: `${SERVICE_PREFIX}/voyages`,
+        mock: `assets/mock/voyage.mock.json`
+    };
+
 
     
 

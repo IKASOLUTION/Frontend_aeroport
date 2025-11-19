@@ -64,10 +64,10 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideAnimations(),
     provideStore({globalState: GlobalConfigreducer, profilState: reducer , userState: UserReducer, menuActionState: Menureducer, moduleParamState: Modulereducer, villeState: VilleReducer, paysState: PaysReducer, aeroportState: AeroportReducer,compagnieState: CompagnieReducer,
-    enregistrementState: Enregistrementreducer, donneeBiometriqueState: biometricReducer, volState: VolReducer, motifVoyageState: MotifVoyageReducer, listeNoireState: ListeNoireReducer, notificationState: NotificationReducer
+    enregistrementState: Enregistrementreducer, donneeBiometriqueState: biometricReducer, volState: VolReducer, motifVoyageState: MotifVoyageReducer, listeNoireState: ListeNoireReducer, notificationState: NotificationReducer, voyageState: MotifVoyageReducer
     }),
     provideEffects([ProfilEffects, UserEffects, MenuActionEffects, ModuleParamEffects, EnregistrementEffects,DonneeBiometriqueEffects, NotificationEffects,
-       PaysEffects, VilleEffects, AeroportEffects, CompagnieEffects, VolEffects, ListeNoireEffects, MotifVoyageEffects]),
+       PaysEffects, VilleEffects, AeroportEffects, CompagnieEffects, VolEffects, ListeNoireEffects, MotifVoyageEffects, MotifVoyageEffects]),
 
 
    provideRouter(routes),

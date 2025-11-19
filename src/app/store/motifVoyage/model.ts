@@ -23,3 +23,10 @@ export enum StatutVoyageur {
     EN_ATTENTE,VALIDE,REJETE,ANNULE
     
 }
+
+
+export enum EtatVoyage {
+    ALLER,
+    RETOUR,
+    ALLER_RETOUR
+}

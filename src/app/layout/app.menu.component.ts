@@ -95,7 +95,7 @@ export class AppMenuComponent implements OnInit {
                 {
                     label: 'Gestion des Voyages',
                     icon: 'fa-solid fa-route',
-                    routerLink: ['/admin/gestion-voyages']
+                    routerLink: ['/admin/voyage']
                 },
                 {
                     label: 'Motifs de Voyages',

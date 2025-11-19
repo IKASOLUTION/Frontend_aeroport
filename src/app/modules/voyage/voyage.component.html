@@ -1,0 +1,247 @@
+<div class="grid">
+    <div class="col-12 md:col-12">
+        <p-table #dt styleClass="p-datatable-gridlines p-datatable-sm p-datatable" [value]="voyages"
+            [columns]="cols" [rows]="10" [paginator]="true" [rowsPerPageOptions]="[5, 10, 20, 30]"
+            [showCurrentPageReport]="true"
+           [globalFilterFields]="[
+                                        'vol.numeroVol',
+                                        'villeDepart.nom',
+                                        'villeDestination.nom',
+                                        'dateVoyage',
+                                        'heureVoyage',
+                                        'EtatVoyage',
+                                        'StatutVoyage',
+                                        'aeroport.nomAeroport'
+                                        ]"
+            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+            [(selection)]="selectedVoyage" selectionMode="single" [rowHover]="true" dataKey="id"
+            [loading]="loading()">
+
+            <ng-template pTemplate="caption">
+                <div class="flex justify-content-between flex-column sm:flex-row">
+                    <div class="flex gap-2">
+                       
+                        <!-- <button pButton label="Filtrer par période" class="p-button-info mb-2" icon="pi pi-filter"
+                            (click)="openFilterDialog()">
+                        </button>
+                        <button pButton label="Réinitialiser" class="p-button-secondary mb-2" icon="pi pi-refresh"
+                            (click)="resetFilters()">
+                        </button> -->
+                    </div>
+                    <div class="flex flex-column align-items-end">
+                        <span class="p-input-icon-left mb-2">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" #filter (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Rechercher" class="w-full" />
+                        </span>
+                        <!-- <small class="text-500" *ngIf="dateDebut && dateFin">
+                            Période: {{dateDebut | date:'dd/MM/yyyy'}} - {{dateFin | date:'dd/MM/yyyy'}}
+                        </small> -->
+                    </div>
+                </div>
+            </ng-template>
+
+           <ng-template pTemplate="header">
+                        <tr>
+                            <th style="font-weight: bold;">N° Vol
+                                <p-columnFilter type="text" display="menu" field="vol.numeroVol"></p-columnFilter>
+                            </th>
+
+                            <th style="font-weight: bold;">Itinéraire
+                                <p-columnFilter type="text" display="menu" field="villeDepart.nom"></p-columnFilter>
+                            </th>
+
+                            <th style="font-weight: bold;">Date / Heure
+                                <p-columnFilter type="date" display="menu" field="dateVoyage"></p-columnFilter>
+                            </th>
+
+                            <th style="font-weight: bold;">État voyage
+                                <p-columnFilter type="text" display="menu" field="EtatVoyage"></p-columnFilter>
+                            </th>
+
+                            <th style="font-weight: bold;">Statut
+                                <p-columnFilter type="text" display="menu" field="StatutVoyage"></p-columnFilter>
+                            </th>
+
+                            <th style="font-weight: bold;">Aéroport
+                                <p-columnFilter type="text" display="menu" field="aeroport.nomAeroport"></p-columnFilter>
+                            </th>
+
+                            <th style="font-weight: bold;" class="text-center">Actions</th>
+                        </tr>
+                    </ng-template>
+
+
+             <ng-template pTemplate="body" let-voyage>
+                <tr>
+
+                    <!-- N° Vol -->
+                    <td class="table-separator">
+                        <div class="text-sm font-medium text-gray-900">
+                            {{ voyage.vol?.numero || 'N/A' }}
+                        </div>
+                    </td>
+
+                    <!-- Itinéraire -->
+                    <td class="table-separator">
+                        <div class="text-sm text-gray-900">
+                            {{ voyage.villeDepart?.nom || 'N/A' }}
+                            <i class="pi pi-arrow-right mx-1 text-gray-400"></i>
+                            {{ voyage.villeDestination?.nom || 'N/A' }}
+                        </div>
+                    </td>
+
+                    <!-- Date + Heure -->
+                    <td class="table-separator">
+                        <div class="text-sm text-gray-900">
+                            {{ voyage.dateVoyage | date:'dd/MM/yyyy' || 'N/A' }}
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            {{ voyage.heureVoyage || 'N/A' }}
+                        </div>
+                    </td>
+
+                    <!-- État -->
+                    <td class="table-separator">
+                        <p-tag [value]="voyage.EtatVoyage || 'N/A'"></p-tag>
+                    </td>
+
+                    <!-- Statut -->
+                    <td class="table-separator">
+                        <p-tag [value]="voyage.StatutVoyage || 'N/A'"></p-tag>
+                    </td>
+
+                    <!-- Aéroport -->
+                    <td class="table-separator">
+                        {{ voyage.aeroport?.nomAeroport || 'N/A' }}
+                    </td>
+
+                    <!-- Actions -->
+                    <td class="text-center">
+                        <button pButton icon="pi pi-eye"
+                            class="p-button-rounded p-button-primary mr-2"
+                            pTooltip="Voir détail" tooltipPosition="top"
+                            (click)="selectVoyage(voyage)">
+                        </button>
+                    </td>
+
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="7" style="text-align: center; font-size: 1.2em; color: red; font-weight: bold;">
+                        <span class="text-danger">Aucun Voyage trouvé !</span>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+
+<!-- Dialog Filtre par période -->
+
+
+<!-- Modal Détail Enregistrement -->
+<p-dialog [(visible)]="isDetailModalOpen"
+          [style]="{width: '900px'}"
+          header="Détails du Voyage"
+          [modal]="true"
+          [closable]="true"
+          [draggable]="false"
+          class="p-fluid">
+
+    <div class="p-fluid">
+
+        <!-- INFORMATIONS SUR LE VOL -->
+        <p-fieldset legend="Vol" [toggleable]="false" styleClass="mb-3">
+            <div class="grid">
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold"><i class="pi pi-send mr-2"></i>N° Vol :</span>
+                    {{ selectedVoyage.vol?.numero || 'N/A' }}
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold"><i class="pi pi-building mr-2"></i>Aéroport :</span>
+                    {{ selectedVoyage.aeroport?.nomAeroport || 'N/A' }}
+                </div>
+
+            </div>
+        </p-fieldset>
+
+
+        <!-- ITINÉRAIRE -->
+        <p-fieldset legend="Itinéraire" [toggleable]="false" styleClass="mb-3">
+            <div class="grid">
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold"><i class="pi pi-arrow-up mr-2"></i>Ville de départ :</span>
+                    {{ selectedVoyage.villeDepart?.nom || 'N/A' }}
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold"><i class="pi pi-arrow-down mr-2"></i>Ville de destination :</span>
+                    {{ selectedVoyage.villeDestination?.nom || 'N/A' }}
+                </div>
+
+            </div>
+        </p-fieldset>
+
+
+        <!-- INFORMATIONS DE VOYAGE -->
+        <p-fieldset legend="Informations du Voyage" [toggleable]="false" styleClass="mb-3">
+            <div class="grid">
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold"><i class="pi pi-calendar mr-2"></i>Date :</span>
+                    {{ selectedVoyage.dateVoyage | date:'dd/MM/yyyy' || 'N/A' }}
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold"><i class="pi pi-clock mr-2"></i>Heure :</span>
+                    {{ selectedVoyage.heureVoyage || 'N/A' }}
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold"><i class="pi pi-info-circle mr-2"></i>Motif du voyage :</span>
+                    {{ selectedVoyage.motifVoyage?.libelle || 'N/A' }}
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold"><i class="pi pi-directions mr-2"></i>État du voyage :</span>
+                    {{ selectedVoyage.EtatVoyage || 'N/A' }}
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold"><i class="pi pi-flag mr-2"></i>Statut :</span>
+                    {{ selectedVoyage.StatutVoyage || 'N/A' }}
+                </div>
+
+                <div class="field col-12 md:col-6" *ngIf="selectedVoyage.dureeSejour">
+                    <span class="font-bold"><i class="pi pi-hourglass mr-2"></i>Durée du séjour :</span>
+                    {{ selectedVoyage.dureeSejour }} jour(s)
+                </div>
+
+            </div>
+        </p-fieldset>
+
+    </div>
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Fermer" icon="pi pi-times" class="p-button-danger"
+                (click)="closeDetailModal()">
+        </button>
+    </ng-template>
+
+</p-dialog>
+
+
+
+
+<!-- Toast pour les notifications -->
+<p-toast [style]="{marginTop: '80px'}" position="top-center"></p-toast>
+
+<!-- Loading Spinner -->
+ <p-confirmDialog></p-confirmDialog>
+<app-loading-spinner></app-loading-spinner>
