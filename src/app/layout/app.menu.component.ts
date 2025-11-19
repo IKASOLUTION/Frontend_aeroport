@@ -90,7 +90,7 @@ export class AppMenuComponent implements OnInit {
                 {
                     label: 'Voyageurs en Attente',
                     icon: 'fa-solid fa-user-clock',
-                    routerLink: ['/admin/voyageurs-attente']
+                    routerLink: ['/admin/voyageur-attente']
                 },
                 {
                     label: 'Gestion des Voyages',
