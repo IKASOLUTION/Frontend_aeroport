@@ -129,6 +129,7 @@ export class VolComponent implements OnInit, OnDestroy {
     dateDebut: Date | null = null;
     dateFin: Date | null = null;
     isDetailModalOpen = false;
+    label = "Aéroport arrivé";
 
     constructor(
         private fb: FormBuilder,
@@ -160,7 +161,6 @@ export class VolComponent implements OnInit, OnDestroy {
         this.dateDebut = new Date();
         this.dateDebut.setDate(this.dateDebut.getDate() - 7);
         this.dateFin = new Date();
-        
         // Charger les vols avec filtres par défaut
         this.loadVolsWithFilters();
 
@@ -240,6 +240,13 @@ export class VolComponent implements OnInit, OnDestroy {
         });
     }
 
+    foundAeroport() {
+        if(this.volFormGroup.get('typeVol')?.value == TypeVol.ARRIVEE){
+            this.label = "Aéroport depart";
+        } else {
+             this.label = "Aéroport arrivé";
+        }
+    }
     // Ouvrir le modal de détail
   openDetailModal(vol: Vol) {
     this.selectedVol = vol;
@@ -309,8 +316,8 @@ export class VolComponent implements OnInit, OnDestroy {
             typeVol: ['', [Validators.required]],
             compagnie: [null, [Validators.required]],
             aeroport: [null, [Validators.required]],
-            villeDepart: [null, [Validators.required]],
-            villeArrivee: [null, [Validators.required]],
+            /* villeDepart: [null, [Validators.required]],
+            villeArrivee: [null, [Validators.required]], */
             dateDepart: [null, [Validators.required]],
             dateArrivee: [null, [Validators.required]],
             statut: [StatutVol.PROGRAMME, [Validators.required]]

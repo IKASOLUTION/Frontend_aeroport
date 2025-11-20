@@ -9,8 +9,8 @@ import * as enregistrementSelector from '../../store/enregistrement/selector';
 import * as biometricAction from '../../store/biometric/action';
 import * as biometricSelector from '../../store/biometric/selector';
 import * as globalSelector from '../../store/global-config/selector';
-import * as volAction from '../../store/vol/action';
-import * as volSelector from '../../store/vol/selector';
+import * as voyageAction from '../../store/voyage/action';
+import * as voyageSelector from '../../store/voyage/selector';
 
 // PrimeNG Imports
 import { CardModule } from 'primeng/card';
@@ -29,7 +29,9 @@ import { Enregistrement, InformationPersonnelle, MotifVoyage, TypeDocument } fro
 import { DonneeBiometrique } from 'src/app/store/biometric/model';
 import { LoadingSpinnerComponent } from '../loading-spinner.component';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { Vol } from 'src/app/store/vol/model';
+import { Voyage } from 'src/app/store/voyage/model';
+import { CountryService } from 'src/app/demo/service/country.service';
+import { NationaliteService } from 'src/app/demo/service/nationalite.service';
 
 interface Passager {
   id: number;
@@ -74,23 +76,24 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   private store = inject(Store);
   private messageService = inject(MessageService);
   private destroy$ = new Subject<void>();
+  private countryService = inject(CountryService);
+  private nationaliteService = inject(NationaliteService);
 
   // Signals pour la gestion de l'état local
   formData = signal<Enregistrement>({
     typeDocument: TypeDocument.PASSEPORT,
-    etatVoyage: 'ALLER'
   });
 
   formErrors = signal<Record<string, string>>({});
   isSaving = signal<boolean>(false);
   loading = signal<boolean>(true);
 
-  vols = signal<Vol[]>([]);
+  voyages = signal<Voyage[]>([]);
   motifs = signal<{ libelle: string; value: MotifVoyage }[]>([]);
   enregistrementList = signal<Enregistrement[]>([]);
-  volList = signal<Vol[]>([]);
+  voyageList = signal<Voyage[]>([]);
 
-  selectedVolInfo = signal<Vol | null>(null);
+  selectedVoyageInfo = signal<Voyage | null>(null);
 
   // Modale Biométrique - Empreintes avec images
   isCaptureBiometriqueModalOpen = signal<boolean>(false);
@@ -116,13 +119,34 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   typesDocument: Array<'PASSEPORT' | 'CNI' | 'PERMIS_CONDUIRE'> = ['PASSEPORT', 'CNI', 'PERMIS_CONDUIRE'];
   etatsVoyage: Array<'ALLER' | 'RETOUR' | 'ALLER_RETOUR'> = ['ALLER', 'RETOUR', 'ALLER_RETOUR'];
 
+  countries: any[] = [];
+  selectedCountry: any;
+  nationalites: any[] = [];
+  selectedNationalite: any;
+
   ngOnInit(): void {
     this.initializeFormData();
     this.subscribeToStoreUpdates();
-    this.loadVols();
-    this.loadMotifs();
+    this.loadVoyages();
+     this.countryService.getCountries().then((countries) => {
+            this.countries = countries;
+        });
+        this.nationaliteService.getCountries().then((nationalites) => {
+            this.nationalites = nationalites;
+        });
   }
 
+  findPays(country: any) {
+        if (country && country.name) {
+            this.formData().paysResidence = country.name;
+        }
+    }
+
+    findNationalite(nationalite: any) {
+        if (nationalite && nationalite.nationalite) {
+            this.formData().nationalite = nationalite.nationalite;
+        }
+    }
   private loadEnregistrements(): void {
     this.store.dispatch(enregistrementAction.loadEnregistrement());
   }
@@ -139,11 +163,11 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
     });
 
     this.store.pipe(
-      select(volSelector.volList),
+      select(voyageSelector.voyageList),
       takeUntil(this.destroy$)
     ).subscribe(value => {
       if (value) {
-        this.volList.set([...value]);
+        this.voyageList.set([...value]);
       }
     });
 
@@ -186,7 +210,6 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   initializeFormData(): void {
     this.formData.set({
       typeDocument: undefined,
-      etatVoyage: 'ALLER',
       numeroDocument: '',
       numeroNip: null,
       dateDelivrance: '',
@@ -206,29 +229,15 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
       telephoneEtranger: null,
       adresseBurkina: null,
       adresseEtranger: null,
-      volId: null,
-      villeDepart: '',
-      villeDestination: '',
-      dateVoyage: '',
-      heureVoyage: '',
-      motifVoyage: undefined,
-      dureeSejour: null
+      voyageId: null,
     });
   }
 
-  loadVols(): void {
-    this.store.dispatch(volAction.loadVol());
+  loadVoyages(): void {
+    this.store.dispatch(voyageAction.loadVoyage());
   }
 
-  loadMotifs(): void {
-    this.motifs.set([
-      { libelle: 'Affaires', value: MotifVoyage.AFFAIRES },
-      { libelle: 'Tourisme', value: MotifVoyage.TOURISME },
-      { libelle: 'Famille', value: MotifVoyage.FAMILLE },
-      { libelle: 'Études', value: MotifVoyage.ETUDES },
-      { libelle: 'Médical', value: MotifVoyage.MEDICAL },
-    ]);
-  }
+  
 
   updateFormDataField(field: keyof Enregistrement, value: any): void {
     this.formData.update(data => ({ ...data, [field]: value }));
@@ -242,21 +251,21 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
     }
   }
 
-  onVolSelectionChange(volId: number): void {
-    const selectedVol = this.volList().find(v => v.id === volId);
-    if (selectedVol) {
-      this.selectedVolInfo.set(selectedVol);
+  onVoyageSelectionChange(voyageId: number): void {
+    const selectedVoyage = this.voyageList().find(v => v.id === voyageId);
+    if (selectedVoyage) {
+      this.selectedVoyageInfo.set(selectedVoyage);
       this.formData.update(data => ({
         ...data,
-        volId: volId,
-        villeDepart: selectedVol.villeDepart?.nom,
-        villeDestination: selectedVol.villeArrivee?.nom,
-        dateVoyage: selectedVol.dateDepart
-          ? new Date(selectedVol.dateDepart).toISOString().split('T')[0]
+        voyageId: voyageId,
+       /*  villeDepart: selectedVoyage.villeDepart?.nom,
+        villeDestination: selectedVoyage.villeArrivee?.nom,
+        dateVoyage: selectedVoyage.dateDepart
+          ? new Date(selectedVoyage.dateDepart).toISOString().split('T')[0]
           : '',
-        heureVoyage: selectedVol.dateDepart
-          ? new Date(selectedVol.dateDepart).toISOString().split('T')[1].substring(0, 5)
-          : ''
+        heureVoyage: selectedVoyage.dateDepart
+          ? new Date(selectedVoyage.dateDepart).toISOString().split('T')[1].substring(0, 5)
+          : '' */
       }));
     }
   }
@@ -281,10 +290,8 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
     if (!data.adresseBurkina?.trim()) errors['adresseBurkina'] = 'L\'adresse au Burkina est requise';
     if (!data.adresseEtranger?.trim()) errors['adresseEtranger'] = 'L\'adresse à l\'étranger est requise';
     if (data.emailContact && !this.isValidEmail(data.emailContact)) errors['emailContact'] = 'L\'email n\'est pas valide';
-    if (!data.volId) errors['volId'] = 'Le vol est requis';
-    if (data.motifVoyage === undefined) errors['motifVoyage'] = 'Le motif du voyage est requis';
-    if (!data.dureeSejour || data.dureeSejour < 1) errors['dureeSejour'] = 'La durée du séjour doit être d\'au moins 1 jour';
-
+    if (!data.voyageId) errors['voyageId'] = 'Le Voyage est requis';
+    
     this.formErrors.set(errors);
     return Object.keys(errors).length === 0;
   }
@@ -331,7 +338,6 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
       ...data,
       dateDelivrance: this.formatDate(data.dateDelivrance),
       dateNaissance: this.formatDate(data.dateNaissance),
-      dateVoyage: this.formatDate(data.dateVoyage)
     };
   }
 
@@ -346,7 +352,7 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   resetForm(): void {
     this.initializeFormData();
     this.formErrors.set({});
-    this.selectedVolInfo.set(null);
+    this.selectedVoyageInfo.set(null);
 
     this.messageService.add({
       severity: 'info',

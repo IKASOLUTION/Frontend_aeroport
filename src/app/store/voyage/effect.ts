@@ -9,7 +9,7 @@ import {Voyage } from "./model";
 import { HttpErrorResponse } from "@angular/common/http";
 
 @Injectable()
-export class MotifVoyageEffects {
+export class VoyageEffects {
 
 
     private successMsg = 'Opération reussie !';
