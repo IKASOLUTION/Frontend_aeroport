@@ -116,7 +116,7 @@ export class AppMenuComponent implements OnInit {
                 {
                     label: 'Données Biométriques',
                     icon: 'fa-solid fa-fingerprint',
-                    routerLink: ['/admin/donnees-biometriques']
+                    routerLink: ['/admin/donnee-biometrique']
                 },
                 {
                     label: 'Notification Urgente',

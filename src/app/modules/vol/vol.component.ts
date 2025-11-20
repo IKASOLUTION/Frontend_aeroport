@@ -488,6 +488,14 @@ removeAccents(str: string): string {
         if (this.isUpdate && formValue.id) {
             volToSave.id = formValue.id;
         }
+        const searchDto: SearchDto = {
+            dateDebut: this.dateDebut ?? new Date(),
+            dateFin: this.dateFin ?? new Date(),
+            statutVols: this.selectedStatuts.length > 0 ? this.selectedStatuts : undefined,
+            page: this.page,
+            size: this.rows,
+            sortBy: 'dateDepart,desc'
+        };
         
         console.log("===== COMPOSANT - Objet Vol à dispatcher =====", volToSave);
 
@@ -503,9 +511,9 @@ removeAccents(str: string): string {
             rejectLabel: 'Non',
             accept: () => {
                 if (this.isUpdate) {
-                    this.store.dispatch(volAction.updateVol({ vol: volToSave }));
+                    this.store.dispatch(volAction.updateVol({ vol: volToSave , search: searchDto}));
                 } else {
-                    this.store.dispatch(volAction.createVol({ vol: volToSave }));
+                    this.store.dispatch(volAction.createVol({ vol: volToSave, search: searchDto }));
                 }
                 
                 this.resetForm();

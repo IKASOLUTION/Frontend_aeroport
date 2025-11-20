@@ -332,21 +332,21 @@
 
                 <div class="field col-12 md:col-6">
                     <span class="font-bold">
-                        <i class="pi pi-calendar mr-2"></i>Date de voyage:
+                        <i class="pi pi-calendar mr-2"></i>Date de vol:
                     </span>
                     {{ selectedEnregistrement.dateVoyage | date: 'dd/MM/yyyy' || 'N/A' }}
                 </div>
 
                 <div class="field col-12 md:col-6" *ngIf="selectedEnregistrement.heureVoyage">
                     <span class="font-bold">
-                        <i class="pi pi-clock mr-2"></i>Heure de voyage:
+                        <i class="pi pi-clock mr-2"></i>Heure de vol:
                     </span>
                     {{ selectedEnregistrement.heureVoyage }}
                 </div>
 
                 <div class="field col-12 md:col-6">
                     <span class="font-bold">
-                        <i class="pi pi-info-circle mr-2"></i>Motif du voyage:
+                        <i class="pi pi-info-circle mr-2"></i>Motif du vol:
                     </span>
                     <!--  <p-tag 
                         [value]="selectedEnregistrement.motifVoyage || 'N/A'" 
@@ -357,7 +357,7 @@
 
                 <div class="field col-12 md:col-6" *ngIf="selectedEnregistrement.etatVoyage">
                     <span class="font-bold">
-                        <i class="pi pi-directions mr-2"></i>État du voyage:
+                        <i class="pi pi-directions mr-2"></i>État du vol:
                     </span>
                     {{ selectedEnregistrement.etatVoyage }}
                 </div>
@@ -369,11 +369,11 @@
                     {{ selectedEnregistrement.dureeSejour }} jour(s)
                 </div>
 
-                <div class="field col-12 md:col-6" *ngIf="selectedEnregistrement.voyageId">
+                <div class="field col-12 md:col-6" *ngIf="selectedEnregistrement.volId">
                     <span class="font-bold">
                         <i class="pi pi-send mr-2"></i>Vol associé:
                     </span>
-                    Vol #{{ selectedEnregistrement.voyageId }}
+                    Vol #{{ selectedEnregistrement.volId }}
                 </div>
             </div>
         </p-fieldset>

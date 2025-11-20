@@ -43,7 +43,7 @@
                         <p-columnFilter type="text" display="menu" field="villeNomD"></p-columnFilter>
                     </th>
 
-                    <th style="font-weight: bold;">Itinéraire
+                    <th style="width: 35%; font-weight: bold;">Itinéraire
                         <p-columnFilter type="text" display="menu" field="villeNomA"></p-columnFilter>
                     </th>
                     <th style="font-weight: bold;">Départ
@@ -70,9 +70,24 @@
                         <div class="text-sm text-gray-900">{{ vol.compagnie?.nomCompagine }}</div>
                     </td>
                     <td class="table-separator px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {{ vol.villeDepart?.nom }}
+                        <span *ngIf="vol.typeVol == 'ARRIVEE'">
+                            {{ vol.aeroport?.nomAeroport }}
+
+                        </span>
+                         <span *ngIf="vol.typeVol != 'ARRIVEE'">
+                            {{ vol.nomAgentConnecteAeroport }}
+
+                        </span>
+                        
                         <i class="fa-solid fa-arrow-right pi pi-arrow-right mr-2 mx-1 text-gray-400"></i>
-                        {{ vol.villeArrivee?.nom }}
+                        <span *ngIf="vol.typeVol == 'ARRIVEE'">
+                            {{ vol.nomAgentConnecteAeroport }}
+
+                        </span>
+                         <span *ngIf="vol.typeVol != 'ARRIVEE'">
+                            {{ vol.aeroport?.nomAeroport }}
+
+                        </span>
                     </td>
                     <td class="table-separator">{{vol.dateDepart | date:'dd/MM/yyyy HH:mm' || 'N/A'}}</td>
                     <td class="table-separator">{{vol.dateDepart | date:'dd/MM/yyyy HH:mm' || 'N/A'}}</td>
@@ -196,7 +211,7 @@
                                     <p-dropdown id="aeroport" [options]="aeroports" formControlName="aeroport"
                                         optionLabel="nomAeroport" placeholder="Sélectionnez un aéroport"
                                         [showClear]="true" [filter]="true" filterBy="nomAeroport"
-                                        [style]="{'width': '100%'}"
+                                        [style]="{'width': '100%'}" appendTo="body"
                                         [class.ng-invalid]="volFormGroup.get('aeroport')?.invalid && volFormGroup.get('aeroport')?.touched">
                                         <ng-template let-aeroport pTemplate="item">
                                             <div class="flex align-items-center">

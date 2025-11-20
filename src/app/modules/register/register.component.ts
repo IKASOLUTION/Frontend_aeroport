@@ -118,7 +118,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
             { field: 'nationalite', header: 'Nationalité' },
             { field: 'villeDepart', header: 'Ville départ' },
             { field: 'villeDestination', header: 'Destination' },
-            { field: 'dateVoyage', header: 'Date voyage' },
+            { field: 'dateVoyage', header: 'Date vol' },
             { field: 'motifVoyage', header: 'Motif' }
         ];
 

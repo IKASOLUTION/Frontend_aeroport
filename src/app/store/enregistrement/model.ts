@@ -27,7 +27,7 @@ export interface Enregistrement {
   adresseEtranger?: string | null;
   
   // Voyage
-  voyageId?: number | null;
+  volId?: number | null;
   villeDepart?: string;
   villeDestination?: string;
   dateVoyage?: string;
@@ -65,6 +65,16 @@ export enum TypeDocument {
     
 }
 
+export enum TypeCapture {
+
+    ENROLEMENT, CONTROLE
+    
+}
+
+export enum StatutDonneeBio {
+    VALIDE, INVALIDE, EXPIREE
+}
+
 export class InformationPersonnelle  {
   id?: number;
   nomFamille?: string;
@@ -82,4 +92,10 @@ export class InformationPersonnelle  {
   telephoneBurkina?: string;
   paysResidence?: string;
   emailContact?: string;
+}
+
+
+export interface EmpreinteCapture {
+  image: string | null;
+  capturee: boolean;
 }

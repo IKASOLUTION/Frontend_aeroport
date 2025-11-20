@@ -9,8 +9,8 @@ import * as enregistrementSelector from '../../store/enregistrement/selector';
 import * as biometricAction from '../../store/biometric/action';
 import * as biometricSelector from '../../store/biometric/selector';
 import * as globalSelector from '../../store/global-config/selector';
-import * as voyageAction from '../../store/voyage/action';
-import * as voyageSelector from '../../store/voyage/selector';
+import * as volAction from '../../store/vol/action';
+import * as volSelector from '../../store/vol/selector';
 
 // PrimeNG Imports
 import { CardModule } from 'primeng/card';
@@ -25,11 +25,11 @@ import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { PanelModule } from 'primeng/panel';
 import { ToastModule } from 'primeng/toast';
-import { Enregistrement, InformationPersonnelle, MotifVoyage, TypeDocument } from 'src/app/store/enregistrement/model';
+import { EmpreinteCapture, Enregistrement, InformationPersonnelle, MotifVoyage, TypeDocument } from 'src/app/store/enregistrement/model';
 import { DonneeBiometrique } from 'src/app/store/biometric/model';
 import { LoadingSpinnerComponent } from '../loading-spinner.component';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { Voyage } from 'src/app/store/voyage/model';
+import { Vol } from 'src/app/store/vol/model';
 import { CountryService } from 'src/app/demo/service/country.service';
 import { NationaliteService } from 'src/app/demo/service/nationalite.service';
 
@@ -40,10 +40,7 @@ interface Passager {
   informationPersonnelleId?: number;
 }
 
-interface EmpreinteCapture {
-  image: string | null;
-  capturee: boolean;
-}
+
 
 @Component({
   selector: 'app-gestion-enregistrements',
@@ -88,12 +85,12 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   isSaving = signal<boolean>(false);
   loading = signal<boolean>(true);
 
-  voyages = signal<Voyage[]>([]);
+  vols = signal<Vol[]>([]);
   motifs = signal<{ libelle: string; value: MotifVoyage }[]>([]);
   enregistrementList = signal<Enregistrement[]>([]);
-  voyageList = signal<Voyage[]>([]);
+  volList = signal<Vol[]>([]);
 
-  selectedVoyageInfo = signal<Voyage | null>(null);
+  selectedVolInfo = signal<Vol | null>(null);
 
   // Modale Biométrique - Empreintes avec images
   isCaptureBiometriqueModalOpen = signal<boolean>(false);
@@ -127,7 +124,8 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initializeFormData();
     this.subscribeToStoreUpdates();
-    this.loadVoyages();
+    this.loadVols();
+    this.loadMotifs();
      this.countryService.getCountries().then((countries) => {
             this.countries = countries;
         });
@@ -163,11 +161,11 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
     });
 
     this.store.pipe(
-      select(voyageSelector.voyageList),
+      select(volSelector.volList),
       takeUntil(this.destroy$)
     ).subscribe(value => {
       if (value) {
-        this.voyageList.set([...value]);
+        this.volList.set([...value]);
       }
     });
 
@@ -210,6 +208,7 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   initializeFormData(): void {
     this.formData.set({
       typeDocument: undefined,
+      etatVoyage: 'ALLER',
       numeroDocument: '',
       numeroNip: null,
       dateDelivrance: '',
@@ -229,15 +228,29 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
       telephoneEtranger: null,
       adresseBurkina: null,
       adresseEtranger: null,
-      voyageId: null,
+      volId: null,
+      villeDepart: '',
+      villeDestination: '',
+      dateVoyage: '',
+      heureVoyage: '',
+      motifVoyage: undefined,
+      dureeSejour: null
     });
   }
 
-  loadVoyages(): void {
-    this.store.dispatch(voyageAction.loadVoyage());
+  loadVols(): void {
+    this.store.dispatch(volAction.loadVol());
   }
 
-  
+  loadMotifs(): void {
+    this.motifs.set([
+      { libelle: 'Affaires', value: MotifVoyage.AFFAIRES },
+      { libelle: 'Tourisme', value: MotifVoyage.TOURISME },
+      { libelle: 'Famille', value: MotifVoyage.FAMILLE },
+      { libelle: 'Études', value: MotifVoyage.ETUDES },
+      { libelle: 'Médical', value: MotifVoyage.MEDICAL },
+    ]);
+  }
 
   updateFormDataField(field: keyof Enregistrement, value: any): void {
     this.formData.update(data => ({ ...data, [field]: value }));
@@ -251,21 +264,21 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
     }
   }
 
-  onVoyageSelectionChange(voyageId: number): void {
-    const selectedVoyage = this.voyageList().find(v => v.id === voyageId);
-    if (selectedVoyage) {
-      this.selectedVoyageInfo.set(selectedVoyage);
+  onVolSelectionChange(volId: number): void {
+    const selectedVol = this.volList().find(v => v.id === volId);
+    if (selectedVol) {
+      this.selectedVolInfo.set(selectedVol);
       this.formData.update(data => ({
         ...data,
-        voyageId: voyageId,
-       /*  villeDepart: selectedVoyage.villeDepart?.nom,
-        villeDestination: selectedVoyage.villeArrivee?.nom,
-        dateVoyage: selectedVoyage.dateDepart
-          ? new Date(selectedVoyage.dateDepart).toISOString().split('T')[0]
+        volId: volId,
+        villeDepart: selectedVol.villeDepart?.nom,
+        villeDestination: selectedVol.villeArrivee?.nom,
+        dateVoyage: selectedVol.dateDepart
+          ? new Date(selectedVol.dateDepart).toISOString().split('T')[0]
           : '',
-        heureVoyage: selectedVoyage.dateDepart
-          ? new Date(selectedVoyage.dateDepart).toISOString().split('T')[1].substring(0, 5)
-          : '' */
+        heureVoyage: selectedVol.dateDepart
+          ? new Date(selectedVol.dateDepart).toISOString().split('T')[1].substring(0, 5)
+          : ''
       }));
     }
   }
@@ -290,7 +303,7 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
     if (!data.adresseBurkina?.trim()) errors['adresseBurkina'] = 'L\'adresse au Burkina est requise';
     if (!data.adresseEtranger?.trim()) errors['adresseEtranger'] = 'L\'adresse à l\'étranger est requise';
     if (data.emailContact && !this.isValidEmail(data.emailContact)) errors['emailContact'] = 'L\'email n\'est pas valide';
-    if (!data.voyageId) errors['voyageId'] = 'Le Voyage est requis';
+    if (!data.volId) errors['volId'] = 'Le Voyage est requis';
     
     this.formErrors.set(errors);
     return Object.keys(errors).length === 0;
@@ -311,7 +324,7 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
       });
       return;
     }
-
+console.log("========================this.prepareEnregistrementData()=================",this.prepareEnregistrementData())
     const enregistrementData = this.prepareEnregistrementData();
     this.store.dispatch(enregistrementAction.createEnregistrement(enregistrementData));
 
@@ -338,6 +351,7 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
       ...data,
       dateDelivrance: this.formatDate(data.dateDelivrance),
       dateNaissance: this.formatDate(data.dateNaissance),
+      dateVoyage: this.formatDate(data.dateVoyage)
     };
   }
 
@@ -352,7 +366,7 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   resetForm(): void {
     this.initializeFormData();
     this.formErrors.set({});
-    this.selectedVoyageInfo.set(null);
+    this.selectedVolInfo.set(null);
 
     this.messageService.add({
       severity: 'info',

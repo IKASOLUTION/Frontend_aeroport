@@ -1,0 +1,569 @@
+<div class="grid">
+    <div class="col-12 md:col-12">
+        <p-table #dt styleClass="p-datatable-gridlines p-datatable-sm p-datatable" [value]="donneeBiometriqueList()"
+            [columns]="cols" [rows]="rows" [paginator]="false" [showCurrentPageReport]="true"
+            [globalFilterFields]="['informationPersonnelle.nomFamille', 'informationPersonnelle.prenom', 'informationPersonnelle.numeroDocument', 'informationPersonnelle.nationalite']"
+            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+            [(selection)]="selectedDonneeBiometrique" selectionMode="single" [rowHover]="true" dataKey="id"
+            [loading]="loading()">
+
+            <ng-template pTemplate="caption">
+                <div class="flex justify-content-between flex-column sm:flex-row">
+                    <div class="flex gap-2">
+                        <button pButton label="Nouvelle capture" class="p-button-success mb-2" icon="pi pi-plus"
+                            (click)="openCaptureBiometriqueModal(null)">
+                        </button>
+                        <button pButton label="Filtrer par période" class="p-button-info mb-2" icon="pi pi-filter"
+                            (click)="openFilterDialog()">
+                        </button>
+                        <button pButton label="Réinitialiser" class="p-button-secondary mb-2" icon="pi pi-refresh"
+                            (click)="resetFilters()">
+                        </button>
+                    </div>
+                    <div class="flex flex-column align-items-end">
+                        <span class="p-input-icon-left mb-2">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" #filter (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Rechercher" class="w-full" />
+                        </span>
+                        <small class="text-500" *ngIf="dateDebut && dateFin">
+                            Période: {{dateDebut | date:'dd/MM/yyyy'}} - {{dateFin | date:'dd/MM/yyyy'}}
+                        </small>
+                    </div>
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="font-weight: bold;">Passager
+                        <p-columnFilter type="text" display="menu"
+                            field="informationPersonnelle.nomFamille"></p-columnFilter>
+                    </th>
+                    <th style="font-weight: bold;">Document
+                        <p-columnFilter type="text" display="menu"
+                            field="informationPersonnelle.typeDocument"></p-columnFilter>
+                    </th>
+                    <th style="font-weight: bold;">Nationalité
+                        <p-columnFilter type="text" display="menu"
+                            field="informationPersonnelle.nationalite"></p-columnFilter>
+                    </th>
+                    <th style="font-weight: bold;">Empreintes</th>
+                    <th style="font-weight: bold;">Type capture</th>
+                    <th style="font-weight: bold;">Statut</th>
+                    <th style="font-weight: bold;" class="text-center">Actions</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-donneeBio>
+                <tr>
+                    <td class="table-separator">
+                        <div class="text-sm font-medium text-gray-900">
+                            {{ donneeBio.informationPersonnelle?.nomFamille }} {{
+                            donneeBio.informationPersonnelle?.prenom }}
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            {{ donneeBio.informationPersonnelle?.dateNaissance | date:'dd/MM/yyyy' }}
+                        </div>
+                    </td>
+                    <td class="table-separator">
+                        <div class="text-sm text-gray-900">{{ donneeBio.informationPersonnelle?.typeDocument }}</div>
+                        <div class="text-sm text-gray-500">{{ donneeBio.informationPersonnelle?.numeroDocument }}</div>
+                    </td>
+                    <td class="table-separator px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ donneeBio.informationPersonnelle?.nationalite || 'N/A' }}
+                    </td>
+                    <td class="table-separator">
+                        <div class="flex gap-2">
+                            <i class="pi pi-check-circle text-green-500" *ngIf="donneeBio.empreinteGauche1"
+                                pTooltip="Empreinte gauche"></i>
+                            <i class="pi pi-times-circle text-red-500" *ngIf="!donneeBio.empreinteGauche1"
+                                pTooltip="Empreinte gauche manquante"></i>
+
+                            <i class="pi pi-check-circle text-green-500" *ngIf="donneeBio.empreinteDroite1"
+                                pTooltip="Empreinte droite"></i>
+                            <i class="pi pi-times-circle text-red-500" *ngIf="!donneeBio.empreinteDroite1"
+                                pTooltip="Empreinte droite manquante"></i>
+
+                            <i class="pi pi-check-circle text-green-500" *ngIf="donneeBio.empreintePouces1"
+                                pTooltip="Empreintes pouces"></i>
+                            <i class="pi pi-times-circle text-red-500" *ngIf="!donneeBio.empreintePouces1"
+                                pTooltip="Empreintes pouces manquantes"></i>
+                        </div>
+                    </td>
+                    <td class="table-separator">
+                        <p-tag [value]="donneeBio.typeCapture?.toString() || 'N/A'"
+                            [severity]="donneeBio.typeCapture === 'ENROLEMENT' ? 'info' : 'secondary'">
+                        </p-tag>
+                    </td>
+                    <td class="table-separator">
+                        <p-tag [value]="donneeBio.statut?.toString() || 'N/A'"
+                            [severity]="getStatutSeverity(donneeBio.statut)">
+                        </p-tag>
+                    </td>
+                    <td class="text-center">
+                        <button pButton icon="pi pi-eye" class="p-button-rounded p-button-primary mr-2"
+                            pTooltip="Voir détail" tooltipPosition="top" (click)="selectDonneeBiometrique(donneeBio)">
+                        </button>
+                        <button pButton icon="pi pi-fingerprint" class="p-button-rounded p-button-info mr-2"
+                            pTooltip="Capturer biométrie" tooltipPosition="top"
+                            (click)="openCaptureBiometriqueModal(donneeBio)">
+                        </button>
+                        <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger" pTooltip="Supprimer"
+                            tooltipPosition="top" (click)="confirmDelete(donneeBio)">
+                        </button>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="7" style="text-align: center; font-size: 1.2em; color: red; font-weight: bold;">
+                        <span class="text-danger">Aucune donnée biométrique trouvée !</span>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+
+        <!-- Pagination manuelle -->
+        <p-paginator [rows]="rows" [totalRecords]="totalItems" [rowsPerPageOptions]="[5, 10, 20, 30]" [first]="first"
+            (onPageChange)="onPageChange($event)" [showCurrentPageReport]="true"
+            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées">
+        </p-paginator>
+    </div>
+</div>
+
+<!-- Dialog Filtre par période -->
+<p-dialog [(visible)]="filterDialog" [modal]="true" [draggable]="false" [resizable]="false" [style]="{width: '500px'}"
+    header="Filtrer les données biométriques" styleClass="p-fluid">
+
+    <ng-template pTemplate="content">
+        <form [formGroup]="filterFormGroup">
+            <div class="grid">
+                <!-- Date de début -->
+                <div class="col-12 md:col-6">
+                    <label for="dateDebut" class="block mb-2 font-semibold">
+                        Date de début
+                    </label>
+                    <p-calendar id="dateDebut" formControlName="dateDebut" dateFormat="dd/mm/yy" [showIcon]="true"
+                        placeholder="Sélectionner une date" [maxDate]="filterFormGroup.get('dateFin')?.value">
+                    </p-calendar>
+                </div>
+
+                <!-- Date de fin -->
+                <div class="col-12 md:col-6">
+                    <label for="dateFin" class="block mb-2 font-semibold">
+                        Date de fin
+                    </label>
+                    <p-calendar id="dateFin" formControlName="dateFin" dateFormat="dd/mm/yy" [showIcon]="true"
+                        placeholder="Sélectionner une date" [minDate]="filterFormGroup.get('dateDebut')?.value">
+                    </p-calendar>
+                </div>
+
+                <!-- Statuts -->
+                <div class="col-12">
+                    <label for="statuts" class="block mb-2 font-semibold">
+                        Statuts
+                    </label>
+                    <p-multiSelect id="statuts" [options]="statutsDonneeBio" formControlName="statuts"
+                        optionLabel="label" optionValue="value" placeholder="Sélectionnez des statuts"
+                        [showClear]="true" display="chip">
+                    </p-multiSelect>
+                </div>
+            </div>
+        </form>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2">
+            <button pButton label="Annuler" icon="pi pi-times" class="p-button-text p-button-secondary"
+                (click)="closeFilterDialog()">
+            </button>
+            <button pButton label="Réinitialiser" icon="pi pi-refresh" class="p-button-text p-button-warning"
+                (click)="resetFilters()">
+            </button>
+            <button pButton label="Appliquer" icon="pi pi-check" class="p-button-primary" (click)="applyFilters()">
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- Modal Détail Données Biométriques -->
+<p-dialog [(visible)]="isDetailModalOpen" [style]="{width: '1000px'}" header="Détails des données biométriques"
+    [modal]="true" [closable]="true" [draggable]="false" class="p-fluid">
+
+    <div class="p-fluid" *ngIf="selectedDonneeBiometrique">
+
+        <!-- Section: Informations Personnelles -->
+        <p-fieldset legend="Informations Personnelles" [toggleable]="false" styleClass="mb-3">
+            <div class="grid">
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold">
+                        <i class="pi pi-user mr-2"></i>Nom complet:
+                    </span>
+                    {{ selectedDonneeBiometrique.informationPersonnelle?.nomFamille }}
+                    {{ selectedDonneeBiometrique.informationPersonnelle?.prenom }}
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold">
+                        <i class="pi pi-calendar mr-2"></i>Date de naissance:
+                    </span>
+                    {{ selectedDonneeBiometrique.informationPersonnelle?.dateNaissance | date: 'dd/MM/yyyy' || 'N/A' }}
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold">
+                        <i class="pi pi-map-marker mr-2"></i>Lieu de naissance:
+                    </span>
+                    {{ selectedDonneeBiometrique.informationPersonnelle?.lieuNaissance || 'N/A' }}
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold">
+                        <i class="pi pi-flag mr-2"></i>Nationalité:
+                    </span>
+                    {{ selectedDonneeBiometrique.informationPersonnelle?.nationalite || 'N/A' }}
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold">
+                        <i class="pi pi-id-card mr-2"></i>Type de document:
+                    </span>
+                    {{ selectedDonneeBiometrique.informationPersonnelle?.typeDocument || 'N/A' }}
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold">
+                        <i class="pi pi-hashtag mr-2"></i>Numéro de document:
+                    </span>
+                    {{ selectedDonneeBiometrique.informationPersonnelle?.numeroDocument || 'N/A' }}
+                </div>
+
+                <div class="field col-12 md:col-6" *ngIf="selectedDonneeBiometrique.informationPersonnelle?.numeroNip">
+                    <span class="font-bold">
+                        <i class="pi pi-key mr-2"></i>Numéro NIP:
+                    </span>
+                    {{ selectedDonneeBiometrique.informationPersonnelle?.numeroNip }}
+                </div>
+
+                <div class="field col-12 md:col-6"
+                    *ngIf="selectedDonneeBiometrique.informationPersonnelle?.dateDelivrance">
+                    <span class="font-bold">
+                        <i class="pi pi-calendar mr-2"></i>Date de délivrance:
+                    </span>
+                    {{ selectedDonneeBiometrique.informationPersonnelle?.dateDelivrance | date: 'dd/MM/yyyy' }}
+                </div>
+
+                <div class="field col-12" *ngIf="selectedDonneeBiometrique.informationPersonnelle?.lieuDelivrance">
+                    <span class="font-bold">
+                        <i class="pi pi-map-marker mr-2"></i>Lieu de délivrance:
+                    </span>
+                    {{ selectedDonneeBiometrique.informationPersonnelle?.lieuDelivrance }}
+                </div>
+
+                <div class="field col-12 md:col-6" *ngIf="selectedDonneeBiometrique.informationPersonnelle?.profession">
+                    <span class="font-bold">
+                        <i class="pi pi-briefcase mr-2"></i>Profession:
+                    </span>
+                    {{ selectedDonneeBiometrique.informationPersonnelle?.profession }}
+                </div>
+            </div>
+        </p-fieldset>
+
+        <!-- Section: Données Biométriques -->
+        <p-fieldset legend="Données Biométriques Capturées" [toggleable]="false" styleClass="mb-3">
+            <div class="grid">
+                <div class="field col-12 md:col-4">
+                    <div class="flex align-items-center gap-2">
+                        <i [class]="selectedDonneeBiometrique.empreinteGauche1 ? 'pi pi-check-circle text-green-500' : 'pi pi-times-circle text-red-500'"
+                            style="font-size: 1.5rem"></i>
+                        <span class="font-semibold">4 doigts main gauche</span>
+                    </div>
+                </div>
+
+                <div class="field col-12 md:col-4">
+                    <div class="flex align-items-center gap-2">
+                        <i [class]="selectedDonneeBiometrique.empreinteDroite1 ? 'pi pi-check-circle text-green-500' : 'pi pi-times-circle text-red-500'"
+                            style="font-size: 1.5rem"></i>
+                        <span class="font-semibold">4 doigts main droite</span>
+                    </div>
+                </div>
+
+                <div class="field col-12 md:col-4">
+                    <div class="flex align-items-center gap-2">
+                        <i [class]="selectedDonneeBiometrique.empreintePouces1 ? 'pi pi-check-circle text-green-500' : 'pi pi-times-circle text-red-500'"
+                            style="font-size: 1.5rem"></i>
+                        <span class="font-semibold">Les deux pouces</span>
+                    </div>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold">
+                        <i class="pi pi-cog mr-2"></i>Type de capture:
+                    </span>
+                    <!-- <p-tag [value]="selectedDonneeBiometrique.typeCapture || 'N/A'" 
+                           [severity]="selectedDonneeBiometrique.typeCapture === 'ENROLEMENT' ? 'info' : 'secondary'">
+                    </p-tag> -->
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold">
+                        <i class="pi pi-info-circle mr-2"></i>Statut:
+                    </span>
+                    <!-- <p-tag [value]="selectedDonneeBiometrique.statut || 'N/A'" 
+                           [severity]="getStatutSeverity(selectedDonneeBiometrique.statut)">
+                    </p-tag> -->
+                </div>
+            </div>
+        </p-fieldset>
+
+        <!-- Section: Coordonnées -->
+        <p-fieldset legend="Coordonnées" [toggleable]="false" styleClass="mb-3">
+            <div class="grid">
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold">
+                        <i class="pi pi-globe mr-2"></i>Pays de résidence:
+                    </span>
+                    {{ selectedDonneeBiometrique.informationPersonnelle?.paysResidence || 'N/A' }}
+                </div>
+
+                <div class="field col-12 md:col-6"
+                    *ngIf="selectedDonneeBiometrique.informationPersonnelle?.emailContact">
+                    <span class="font-bold">
+                        <i class="pi pi-envelope mr-2"></i>Email:
+                    </span>
+                    {{ selectedDonneeBiometrique.informationPersonnelle?.emailContact }}
+                </div>
+
+                <div class="field col-12 md:col-6"
+                    *ngIf="selectedDonneeBiometrique.informationPersonnelle?.telephoneBurkina">
+                    <span class="font-bold">
+                        <i class="pi pi-phone mr-2"></i>Téléphone Burkina:
+                    </span>
+                    {{ selectedDonneeBiometrique.informationPersonnelle?.telephoneBurkina }}
+                </div>
+
+                <div class="field col-12" *ngIf="selectedDonneeBiometrique.informationPersonnelle?.adresseBurkina">
+                    <span class="font-bold">
+                        <i class="pi pi-home mr-2"></i>Adresse Burkina:
+                    </span>
+                    {{ selectedDonneeBiometrique.informationPersonnelle?.adresseBurkina }}
+                </div>
+            </div>
+        </p-fieldset>
+
+    </div>
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Fermer" icon="pi pi-times" class="p-button-danger" (click)="closeDetailModal()">
+        </button>
+    </ng-template>
+
+</p-dialog>
+
+<!-- Modal Capture Biométrique -->
+<p-dialog [visible]="isCaptureBiometriqueModalOpen()" (onHide)="closeBiometricModal()" [modal]="true" [closable]="true"
+    [style]="{width: '60rem'}" [breakpoints]="{'960px': '75vw', '640px': '95vw'}"
+    header="Capturer les Données Biométriques">
+
+    <div>
+        <!-- <p class="text-gray-600 mb-4">
+            Pour : <span class="font-semibold">
+                {{ selectedDonneeBiometrique.informationPersonnelle?.nomFamille }} 
+                {{ selectedDonneeBiometrique.informationPersonnelle?.prenom }}
+            </span> 
+            ({{ selectedDonneeBiometrique.informationPersonnelle?.numeroDocument }})
+        </p> -->
+        <p-fieldset legend="Informations">
+            <div class="grid">
+                <div class="col-12 md:col-6">
+                    <label for="informationPersonnelle">Personne <span class="text-red-500">*</span></label>
+                    <p-dropdown id="informationPersonnelle" name="informationPersonnelle"
+                        [options]="informationPersonnelles" [(ngModel)]="informationPersonnelle"
+                        optionLabel="nomFamille" optionValue="id" placeholder="Sélectionner une personne"
+                        styleClass="w-full">
+                        <!-- <ng-template pTemplate="selectedItem">
+              ({{ selectedVoyageInfo()?.villeDepart?.nom }} → {{ selectedVoyageInfo()?.villeDestination?.nom }})
+            </ng-template> -->
+                        <ng-template let-informationPersonnelle pTemplate="item">
+                            ({{ informationPersonnelle.nomFamille }} → {{ informationPersonnelle.prenom }})
+                        </ng-template>
+                    </p-dropdown>
+                </div>
+
+                <div class="col-12 md:col-6">
+                    <label for="informationPersonnelle">type capture <span class="text-red-500">*</span></label>
+                    <p-dropdown id="typeCapture" name="typeCapture" [style]="{width:'100%'}" [options]="typesCapture"
+                        [(ngModel)]="typeCapture" placeholder="Sélectionner un type">
+                    </p-dropdown>
+                </div>
+            </div>
+        </p-fieldset>
+
+        <div class="grid">
+            <!-- Main Gauche -->
+            <div class="col-12 md:col-6 p-4 border-1 border-round bg-gray-50">
+                <div class="flex align-items-center justify-content-between mb-3">
+                    <div class="flex align-items-center">
+                        <i class="pi pi-fingerprint text-4xl text-cyan-500 mr-3"></i>
+                        <div>
+                            <p class="font-semibold text-gray-700">4 doigts main gauche</p>
+                            <p class="text-xs"
+                                [class]="empreinteGauche().capturee ? 'text-green-600' : 'text-gray-500'">
+                                {{ empreinteGauche().capturee ? 'Capturé' : 'Prêt pour la capture' }}
+                            </p>
+                        </div>
+                    </div>
+                    <button pButton [label]="empreinteGauche().capturee ? 'Recapturer' : 'Capturer'" severity="info"
+                        size="small" (click)="capturerEmpreinte('empreinteGauche')">
+                    </button>
+                </div>
+
+                <div *ngIf="empreinteGauche().image; else noImageGauche"
+                    class="w-full h-12rem bg-white border-round border-2 border-green-500 overflow-hidden">
+                    <img [src]="empreinteGauche().image" alt="Empreinte main gauche"
+                        class="w-full h-full object-fit-contain">
+                </div>
+                <ng-template #noImageGauche>
+                    <div class="w-full h-12rem bg-gray-200 border-round flex align-items-center justify-content-center">
+                        <i class="pi pi-image text-6xl text-gray-400"></i>
+                    </div>
+                </ng-template>
+            </div>
+
+            <!-- Main Droite -->
+            <div class="col-12 md:col-6 p-4 border-1 border-round bg-gray-50">
+                <div class="flex align-items-center justify-content-between mb-3">
+                    <div class="flex align-items-center">
+                        <i class="pi pi-fingerprint text-4xl text-cyan-500 mr-3"></i>
+                        <div>
+                            <p class="font-semibold text-gray-700">4 doigts main droite</p>
+                            <p class="text-xs"
+                                [class]="empreinteDroite().capturee ? 'text-green-600' : 'text-gray-500'">
+                                {{ empreinteDroite().capturee ? 'Capturé' : 'Prêt pour la capture' }}
+                            </p>
+                        </div>
+                    </div>
+                    <button pButton [label]="empreinteDroite().capturee ? 'Recapturer' : 'Capturer'" severity="info"
+                        size="small" (click)="capturerEmpreinte('empreinteDroite')">
+                    </button>
+                </div>
+
+                <div *ngIf="empreinteDroite().image; else noImageDroite"
+                    class="w-full h-12rem bg-white border-round border-2 border-green-500 overflow-hidden">
+                    <img [src]="empreinteDroite().image" alt="Empreinte main droite"
+                        class="w-full h-full object-fit-contain">
+                </div>
+                <ng-template #noImageDroite>
+                    <div class="w-full h-12rem bg-gray-200 border-round flex align-items-center justify-content-center">
+                        <i class="pi pi-image text-6xl text-gray-400"></i>
+                    </div>
+                </ng-template>
+            </div>
+
+            <!-- Pouces -->
+            <div class="col-12 md:col-6 p-4 border-1 border-round bg-gray-50">
+                <div class="flex align-items-center justify-content-between mb-3">
+                    <div class="flex align-items-center">
+                        <i class="pi pi-thumbs-up text-4xl text-purple-500 mr-3"></i>
+                        <div>
+                            <p class="font-semibold text-gray-700">Les deux pouces</p>
+                            <p class="text-xs"
+                                [class]="empreintePouces().capturee ? 'text-green-600' : 'text-gray-500'">
+                                {{ empreintePouces().capturee ? 'Capturé' : 'Prêt pour la capture' }}
+                            </p>
+                        </div>
+                    </div>
+                    <button pButton [label]="empreintePouces().capturee ? 'Recapturer' : 'Capturer'" severity="help"
+                        size="small" (click)="capturerEmpreinte('empreintePouces')">
+                    </button>
+                </div>
+
+                <div *ngIf="empreintePouces().image; else noImagePouces"
+                    class="w-full h-12rem bg-white border-round border-2 border-green-500 overflow-hidden">
+                    <img [src]="empreintePouces().image" alt="Empreinte pouces"
+                        class="w-full h-full object-fit-contain">
+                </div>
+                <ng-template #noImagePouces>
+                    <div class="w-full h-12rem bg-gray-200 border-round flex align-items-center justify-content-center">
+                        <i class="pi pi-image text-6xl text-gray-400"></i>
+                    </div>
+                </ng-template>
+            </div>
+
+            <!-- Photo d'identité -->
+            <div class="col-12 md:col-6 p-4 border-1 border-round bg-gray-50">
+                <div class="flex align-items-center justify-content-between mb-3">
+                    <div class="flex align-items-center">
+                        <i class="pi pi-camera text-4xl text-green-500 mr-3"></i>
+                        <div>
+                            <p class="font-semibold text-gray-700">Photo d'identité</p>
+                            <p class="text-xs"
+                                [class]="capturedPhotoPourBiometrie() ? 'text-green-600' : 'text-gray-500'">
+                                {{ capturedPhotoPourBiometrie() ? 'Photo capturée' : 'Prêt pour la capture' }}
+                            </p>
+                        </div>
+                    </div>
+                    <button pButton [label]="capturedPhotoPourBiometrie() ? 'Reprendre' : 'Prendre'" severity="success"
+                        size="small" (click)="demarrerCamera('biometrique')">
+                    </button>
+                </div>
+
+                <div *ngIf="capturedPhotoPourBiometrie(); else noPhoto"
+                    class="w-full h-12rem bg-white border-round border-2 border-green-500 overflow-hidden flex align-items-center justify-content-center">
+                    <img [src]="capturedPhotoPourBiometrie()!" alt="Photo biométrique"
+                        class="max-w-full max-h-full object-fit-contain">
+                </div>
+                <ng-template #noPhoto>
+                    <div class="w-full h-12rem bg-gray-200 border-round flex align-items-center justify-content-center">
+                        <i class="pi pi-user text-6xl text-gray-400"></i>
+                    </div>
+                </ng-template>
+            </div>
+        </div>
+
+        <div class="flex justify-content-end gap-2 mt-4">
+            <button pButton label="Annuler" severity="secondary" (click)="closeBiometricModal()">
+            </button>
+            <button pButton label="Sauvegarder et Valider" icon="pi pi-save" [loading]="isSaving()"
+                [disabled]="!empreinteGauche().capturee || !empreinteDroite().capturee || !empreintePouces().capturee || !capturedPhotoPourBiometrie()"
+                (click)="validerAvecBiometrie()">
+            </button>
+        </div>
+    </div>
+</p-dialog>
+
+<!-- Modale de capture Webcam -->
+<p-dialog [visible]="isCameraModalOpen()" (onHide)="isCameraModalOpen.set(false)" [modal]="true" [closable]="true"
+    [style]="{width: '50rem'}" [breakpoints]="{'960px': '75vw', '640px': '90vw'}" header="Capture Photo">
+
+    <div class="relative w-full aspect-[4/3] bg-gray-900 rounded-md overflow-hidden">
+        @if (!capturedPhotoBase64()) {
+        <video #videoElement playsinline autoplay class="w-full h-full object-cover"></video>
+        } @else {
+        <img [src]="capturedPhotoBase64()" alt="Aperçu de la capture" class="w-full h-full object-contain">
+        }
+        <canvas #canvasElement class="hidden"></canvas>
+    </div>
+
+    <ng-template pTemplate="footer">
+        @if (!capturedPhotoBase64()) {
+        <p-button label="Capturer" icon="pi pi-camera" severity="success" (onClick)="capturerPhoto()">
+        </p-button>
+        } @else {
+        <p-button label="Reprendre" icon="pi pi-refresh" severity="secondary" (onClick)="reprendrePhoto()">
+        </p-button>
+        <p-button label="Confirmer" icon="pi pi-check" severity="success" (onClick)="confirmerPhoto()">
+        </p-button>
+        }
+    </ng-template>
+</p-dialog>
+
+<!-- Toast pour les notifications -->
+<p-toast [style]="{marginTop: '80px'}" position="top-center"></p-toast>
+
+<!-- Confirmation Dialog -->
+<p-confirmDialog></p-confirmDialog>
+
+<!-- Loading Spinner -->
+<app-loading-spinner></app-loading-spinner>

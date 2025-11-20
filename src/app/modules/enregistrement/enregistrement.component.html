@@ -222,20 +222,36 @@
     <!-- Section 4: Informations de Voyage -->
     <p-fieldset legend="Informations de Voyage">
       <div class="grid">
-        <!-- Voyage ID -->
+        <!-- Vol ID -->
         <div class="col-12 md:col-4">
-          <label for="voyageId">Voyage <span class="text-red-500">*</span></label>
-          <p-dropdown id="voyageId" name="voyageId" [options]="voyageList()" [(ngModel)]="formData().voyageId" optionLabel="numero" optionValue="id" placeholder="Sélectionner un voyage" (onChange)="onVoyageSelectionChange($event.value)" [class]="formErrors()['voyageId'] ? 'ng-invalid ng-dirty' : ''" styleClass="w-full">
+          <label for="volId">Vol <span class="text-red-500">*</span></label>
+          <p-dropdown id="volId" name="volId" [options]="volList()" [(ngModel)]="formData().volId" optionLabel="numero" optionValue="id" placeholder="Sélectionner un vol" (onChange)="onVolSelectionChange($event.value)" [class]="formErrors()['volId'] ? 'ng-invalid ng-dirty' : ''" styleClass="w-full">
             <ng-template pTemplate="selectedItem">
-              ({{ selectedVoyageInfo()?.villeDepart?.nom }} → {{ selectedVoyageInfo()?.villeDestination?.nom }})
+              {{ selectedVolInfo()?.numero }} ({{ selectedVolInfo()?.villeDepart?.nom }} → {{ selectedVolInfo()?.villeArrivee?.nom }})
             </ng-template>
-            <ng-template let-voyage pTemplate="item">
-               ({{ voyage.villeDepart?.nom  }} → {{ voyage.villeDestination?.nom }})
+            <ng-template let-vol pTemplate="item">
+              {{ vol.numero }} ({{ vol.villeDepart?.nom  }} → {{ vol.villeArrivee?.nom }})
             </ng-template>
           </p-dropdown>
         </div>
 
-        
+        <!-- Motif de voyage -->
+        <div class="col-12 md:col-4">
+          <label for="motifVoyage">Motif du voyage <span class="text-red-500">*</span></label>
+          <p-dropdown id="motifVoyage" name="motifVoyage" [options]="motifs()" [(ngModel)]="formData().motifVoyage" optionLabel="libelle" optionValue="libelle" placeholder="Sélectionner un motif" [class]="formErrors()['motifVoyage'] ? 'ng-invalid ng-dirty' : ''" styleClass="w-full"></p-dropdown>
+        </div>
+
+        <!-- État du voyage -->
+        <div class="col-12 md:col-4">
+          <label for="etatVoyage">État du voyage <span class="text-red-500">*</span></label>
+          <p-dropdown id="etatVoyage" name="etatVoyage" [options]="etatsVoyage" [(ngModel)]="formData().etatVoyage" placeholder="Sélectionner un état" styleClass="w-full"></p-dropdown>
+        </div>
+
+        <!-- Durée du séjour -->
+        <div class="col-12 md:col-4">
+          <label for="dureeSejour">Durée du séjour (jours) <span class="text-red-500">*</span></label>
+          <p-inputNumber id="dureeSejour" name="dureeSejour" [(ngModel)]="formData().dureeSejour" [min]="1" [showButtons]="true" [class]="formErrors()['dureeSejour'] ? 'ng-invalid ng-dirty' : ''" styleClass="w-full"></p-inputNumber>
+        </div>
       </div>
     </p-fieldset>
 

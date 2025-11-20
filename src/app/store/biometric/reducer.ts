@@ -4,7 +4,10 @@ import { DonneeBiometrique } from './model';
 import { DonneeBiometriqueState } from './state';
 
 const initialState: DonneeBiometriqueState = {
-  donneeBiometriques: [], 
+  donneeBiometriques: [],
+  totalItems: 0,
+  loading: false,
+  error: null
 };
 
 const featureReducer = createReducer<DonneeBiometriqueState>(

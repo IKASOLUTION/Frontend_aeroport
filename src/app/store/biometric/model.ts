@@ -1,4 +1,4 @@
-import { Enregistrement } from "../enregistrement/model";
+import {  InformationPersonnelle, StatutDonneeBio, TypeCapture } from "../enregistrement/model";
 
 export interface DonneeBiometrique {
   id?: number;
@@ -10,6 +10,11 @@ export interface DonneeBiometrique {
   empreinteDroite: File,
   empreintePouces: File,
   photoBiometrique?: File | null;
+  informationPersonnelle?: InformationPersonnelle;
+  typeCapture?:TypeCapture;
+   statut?: StatutDonneeBio;
+
+
 }
 
 
