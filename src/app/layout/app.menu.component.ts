@@ -51,6 +51,11 @@ export class AppMenuComponent implements OnInit {
             label: 'Infrastructure',
             icon: 'fa-solid fa-building',
             items: [
+                  {
+                    label: 'Gestion des Villes',
+                    icon: 'fa-solid fa-city',
+                    routerLink: ['/admin/ville']
+                },
                 {
                     label: 'Gestion des Aéroports',
                     icon: 'fa-solid fa-plane-departure',
@@ -61,11 +66,7 @@ export class AppMenuComponent implements OnInit {
                     icon: 'fa-solid fa-building',
                     routerLink: ['/admin/compagnie']
                 },
-                {
-                    label: 'Gestion des Villes',
-                    icon: 'fa-solid fa-city',
-                    routerLink: ['/admin/ville']
-                },
+              
                 {
                     label: 'Gestion des Vols',
                     icon: 'fa-solid fa-plane',

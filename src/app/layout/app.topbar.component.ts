@@ -13,6 +13,7 @@ import { AppState } from 'src/app/store/app.state';
 import * as notificationSelector from '../store/notification/selector';
 import * as NotificationAction from '../store/notification/action';
 import { Notification } from 'src/app/store/notification/model';
+import { User } from '../store/user/model';
 
 @Component({
     selector: 'app-topbar',
@@ -34,7 +35,7 @@ export class AppTopbarComponent implements OnInit, OnDestroy {
     recentNotifications: any[] = []; // Pour l'affichage dans le dropdown
     loading = true;
     activeItem!: number;
-
+    user: User | null = null;
     model: MegaMenuItem[] = [
         {
             label: 'UI KIT',
@@ -103,8 +104,9 @@ export class AppTopbarComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit(): void {
-       
-        this.loadRecentNotifications();
+        
+        //this.loadRecentNotifications();
+        this.loadUser();
 
         this.store.dispatch(NotificationAction.loadNotification());
 
@@ -136,6 +138,44 @@ export class AppTopbarComponent implements OnInit, OnDestroy {
         };
 
         this.store.dispatch(NotificationAction.loadNotification());
+    }
+    loadUser(): void {
+        this.user = this.loginService.getStoredUser();
+    }
+     getUserFullName(): string {
+        if (!this.user) return 'Utilisateur';
+        
+        const nom = this.user.nom || '';
+        const prenom = this.user.prenom || '';
+        
+        if (nom && prenom) {
+            return `${prenom} ${nom}`;
+        }
+        
+        return nom || prenom || this.user.login || 'Utilisateur';
+    }
+
+
+
+     getUserInitials(): string {
+        if (!this.user) return 'U';
+        
+        const nom = this.user.nom || '';
+        const prenom = this.user.prenom || '';
+        
+        if (nom && prenom) {
+            return `${prenom.charAt(0)}${nom.charAt(0)}`.toUpperCase();
+        }
+        
+        if (nom) return nom.charAt(0).toUpperCase();
+        if (prenom) return prenom.charAt(0).toUpperCase();
+        if (this.user.login) return this.user.login.charAt(0).toUpperCase();
+        
+        return 'U';
+    }
+
+     viewProfile(): void {
+        this.router.navigate(['/admin/profile']);
     }
 
     /**
@@ -181,9 +221,9 @@ export class AppTopbarComponent implements OnInit, OnDestroy {
     /**
      * Naviguer vers la page complète des notifications
      */
-    viewAllNotifications(): void {
-        this.router.navigate(['/notifications']);
-    }
+  viewAllNotifications(): void {
+    this.router.navigate(['/admin/notification']);  // ✅ Maintenant cohérent avec le menu
+}
 
     /**
      * Gérer le clic sur une notification

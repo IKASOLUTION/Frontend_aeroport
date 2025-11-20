@@ -69,29 +69,81 @@
                         
                         <!-- Footer -->
                         <div class="notification-footer">
-                            <a (click)="viewAllNotifications()" class="view-all-link">
+                            <a (click)="viewAllNotifications()" class="view-all-link" style="cursor: pointer;">
                                 Voir toutes les notifications
                             </a>
                         </div>
                     </div>
                 </li>
 
-                <!-- Avatar / Profil -->
-                <li>
-                    <a pStyleClass="@next" 
+                <!-- 👤 PROFIL UTILISATEUR -->
+                <li class="user-profile-item">
+                    <a class="user-profile-button"
+                       pStyleClass="@next" 
                        enterFromClass="ng-hidden" 
                        enterActiveClass="px-scalein" 
                        leaveToClass="ng-hidden" 
                        leaveActiveClass="px-fadeout" 
                        [hideOnOutsideClick]="true" 
                        pRipple>
-                        <i class="pi pi-user" style="font-size: 1.5rem; color: white;"></i>
+                        <div class="flex align-items-center gap-2">
+                            <!-- Avatar avec initiales -->
+                            <div class="user-avatar">
+                                <span>{{ getUserInitials() }}</span>
+                            </div>
+                            <!-- Nom (caché sur mobile) -->
+                            <span class="user-name hidden lg:inline-block">
+                                {{ getUserFullName() }}
+                            </span>
+                            <i class="pi pi-chevron-down hidden lg:inline-block" style="font-size: 0.75rem; color: white;"></i>
+                        </div>
                     </a>
-                    <div class="ng-hidden">
+                    
+                    <!-- Dropdown utilisateur -->
+                    <div class="ng-hidden user-dropdown">
                         <ul class="list-none p-0 m-0">
+                            <!-- En-tête avec infos -->
+                            <li class="user-dropdown-header">
+                                <div class="flex align-items-center gap-3 p-3">
+                                    <div class="user-avatar-large">
+                                        <span>{{ getUserInitials() }}</span>
+                                    </div>
+                                    <div class="flex-1 overflow-hidden">
+                                        <div class="font-semibold text-900 text-overflow-ellipsis overflow-hidden white-space-nowrap">
+                                            {{ getUserFullName() }}
+                                        </div>
+                                        <div class="text-sm text-600 text-overflow-ellipsis overflow-hidden white-space-nowrap">
+                                            {{ user?.email || 'N/A' }}
+                                        </div>
+                                        <div class="text-xs text-500 mt-1" *ngIf="user?.profil?.libelle">
+                                            <i class="pi pi-shield mr-1"></i>{{ user?.profil?.libelle }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <!-- Divider -->
+                            <li class="divider"></li>
+
+                            <!-- Menu Profil -->
                             <li>
-                                <a class="flex align-items-center p-3 cursor-pointer" (click)="logout()">
-                                    <i class="pi pi-sign-out mr-2"></i>
+                                <a class="flex align-items-center p-3 cursor-pointer user-menu-item" 
+                                   (click)="viewProfile()">
+                                    <i class="pi pi-user mr-3 text-primary"></i>
+                                    <span>Mon profil</span>
+                                </a>
+                            </li>
+
+                           
+
+                            <!-- Divider -->
+                            <li class="divider"></li>
+
+                            <!-- Déconnexion -->
+                            <li>
+                                <a class="flex align-items-center p-3 cursor-pointer user-menu-item logout-item" 
+                                   (click)="logout()">
+                                    <i class="pi pi-sign-out mr-3"></i>
                                     <span>Déconnexion</span>
                                 </a>
                             </li>
