@@ -50,7 +50,9 @@ export class VolEffects {
             ofType(volActions.createVol),
             switchMap(action =>
                 this.volService.createVol(action.vol).pipe(
-                    map(vol => volActions.createVolSuccess({ vol })),
+                    
+                    map(vol => volActions.loadVolsByPeriode({searchDto: action.search})
+                ),
                     catchError(error => of(volActions.createVolFailure({ error })))
                 )
             )
@@ -62,7 +64,8 @@ export class VolEffects {
             ofType(volActions.updateVol),
             switchMap(action =>
                 this.volService.updateVol(action.vol).pipe(
-                    map(vol => volActions.updateVolSuccess({ vol })),
+                     map(vol => volActions.loadVolsByPeriode({searchDto: action.search})
+                ),
                     catchError(error => of(volActions.updateVolFailure({ error })))
                 )
             )

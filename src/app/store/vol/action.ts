@@ -33,7 +33,7 @@ export const loadVolsByPeriodeFailure = createAction(
 // Action pour créer un vol
 export const createVol = createAction(
     '[Vol] Create Vol',
-    props<{ vol: Vol }>()
+    props<{ vol: Vol, search: SearchDto }>()
 );
 
 export const createVolSuccess = createAction(
@@ -49,7 +49,7 @@ export const createVolFailure = createAction(
 // Action pour mettre à jour un vol
 export const updateVol = createAction(
     '[Vol] Update Vol',
-    props<{ vol: Vol }>()
+    props<{ vol: Vol, search: SearchDto }>()
 );
 
 export const updateVolSuccess = createAction(

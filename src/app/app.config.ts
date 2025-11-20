@@ -45,6 +45,8 @@ import { ListeNoireReducer } from './store/listeNoir/reducer';
 import { MotifVoyageReducer } from './store/motifVoyage/reducer';
 import { NotificationEffects } from './store/notification/effect';
 import { NotificationReducer } from './store/notification/reducer';
+import { VoyageReducer } from './store/voyage/reducer';
+import { VoyageEffects } from './store/voyage/effect';
 
 
 
@@ -64,10 +66,10 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideAnimations(),
     provideStore({globalState: GlobalConfigreducer, profilState: reducer , userState: UserReducer, menuActionState: Menureducer, moduleParamState: Modulereducer, villeState: VilleReducer, paysState: PaysReducer, aeroportState: AeroportReducer,compagnieState: CompagnieReducer,
-    enregistrementState: Enregistrementreducer, donneeBiometriqueState: biometricReducer, volState: VolReducer, motifVoyageState: MotifVoyageReducer, listeNoireState: ListeNoireReducer, notificationState: NotificationReducer, voyageState: MotifVoyageReducer
+    enregistrementState: Enregistrementreducer, donneeBiometriqueState: biometricReducer, volState: VolReducer, motifVoyageState: MotifVoyageReducer, listeNoireState: ListeNoireReducer, notificationState: NotificationReducer, voyageState: VoyageReducer
     }),
     provideEffects([ProfilEffects, UserEffects, MenuActionEffects, ModuleParamEffects, EnregistrementEffects,DonneeBiometriqueEffects, NotificationEffects,
-       PaysEffects, VilleEffects, AeroportEffects, CompagnieEffects, VolEffects, ListeNoireEffects, MotifVoyageEffects, MotifVoyageEffects]),
+       PaysEffects, VilleEffects, AeroportEffects, CompagnieEffects, VolEffects, ListeNoireEffects, MotifVoyageEffects, VoyageEffects]),
 
 
    provideRouter(routes),

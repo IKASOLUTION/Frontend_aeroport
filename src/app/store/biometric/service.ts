@@ -4,6 +4,7 @@ import { DonneeBiometrique, DonneeBiometriqueList } from "./model";
 import { catchError, map, Observable, throwError } from "rxjs";
 import { GlobalConfig } from "src/app/config/global.config";
 import { Endpoints } from "src/app/config/module.endpoints";
+import { InformationPersonnelle } from "../enregistrement/model";
 
 
 @Injectable({providedIn: 'root'})
@@ -18,6 +19,13 @@ $getDonneeBiometriques(): Observable<DonneeBiometrique[]> {
     );
 }
 
+$findPersonnes(): Observable<InformationPersonnelle[]> {
+
+    // @FIXME: get request
+    return this.http.get<InformationPersonnelle[]>( `${GlobalConfig.getEndpoint(Endpoints.BIOMETRIC)}/personne`).pipe(
+      catchError(this.handleError())
+    );
+}
 
 
 updateDonneeBiometrique(donneeBiometrique: DonneeBiometrique): Observable<any> {

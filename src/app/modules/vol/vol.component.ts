@@ -129,6 +129,7 @@ export class VolComponent implements OnInit, OnDestroy {
     dateDebut: Date | null = null;
     dateFin: Date | null = null;
     isDetailModalOpen = false;
+    label = "Aéroport arrivé";
 
     constructor(
         private fb: FormBuilder,
@@ -160,7 +161,6 @@ export class VolComponent implements OnInit, OnDestroy {
         this.dateDebut = new Date();
         this.dateDebut.setDate(this.dateDebut.getDate() - 7);
         this.dateFin = new Date();
-        
         // Charger les vols avec filtres par défaut
         this.loadVolsWithFilters();
 
@@ -240,6 +240,13 @@ export class VolComponent implements OnInit, OnDestroy {
         });
     }
 
+    foundAeroport() {
+        if(this.volFormGroup.get('typeVol')?.value == TypeVol.ARRIVEE){
+            this.label = "Aéroport depart";
+        } else {
+             this.label = "Aéroport arrivé";
+        }
+    }
     // Ouvrir le modal de détail
   openDetailModal(vol: Vol) {
     this.selectedVol = vol;
@@ -309,8 +316,8 @@ export class VolComponent implements OnInit, OnDestroy {
             typeVol: ['', [Validators.required]],
             compagnie: [null, [Validators.required]],
             aeroport: [null, [Validators.required]],
-            villeDepart: [null, [Validators.required]],
-            villeArrivee: [null, [Validators.required]],
+            /* villeDepart: [null, [Validators.required]],
+            villeArrivee: [null, [Validators.required]], */
             dateDepart: [null, [Validators.required]],
             dateArrivee: [null, [Validators.required]],
             statut: [StatutVol.PROGRAMME, [Validators.required]]
@@ -481,6 +488,14 @@ removeAccents(str: string): string {
         if (this.isUpdate && formValue.id) {
             volToSave.id = formValue.id;
         }
+        const searchDto: SearchDto = {
+            dateDebut: this.dateDebut ?? new Date(),
+            dateFin: this.dateFin ?? new Date(),
+            statutVols: this.selectedStatuts.length > 0 ? this.selectedStatuts : undefined,
+            page: this.page,
+            size: this.rows,
+            sortBy: 'dateDepart,desc'
+        };
         
         console.log("===== COMPOSANT - Objet Vol à dispatcher =====", volToSave);
 
@@ -496,9 +511,9 @@ removeAccents(str: string): string {
             rejectLabel: 'Non',
             accept: () => {
                 if (this.isUpdate) {
-                    this.store.dispatch(volAction.updateVol({ vol: volToSave }));
+                    this.store.dispatch(volAction.updateVol({ vol: volToSave , search: searchDto}));
                 } else {
-                    this.store.dispatch(volAction.createVol({ vol: volToSave }));
+                    this.store.dispatch(volAction.createVol({ vol: volToSave, search: searchDto }));
                 }
                 
                 this.resetForm();

@@ -4,6 +4,7 @@ import { Ville } from "../ville/model";
 import { Aeroport } from "../aeroport/model";
 import { Compagnie } from "../compagnie/model";
 import { StatutVoyageur } from "../motifVoyage/model";
+import { StatutDonneeBio } from "../enregistrement/model";
 
 export interface Vol {
   id?: number;
@@ -25,6 +26,7 @@ export interface Vol {
   villeNomA?: string;
   type?: string;
   statutLibelle?: string;
+  nomAgentConnecteAeroport?: string;
 }
 
 export interface VolList {
@@ -50,6 +52,7 @@ export interface SearchDto {
     dateFin: Date;
     statutVols?: StatutVol[];
     status?: StatutVoyageur[],
+    selectedStatuts?: StatutDonneeBio[]
     aeroportId?: number;
     motifVoyageId?: number;
     page?: number;

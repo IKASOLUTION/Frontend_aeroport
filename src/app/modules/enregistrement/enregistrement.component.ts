@@ -25,11 +25,13 @@ import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { PanelModule } from 'primeng/panel';
 import { ToastModule } from 'primeng/toast';
-import { Enregistrement, InformationPersonnelle, MotifVoyage, TypeDocument } from 'src/app/store/enregistrement/model';
+import { EmpreinteCapture, Enregistrement, InformationPersonnelle, MotifVoyage, TypeDocument } from 'src/app/store/enregistrement/model';
 import { DonneeBiometrique } from 'src/app/store/biometric/model';
 import { LoadingSpinnerComponent } from '../loading-spinner.component';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { Vol } from 'src/app/store/vol/model';
+import { CountryService } from 'src/app/demo/service/country.service';
+import { NationaliteService } from 'src/app/demo/service/nationalite.service';
 
 interface Passager {
   id: number;
@@ -38,10 +40,7 @@ interface Passager {
   informationPersonnelleId?: number;
 }
 
-interface EmpreinteCapture {
-  image: string | null;
-  capturee: boolean;
-}
+
 
 @Component({
   selector: 'app-gestion-enregistrements',
@@ -74,11 +73,12 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   private store = inject(Store);
   private messageService = inject(MessageService);
   private destroy$ = new Subject<void>();
+  private countryService = inject(CountryService);
+  private nationaliteService = inject(NationaliteService);
 
   // Signals pour la gestion de l'état local
   formData = signal<Enregistrement>({
     typeDocument: TypeDocument.PASSEPORT,
-    etatVoyage: 'ALLER'
   });
 
   formErrors = signal<Record<string, string>>({});
@@ -116,13 +116,35 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   typesDocument: Array<'PASSEPORT' | 'CNI' | 'PERMIS_CONDUIRE'> = ['PASSEPORT', 'CNI', 'PERMIS_CONDUIRE'];
   etatsVoyage: Array<'ALLER' | 'RETOUR' | 'ALLER_RETOUR'> = ['ALLER', 'RETOUR', 'ALLER_RETOUR'];
 
+  countries: any[] = [];
+  selectedCountry: any;
+  nationalites: any[] = [];
+  selectedNationalite: any;
+
   ngOnInit(): void {
     this.initializeFormData();
     this.subscribeToStoreUpdates();
     this.loadVols();
     this.loadMotifs();
+     this.countryService.getCountries().then((countries) => {
+            this.countries = countries;
+        });
+        this.nationaliteService.getCountries().then((nationalites) => {
+            this.nationalites = nationalites;
+        });
   }
 
+  findPays(country: any) {
+        if (country && country.name) {
+            this.formData().paysResidence = country.name;
+        }
+    }
+
+    findNationalite(nationalite: any) {
+        if (nationalite && nationalite.nationalite) {
+            this.formData().nationalite = nationalite.nationalite;
+        }
+    }
   private loadEnregistrements(): void {
     this.store.dispatch(enregistrementAction.loadEnregistrement());
   }
@@ -281,10 +303,8 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
     if (!data.adresseBurkina?.trim()) errors['adresseBurkina'] = 'L\'adresse au Burkina est requise';
     if (!data.adresseEtranger?.trim()) errors['adresseEtranger'] = 'L\'adresse à l\'étranger est requise';
     if (data.emailContact && !this.isValidEmail(data.emailContact)) errors['emailContact'] = 'L\'email n\'est pas valide';
-    if (!data.volId) errors['volId'] = 'Le vol est requis';
-    if (data.motifVoyage === undefined) errors['motifVoyage'] = 'Le motif du voyage est requis';
-    if (!data.dureeSejour || data.dureeSejour < 1) errors['dureeSejour'] = 'La durée du séjour doit être d\'au moins 1 jour';
-
+    if (!data.volId) errors['volId'] = 'Le Voyage est requis';
+    
     this.formErrors.set(errors);
     return Object.keys(errors).length === 0;
   }
@@ -304,7 +324,7 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
       });
       return;
     }
-
+console.log("========================this.prepareEnregistrementData()=================",this.prepareEnregistrementData())
     const enregistrementData = this.prepareEnregistrementData();
     this.store.dispatch(enregistrementAction.createEnregistrement(enregistrementData));
 

@@ -140,7 +140,8 @@ export class VoyageComponent implements OnInit, OnDestroy {
 
           this.store.dispatch(voyageAction.loadVoyage());
             this.store.pipe(select(voyageSelector.voyageList), takeUntil(this.destroy$)).subscribe(data => {
-              this.voyages = data || [];
+              this.loading.set(false);
+                this.voyages = data || [];
             
             });   
             

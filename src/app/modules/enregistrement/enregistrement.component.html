@@ -118,7 +118,31 @@
         <!-- Nationalité -->
         <div class="col-12 md:col-4">
           <label for="nationalite">Nationalité <span class="text-red-500">*</span></label>
-          <input pInputText id="nationalite" name="nationalite" [(ngModel)]="formData().nationalite" [class]="formErrors()['nationalite'] ? 'ng-invalid ng-dirty' : ''" class="w-full">
+          <!-- <input pInputText id="nationalite" name="nationalite" [(ngModel)]="formData().nationalite" [class]="formErrors()['nationalite'] ? 'ng-invalid ng-dirty' : ''" class="w-full"> -->
+        <p-dropdown
+          id="nationalite"
+          [options]="nationalites"
+          [ngModelOptions]="{standalone: true}"
+          [(ngModel)]="selectedNationalite"
+          [showClear]="true"
+          [filter]="true"
+          (onChange)="findNationalite(selectedNationalite)"
+          filterBy="nationalite"
+          placeholder="Sélectionnez une nationalite"
+          optionLabel="nationalite"
+          [style]="{'width': '100%'}"
+          display="chip"
+           appendTo="body" 
+        >
+          <ng-template let-nationalite pTemplate="item">
+            <div class="flex align-items-center">
+              <img src="assets/demo/images/flag/flag_placeholder.png"
+                   [class]="'flag flag-' + nationalite.code.toLowerCase()" 
+                   style="width:21px" />
+              <span class="ml-2">{{nationalite.nationalite}}</span>
+            </div>
+          </ng-template>
+        </p-dropdown>
         </div>
 
         <!-- Profession -->
@@ -135,7 +159,32 @@
         <!-- Pays de résidence -->
         <div class="col-12 md:col-4">
           <label for="paysResidence">Pays de résidence <span class="text-red-500">*</span></label>
-          <input pInputText id="paysResidence" name="paysResidence" [(ngModel)]="formData().paysResidence" [class]="formErrors()['paysResidence'] ? 'ng-invalid ng-dirty' : ''" class="w-full">
+<!--           <input pInputText id="paysResidence" name="paysResidence" [(ngModel)]="formData().paysResidence" [class]="formErrors()['paysResidence'] ? 'ng-invalid ng-dirty' : ''" class="w-full">
+ -->       
+ <p-dropdown
+          id="pays"
+          [options]="countries"
+          [ngModelOptions]="{standalone: true}"
+          [(ngModel)]="selectedCountry"
+          [showClear]="true"
+          [filter]="true"
+          (onChange)="findPays(selectedCountry)"
+          filterBy="name"
+          placeholder="Sélectionnez un pays"
+          optionLabel="name"
+          [style]="{'width': '100%'}"
+          display="chip"
+           appendTo="body" 
+        >
+          <ng-template let-country pTemplate="item">
+            <div class="flex align-items-center">
+              <img src="assets/demo/images/flag/flag_placeholder.png"
+                   [class]="'flag flag-' + country.code.toLowerCase()" 
+                   style="width:21px" />
+              <span class="ml-2">{{country.name}}</span>
+            </div>
+          </ng-template>
+        </p-dropdown>
         </div>
 
         <!-- Email -->

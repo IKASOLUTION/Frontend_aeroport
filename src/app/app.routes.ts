@@ -35,6 +35,7 @@ export const routes: Routes = [
             {path: 'vol', data: { breadcrumb: 'Vol'}, loadComponent: () => import('./modules/vol/vol.component').then(m => m.VolComponent) },
             {path: 'registre-passagers', data: { breadcrumb: 'Registre des Passagers'}, loadComponent: () => import('./modules/register/register.component').then(m => m.RegisterComponent) },
             {path: 'voyageur-attente', data: { breadcrumb: 'Voyageur attente'}, loadComponent: () => import('./modules/voyageur-attente/voyageur-attente.component').then(m => m.VoyageurAttenteComponent) },
+            {path: 'donnee-biometrique', data: { breadcrumb: 'Données biométriques'}, loadComponent: () => import('./modules/donnee-biometrique/donnee-biometrique.component').then(m => m.DonneeBiometriqueComponent) },
 
             {path: 'notification', data: { breadcrumb: 'Notification Urgente'}, loadComponent: () => import('./modules/notification/notification.component').then(m => m.NotificationComponent) },
              {path: 'voyage', data: { breadcrumb: 'Gestion des Voyages'}, loadComponent: () => import('./modules/voyage/voyage.component').then(m => m.VoyageComponent) },

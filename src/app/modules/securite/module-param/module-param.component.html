@@ -5,7 +5,7 @@
         </div>
         <p-table #dt styleClass="p-datatable-responsive-demo p-datatable-sm p-datatable"
                  [value]="moduleParams"
-                 [rows]="20" dataKey="id"
+                 [rows]="5" dataKey="id"
                  [(selection)]="selectedModuleParams"
                  sortMode="multiple"
                  [globalFilterFields]="['code','libelle','ville', 'filiale.nom']"

@@ -43,7 +43,7 @@
                         <p-columnFilter type="text" display="menu" field="villeNomD"></p-columnFilter>
                     </th>
 
-                    <th style="font-weight: bold;">Itinéraire
+                    <th style="width: 35%; font-weight: bold;">Itinéraire
                         <p-columnFilter type="text" display="menu" field="villeNomA"></p-columnFilter>
                     </th>
                     <th style="font-weight: bold;">Départ
@@ -70,9 +70,24 @@
                         <div class="text-sm text-gray-900">{{ vol.compagnie?.nomCompagine }}</div>
                     </td>
                     <td class="table-separator px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {{ vol.villeDepart?.nom }}
+                        <span *ngIf="vol.typeVol == 'ARRIVEE'">
+                            {{ vol.aeroport?.nomAeroport }}
+
+                        </span>
+                         <span *ngIf="vol.typeVol != 'ARRIVEE'">
+                            {{ vol.nomAgentConnecteAeroport }}
+
+                        </span>
+                        
                         <i class="fa-solid fa-arrow-right pi pi-arrow-right mr-2 mx-1 text-gray-400"></i>
-                        {{ vol.villeArrivee?.nom }}
+                        <span *ngIf="vol.typeVol == 'ARRIVEE'">
+                            {{ vol.nomAgentConnecteAeroport }}
+
+                        </span>
+                         <span *ngIf="vol.typeVol != 'ARRIVEE'">
+                            {{ vol.aeroport?.nomAeroport }}
+
+                        </span>
                     </td>
                     <td class="table-separator">{{vol.dateDepart | date:'dd/MM/yyyy HH:mm' || 'N/A'}}</td>
                     <td class="table-separator">{{vol.dateDepart | date:'dd/MM/yyyy HH:mm' || 'N/A'}}</td>
@@ -125,7 +140,7 @@
                     <p-fieldset legend="Informations du Vol" [toggleable]="false" styleClass="mb-3">
                         <div class="grid">
                             <!-- Numéro de vol -->
-                            <div class="col-12 md:col-6">
+                            <div class="col-12 ">
                                 <div class="field">
                                     <label for="numero">
                                         Numéro de vol
@@ -142,7 +157,7 @@
                             </div>
 
                             <!-- Type de vol -->
-                            <div class="col-12 md:col-6">
+                            <div class="col-12">
                                 <div class="field">
                                     <label for="typeVol">
                                         Type de vol
@@ -150,7 +165,7 @@
                                     </label>
                                     <p-dropdown id="typeVol" [options]="typesVol" formControlName="typeVol"
                                         optionLabel="label" optionValue="value" placeholder="Sélectionnez un type"
-                                        [style]="{'width': '100%'}"
+                                        [style]="{'width': '100%'}" (onChange)="foundAeroport()"
                                         [class.ng-invalid]="volFormGroup.get('typeVol')?.invalid && volFormGroup.get('typeVol')?.touched">
                                     </p-dropdown>
                                     <small class="p-error"
@@ -187,16 +202,16 @@
                             </div>
 
                             <!-- Aéroport -->
-                            <div class="col-12">
+                            <div class="col-12" *ngIf="volFormGroup.get('typeVol')?.value !== null">
                                 <div class="field">
                                     <label for="aeroport">
-                                        Aéroport
+                                        {{label}}
                                         <span class="required" style="color: red !important;">*</span>
                                     </label>
                                     <p-dropdown id="aeroport" [options]="aeroports" formControlName="aeroport"
                                         optionLabel="nomAeroport" placeholder="Sélectionnez un aéroport"
                                         [showClear]="true" [filter]="true" filterBy="nomAeroport"
-                                        [style]="{'width': '100%'}"
+                                        [style]="{'width': '100%'}" appendTo="body"
                                         [class.ng-invalid]="volFormGroup.get('aeroport')?.invalid && volFormGroup.get('aeroport')?.touched">
                                         <ng-template let-aeroport pTemplate="item">
                                             <div class="flex align-items-center">
@@ -212,24 +227,7 @@
                                 </div>
                             </div>
 
-                            <!-- Statut -->
-                            <div class="col-12">
-                                <div class="field">
-                                    <label for="statut">
-                                        Statut
-                                        <span class="required" style="color: red !important;">*</span>
-                                    </label>
-                                    <p-dropdown id="statut" [options]="statutsVol" formControlName="statut"
-                                        optionLabel="label" optionValue="value" placeholder="Sélectionnez un statut"
-                                        [style]="{'width': '100%'}"
-                                        [class.ng-invalid]="volFormGroup.get('statut')?.invalid && volFormGroup.get('statut')?.touched">
-                                    </p-dropdown>
-                                    <small class="p-error"
-                                        *ngIf="volFormGroup.get('statut')?.invalid && volFormGroup.get('statut')?.touched">
-                                        Le statut est requis
-                                    </small>
-                                </div>
-                            </div>
+                           
                         </div>
                     </p-fieldset>
                 </div>
@@ -240,7 +238,7 @@
                     <p-fieldset legend="Itinéraire" [toggleable]="false" styleClass="mb-3">
                         <div class="grid">
                             <!-- Ville de départ -->
-                            <div class="col-12">
+                            <!-- <div class="col-12">
                                 <div class="field">
                                     <label for="villeDepart">
                                         Ville de départ
@@ -262,10 +260,10 @@
                                         La ville de départ est requise
                                     </small>
                                 </div>
-                            </div>
+                            </div> -->
 
                             <!-- Ville d'arrivée -->
-                            <div class="col-12">
+                            <!-- <div class="col-12">
                                 <div class="field">
                                     <label for="villeArrivee">
                                         Ville d'arrivée
@@ -287,7 +285,7 @@
                                         La ville d'arrivée est requise
                                     </small>
                                 </div>
-                            </div>
+                            </div> -->
 
                             <!-- Date de départ -->
                             <div class="col-12">
@@ -323,6 +321,25 @@
                                     <small class="p-error"
                                         *ngIf="volFormGroup.get('dateArrivee')?.invalid && volFormGroup.get('dateArrivee')?.touched">
                                         La date d'arrivée est requise
+                                    </small>
+                                </div>
+                            </div>
+
+                             <!-- Statut -->
+                            <div class="col-12">
+                                <div class="field">
+                                    <label for="statut">
+                                        Statut
+                                        <span class="required" style="color: red !important;">*</span>
+                                    </label>
+                                    <p-dropdown id="statut" [options]="statutsVol" formControlName="statut"
+                                        optionLabel="label" optionValue="value" placeholder="Sélectionnez un statut"
+                                        [style]="{'width': '100%'}"
+                                        [class.ng-invalid]="volFormGroup.get('statut')?.invalid && volFormGroup.get('statut')?.touched">
+                                    </p-dropdown>
+                                    <small class="p-error"
+                                        *ngIf="volFormGroup.get('statut')?.invalid && volFormGroup.get('statut')?.touched">
+                                        Le statut est requis
                                     </small>
                                 </div>
                             </div>
