@@ -1,12 +1,10 @@
-import { Injectable } from "@angular/core";
-import { Actions, createEffect, ofType } from "@ngrx/effects";
-import { VoyageService } from "./service";
-import { GlobalConfig } from "src/app/config/global.config";
-import { StatusEnum } from "../global-config/model";
-import { catchError, mergeMap, of, switchMap } from "rxjs";
-import * as featureActions from './action';
-import {Voyage } from "./model";
-import { HttpErrorResponse } from "@angular/common/http";
+import { Injectable } from '@angular/core';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { of } from 'rxjs';
+import { map, catchError, switchMap, tap } from 'rxjs/operators';
+import * as voyageAction from './action';
+import { VoyageService } from './service';
+
 
 @Injectable()
 export class VoyageEffects {
@@ -21,41 +19,38 @@ export class VoyageEffects {
    
  
 
-   loadVoyage$ = createEffect(() =>
-        this.actions$.pipe(
-            ofType(featureActions.loadVoyage),
-            mergeMap(() =>
-                this.voyageService.$getVoyages().pipe(
-                    switchMap(voyages => [
-                        featureActions.setVoyage({voyages})
-                    ]),
-                    catchError((error: HttpErrorResponse) => {
-                        const errorMsg = error.error?.message || 'Erreur lors du chargement';
-                        return of(GlobalConfig.setStatus(StatusEnum.error, errorMsg));
-                    })
-                )
-            )
-        )
-    );
-
-    getVoyage$ = createEffect(() =>
-        this.actions$.pipe(
-            ofType(featureActions.getVoyage),
-            mergeMap((voyage: Voyage) => {
-                    return this.voyageService.getVoyageById(voyage.id!).pipe(
-                    switchMap(value => [
-                        GlobalConfig.setStatus(StatusEnum.success),
-                        // featureActions.loadVoyage()
-                    ]),
-                    catchError((error: HttpErrorResponse) => {
-                        const errorMsg = error.error?.message || error.message || 'Erreur lors de la modification';
-                        return of(GlobalConfig.setStatus(StatusEnum.error, errorMsg));
-                    })
-                );
-            })
-        )
-    );
-     
+     loadVoyage$ = createEffect(() =>
+           this.actions$.pipe(
+               ofType(voyageAction.loadVoyage),
+               switchMap(() =>
+                   this.voyageService.$getVoyages().pipe(
+                       map(voyages => voyageAction.loadVoyageSuccess({ voyages })),
+                       catchError(error => of(voyageAction.loadVoyageFailure({ error })))
+                   )
+               )
+           )
+       );
+   
+      loadVoyagesByPeriode$ = createEffect(() =>
+       this.actions$.pipe(
+           ofType(voyageAction.loadVoyagesByPeriode),
+           tap(action => console.log('Action déclenchée:', action)),
+           switchMap(action =>
+               this.voyageService.getVoyagesByPeriode(action.searchDto).pipe(
+                   tap(response => console.log('Réponse reçue:', response)),
+                   map(response =>  voyageAction.loadVoyagesByPeriodeSuccess({ 
+                       voyages: response.content, 
+                       totalItems: response.totalElements 
+                   })),
+                   catchError(error => {
+                       console.error('Erreur:', error);
+                       return of(voyageAction.loadVoyagesByPeriodeFailure({ error }));
+                   })
+               )
+           )
+       )
+   );
+   
 
     
 }

@@ -1,6 +1,35 @@
+import { createFeatureSelector, createSelector } from '@ngrx/store';
+import { VoyageState } from './state';
 
-import {AppState} from '../app.state';
-export const voyageList = (state: AppState) => state.voyageState?.voyages || [];
-export const getVoyageById = (state: AppState, id: number) => {
-    return state.voyageState?.voyages.find(voyage => voyage.id === id) || null;
-}
+// Sélecteur de l'état des vols
+export const selectVoyageState = createFeatureSelector<VoyageState>('volState');
+
+// Sélecteur pour la liste des vols
+export const voyageList = createSelector(
+    selectVoyageState,
+    (state: VoyageState) => state?.voyages
+);
+
+// Sélecteur pour le total d'items (pagination)
+export const voyageTotalItems = createSelector(
+    selectVoyageState,
+    (state: VoyageState) => state?.totalItems
+);
+
+// Sélecteur pour l'état de chargement
+export const voyageLoading = createSelector(
+    selectVoyageState,
+    (state: VoyageState) => state?.loading
+);
+
+// Sélecteur pour les erreurs
+export const voyageError = createSelector(
+    selectVoyageState,
+    (state: VoyageState) => state?.error
+);
+
+// Sélecteur pour le vol sélectionné
+export const selectedVoyage = createSelector(
+    selectVoyageState,
+    (state: VoyageState) => state?.selectedVoyage
+);

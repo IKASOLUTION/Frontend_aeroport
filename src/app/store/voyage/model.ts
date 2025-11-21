@@ -1,5 +1,5 @@
 import { Aeroport } from "../aeroport/model";
-import { Statut } from "../global-config/model";
+import { Statut, StatutVoyage } from "../global-config/model";
 import { EtatVoyage, MotifVoyage } from "../motifVoyage/model";
 import { Pays } from "../pays/model";
 import { Ville } from "../ville/model";
@@ -12,12 +12,13 @@ export interface Voyage {
   motifVoyage?: MotifVoyage;
   dateVoyage?: Date;
   heureVoyage?: string;
-  EtatVoyage?: EtatVoyage;
+  etatVoyage?: EtatVoyage;
   dureeSejour?: number;
-  StatutVoyage?: Statut;
+  statut?: StatutVoyage;
   vol?: Vol;
-  aeroport?: Aeroport; 
+  aeroport?: Aeroport;
 }
+
 
 export interface VoyageList {
   voyages: Voyage[];
