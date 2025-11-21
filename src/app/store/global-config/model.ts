@@ -24,5 +24,12 @@ export enum Statut {
       SUSPENDU= 'SUSPENDU',
        LEVEE= 'LEVEE'
 }
+
+
+export enum StatutVoyage {
+  ACTIF= 'ACTIF',
+  INACTIF= 'INACTIF',
+  ANNULE= 'INACTIF'
+}
   
   

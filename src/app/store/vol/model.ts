@@ -5,6 +5,7 @@ import { Aeroport } from "../aeroport/model";
 import { Compagnie } from "../compagnie/model";
 import { StatutVoyageur } from "../motifVoyage/model";
 import { StatutDonneeBio } from "../enregistrement/model";
+import { StatutVoyage } from "../global-config/model";
 
 export interface Vol {
   id?: number;
@@ -51,6 +52,7 @@ export interface SearchDto {
     dateDebut: Date;
     dateFin: Date;
     statutVols?: StatutVol[];
+    statutVoyage?:StatutVoyage[];
     status?: StatutVoyageur[],
     selectedStatuts?: StatutDonneeBio[]
     aeroportId?: number;
