@@ -7,8 +7,8 @@ import { Vol } from "../vol/model";
 
 export interface Voyage {
   id?: number;
-  villeDepart?:Ville;
-  villeDestination?:Ville;
+  villeDepart?: Ville;
+  villeDestination?: Ville;
   motifVoyage?: MotifVoyage;
   dateVoyage?: Date;
   heureVoyage?: string;
@@ -16,7 +16,17 @@ export interface Voyage {
   dureeSejour?: number;
   statut?: StatutVoyage;
   vol?: Vol;
+  nomVoyageur?: string;
+  prenomVoyageur?: string;
   aeroport?: Aeroport;
+  villeNomD?: string;
+  villeNomA?: string;
+  aeroportForUser?: Aeroport;
+  
+  // AJOUTER CES CHAMPS MANQUANTS QUI SONT DANS VOTRE DTO BACKEND
+  nomAgentConnecteAeroport?: string;
+  aeroportId?: number;
+  aeroportForUserId?: number;
 }
 
 
