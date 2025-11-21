@@ -146,6 +146,7 @@ export class VoyageComponent implements OnInit, OnDestroy {
         // Définir les colonnes du tableau
        this.cols = [
                 { field: 'vol.numeroVol', header: 'N° Vol' },
+                { field: 'passager', header: 'Passager' },
                 { field: 'villeDepart.nom', header: 'Ville départ' },
                 { field: 'villeDestination.nom', header: 'Destination' },
                 { field: 'dateVoyage', header: 'Date voyage' },
@@ -154,6 +155,9 @@ export class VoyageComponent implements OnInit, OnDestroy {
                 { field: 'StatutVoyage', header: 'Statut' },
                 { field: 'aeroport.nomAeroport', header: 'Aéroport' }
         ];
+
+
+        
         
         
         this.createFormSearch();
@@ -171,18 +175,32 @@ export class VoyageComponent implements OnInit, OnDestroy {
      
 
         // Écouter les résultats des vols
-        this.voyageList$ = this.store.pipe(select(voyageSelector.voyageList));
         this.voyageList$.pipe(takeUntil(this.destroy$))
-            .subscribe(value => {
-                console.log('=== Vols reçus ==111=', value);
-                if (value) {
-                    this.loading = false;
-                    this.voyages = [...value];
-                    console.log('=== Vols reçus ===', value);
-                } else { 
-                    this.loading = false;
-                }
-            });
+    .subscribe(value => {
+        console.log('=== Données voyages reçues ===', value);
+        
+        if (value && value.length > 0) {
+            console.log('=== Premier voyage détaillé ===');
+            const firstVoyage = value[0];
+            console.log('ID:', firstVoyage.id);
+            console.log('Vol:', firstVoyage.vol);
+            console.log('Nom voyageur:', firstVoyage.nomVoyageur);
+            console.log('Prénom voyageur:', firstVoyage.prenomVoyageur);
+            console.log('Ville Nom D:', firstVoyage.villeNomD);
+            console.log('Ville Nom A:', firstVoyage.villeNomA);
+            console.log('Nom Agent Aéroport:', firstVoyage.nomAgentConnecteAeroport);
+            console.log('Statut:', firstVoyage.statut);
+            console.log('Motif:', firstVoyage.motifVoyage);
+            console.log('Durée séjour:', firstVoyage.dureeSejour);
+        }
+        
+        if (value) {
+            this.loading = false;
+            this.voyages = [...value];
+        } else { 
+            this.loading = false;
+        }
+    });
  
         // Écouter le total d'items pour la pagination
         this.store.pipe(
@@ -209,6 +227,20 @@ export class VoyageComponent implements OnInit, OnDestroy {
             }
         });
     }
+
+    getPassagerFormate(voyage: Voyage): string {
+            if (!voyage) return '';
+            
+            const nom = (voyage.nomVoyageur || '').toUpperCase();
+            const prenom = voyage.prenomVoyageur || '';
+            
+            // Première lettre en majuscule pour le prénom
+            const prenomFormate = prenom.charAt(0).toUpperCase() + prenom.slice(1).toLowerCase();
+            
+            if (!nom && !prenom) return 'Non renseigné';
+            
+            return `${prenomFormate} ${nom}`.trim();
+}
 
     foundAeroport() {
         if(this.volFormGroup.get('typeVol')?.value == TypeVol.ARRIVEE){

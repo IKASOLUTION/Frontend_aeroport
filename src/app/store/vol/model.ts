@@ -30,6 +30,12 @@ export interface Vol {
   nomAgentConnecteAeroport?: string;
 }
 
+
+
+
+
+
+
 export interface VolList {
   vols: Vol[];
   selectedVol: Vol | null;

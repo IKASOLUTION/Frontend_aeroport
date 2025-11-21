@@ -37,6 +37,9 @@
                     <th style="font-weight: bold;">N° Vol / Type
                         <p-columnFilter type="text" display="menu" field="vol.numeroVol"></p-columnFilter>
                     </th>
+                    <th style="font-weight: bold;">Passager
+                        <p-columnFilter type="text" display="menu" field="nomVoyageur"></p-columnFilter>
+                    </th>
                     <th style="width: 35%; font-weight: bold;">Itinéraire
                         <p-columnFilter type="text" display="menu" field="villeNomA"></p-columnFilter>
                     </th>
@@ -58,6 +61,14 @@
                 <tr>
                     <td class="table-separator">
                         <div class="text-sm font-medium text-gray-900">{{ voyage?.vol?.numero }}</div>
+                    </td>
+                    
+                    <!-- Colonne Passager -->
+                    <td class="table-separator">
+                        <div class="flex align-items-center gap-2">
+                            <i class="pi pi-user text-primary"></i>
+                            <span class="font-medium">{{ getPassagerFormate(voyage) }}</span>
+                        </div>
                     </td>
                    
                     <td class="table-separator px-6 py-4 whitespace-nowrap text-sm text-gray-900">
