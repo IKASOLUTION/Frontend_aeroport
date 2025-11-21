@@ -2,12 +2,12 @@ import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { VoyageState } from './state';
 
 // Sélecteur de l'état des vols
-export const selectVoyageState = createFeatureSelector<VoyageState>('volState');
+export const selectVoyageState = createFeatureSelector<VoyageState>('voyageState');
 
 // Sélecteur pour la liste des vols
 export const voyageList = createSelector(
     selectVoyageState,
-    (state: VoyageState) => state?.voyages
+    (state: VoyageState) => state.voyages
 );
 
 // Sélecteur pour le total d'items (pagination)

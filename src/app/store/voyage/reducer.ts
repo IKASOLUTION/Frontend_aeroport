@@ -42,11 +42,11 @@ export const VoyageReducer = createReducer(
         error: null
     })),
 
-    on(voyageAction.loadVoyageFailure, (state, { error }) => ({
-        ...state,
-        loading: false,
-        error: error.message || 'Erreur lors du chargement des vols par période'
-    })),
+    on(voyageAction.loadVoyagesByPeriodeFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error: error.message || 'Erreur lors du chargement des vols par période'
+})),
 
     // Create vol
     
