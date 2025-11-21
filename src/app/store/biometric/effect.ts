@@ -3,10 +3,11 @@ import { Actions, createEffect, ofType } from "@ngrx/effects";
 import { DonneeBiometriqueService } from "./service";
 import { GlobalConfig } from "src/app/config/global.config";
 import { StatusEnum } from "../global-config/model";
-import { catchError, mergeMap, of, switchMap } from "rxjs";
+import { catchError, map, mergeMap, of, switchMap } from "rxjs";
 import * as featureActions from './action';
 import { DonneeBiometrique } from "./model";
 import { HttpErrorResponse } from "@angular/common/http";
+import { Action } from "@ngrx/store";
 
 @Injectable()
 export class DonneeBiometriqueEffects {
@@ -64,6 +65,28 @@ export class DonneeBiometriqueEffects {
         ))
 
     ));
+
+
+   loadDonneeBiometriquesByPeriode$ = createEffect(() =>
+    this.actions$.pipe(
+        ofType(featureActions.loadDonneeBiometriques),
+        switchMap(action =>
+            this.donneeBiometriqueService.getDonneeBiometriquesByPeriode(action.search).pipe(
+                map(response =>
+                    featureActions.loadDonneeBiometriquesByPeriodeSuccess({
+                        donneeBiometriques: response.content,
+                        totalItems: response.totalElements
+                    })
+                ),
+                catchError(error =>
+                    of(GlobalConfig.setStatus(StatusEnum.error, error.error?.error) as Action)
+                )
+            )
+        )
+    )
+);
+
+
 
  deleteDonneeBiometrique$ = createEffect(() =>
     this.actions$.pipe(

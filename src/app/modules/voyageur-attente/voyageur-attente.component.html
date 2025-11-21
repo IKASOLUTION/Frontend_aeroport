@@ -73,9 +73,14 @@
                         {{ enregistrement.nationalite || 'N/A' }}
                     </td>
                     <td class="table-separator px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {{ enregistrement.villeDepart }}
+                        {{ enregistrement.aeroportDepart }}
                         <i class="fa-solid fa-arrow-right pi pi-arrow-right mr-2 mx-1 text-gray-400"></i>
-                        {{ enregistrement.villeDestination }}
+
+                        {{ enregistrement.aeroportDestination }}
+
+                        <i class="fa-solid fa-arrow-right pi pi-arrow-right mr-2 mx-1 text-gray-400"></i>
+
+
                     </td>
                     <td class="table-separator">
                         <div class="text-sm text-gray-900">{{ enregistrement.dateVoyage | date:'dd/MM/yyyy' || 'N/A' }}
@@ -318,16 +323,16 @@
             <div class="grid">
                 <div class="field col-12 md:col-6">
                     <span class="font-bold">
-                        <i class="pi pi-arrow-up mr-2"></i>Ville de départ:
+                        <i class="pi pi-arrow-up mr-2"></i>Aéroport départ:
                     </span>
-                    {{ selectedEnregistrement.villeDepart || 'N/A' }}
+                    {{ selectedEnregistrement.aeroportDepart || 'N/A' }}
                 </div>
 
                 <div class="field col-12 md:col-6">
                     <span class="font-bold">
-                        <i class="pi pi-arrow-down mr-2"></i>Ville de destination:
+                        <i class="pi pi-arrow-down mr-2"></i>Aéroport de destination:
                     </span>
-                    {{ selectedEnregistrement.villeDestination || 'N/A' }}
+                    {{ selectedEnregistrement.aeroportDestination || 'N/A' }}
                 </div>
 
                 <div class="field col-12 md:col-6">

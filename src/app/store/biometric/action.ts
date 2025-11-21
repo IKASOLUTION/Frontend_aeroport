@@ -7,9 +7,13 @@ export const deleteDonneeBiometrique = createAction('[App Init] delete DonneeBio
 export const deleteDonneeBiometriques = createAction('[App Init] delete DonneeBiometriques', props<{DonneeBiometriqueList: Array<DonneeBiometrique>}>());
 export const loadDonneeBiometrique = createAction('[App Init] load DonneeBiometriques');
 export const setDonneeBiometrique = createAction('[App Init] set DonneeBiometrique',  props<{donneeBiometriques: DonneeBiometrique[]}>());
-export const loadDonneeBiometriques = createAction('[App Init] load Donnees Biometriques by periode', props<{search: SearchDto}>());
-export const loadEnregistrementsByPeriodeSuccess = createAction(
-    '[Enregistrement] Load Donnees Biometriques By Periode Success',
+//export const loadDonneeBiometriques = createAction('[App Init] load Donnees Biometriques by periode', props<{search: SearchDto}>());
+export const loadDonneeBiometriquesByPeriodeSuccess = createAction(
+    '[DonneeBiometrique] Load Donnees Biometriques By Periode Success',
     props<{ donneeBiometriques: DonneeBiometrique[], totalItems: number }>()
+);
+export const loadDonneeBiometriques = createAction(
+    '[DonneeBiometrique] load Donnees Biometriques by periode',
+    props<{ search: SearchDto }>()
 );
 

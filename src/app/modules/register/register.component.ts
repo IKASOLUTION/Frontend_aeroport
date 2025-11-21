@@ -24,7 +24,7 @@ import { LoadingSpinnerComponent } from '../loading-spinner.component';
 import { Enregistrement, TypeDocument } from 'src/app/store/enregistrement/model';
 import { FieldsetModule } from 'primeng/fieldset';
 import { TagModule } from 'primeng/tag';
-import { SearchDto } from 'src/app/store/vol/model';
+import { SearchDto, TypeVol } from 'src/app/store/vol/model';
 import { Aeroport } from 'src/app/store/aeroport/model';
 import * as aeroportAction from '../../store/aeroport/action';
 import * as aeroportSelector from '../../store/aeroport/selector';
@@ -94,6 +94,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
     dateFin: Date | null = null;
     isDetailModalOpen = false;
     selectedStatuts: StatutVoyageur[] = [];
+    type =TypeVol.ARRIVEE;
     statutsVol = [
         { label: 'Validé', value: StatutVoyageur.VALIDE },
         { label: 'En_attente', value: StatutVoyageur.EN_ATTENTE },

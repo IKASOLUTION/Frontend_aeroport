@@ -48,7 +48,7 @@ private convertToFormData(enregistrement: Enregistrement): FormData {
       // Champs enum : convertir en string
       else if (typeof value === 'number' && (key === 'typeDocument' || key === 'motifVoyage' || key === 'etatVoyage')) {
         // convertir la valeur enum numérique en nom de l’enum
-        formData.append(key, (enregistrement[key as keyof Enregistrement] as any).toString());
+        //formData.append(key, (enregistrement[key as keyof Enregistrement] as any).toString());
         // ou mieux : Object.keys(enum)[value] pour récupérer le nom
         const enumObj = this.getEnumByKey(key);
          formData.append(key, enumObj[value as number]);

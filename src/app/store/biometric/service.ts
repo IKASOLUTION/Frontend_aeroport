@@ -4,7 +4,8 @@ import { DonneeBiometrique, DonneeBiometriqueList } from "./model";
 import { catchError, map, Observable, throwError } from "rxjs";
 import { GlobalConfig } from "src/app/config/global.config";
 import { Endpoints } from "src/app/config/module.endpoints";
-import { InformationPersonnelle } from "../enregistrement/model";
+import { InformationPersonnelle, TypeCapture } from "../enregistrement/model";
+import { PageResponse, SearchDto } from "../vol/model";
 
 
 @Injectable({providedIn: 'root'})
@@ -41,6 +42,20 @@ createDonneeBiometrique(donneeBiometrique: DonneeBiometrique): Observable<any> {
   const formData = this.convertToFormData(donneeBiometrique);
   return this.http.post(`${GlobalConfig.getEndpoint(Endpoints.BIOMETRIC)}`, formData);
 }
+
+getDonneeBiometriquesByPeriode(searchDto: SearchDto): Observable<PageResponse<DonneeBiometrique>> {
+         // @FIXME: put request
+        const body = {
+            dateDebut: this.formatDate(searchDto.dateDebut),
+            dateFin: this.formatDate(searchDto.dateFin),
+            page: searchDto.page || 0,
+            size: searchDto.size || 10,
+            sort: searchDto.sortBy || 'dateCapture,desc'
+        };
+
+
+        return this.http.put<PageResponse<DonneeBiometrique>>(`${GlobalConfig.getEndpoint(Endpoints.BIOMETRIC)}/periode`, body);
+    }
 
 private convertToFormData(donneeBiometrique: DonneeBiometrique): FormData {
   const formData = new FormData();
@@ -86,6 +101,10 @@ private convertToFormData(donneeBiometrique: DonneeBiometrique): FormData {
   if (donneeBiometrique.informationPersonnelleId !== undefined) {
     formData.append('informationPersonnelleId', donneeBiometrique.informationPersonnelleId.toString());
   }
+    if (donneeBiometrique.typeCapture !== undefined) {
+  formData.append('typeCapture', TypeCapture[donneeBiometrique.typeCapture])
+};
+  
   
   // Ajouter la photo
   if (donneeBiometrique.photoBiometrique) {
@@ -115,6 +134,13 @@ private base64ToFile(base64String: string, filename: string): File {
 }
 
 
+
+private formatDate(date: Date): string {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
 
 private handleError<T>() {
     return (error: HttpErrorResponse) => {

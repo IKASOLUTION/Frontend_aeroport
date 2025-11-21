@@ -18,7 +18,15 @@ const featureReducer = createReducer<DonneeBiometriqueState>(
       donneeBiometriques: donneeBiometriques
     };
   }),
+  on(featureActions.loadDonneeBiometriquesByPeriodeSuccess, (state, { donneeBiometriques, totalItems }) => ({
+          ...state,
+          donneeBiometriques,
+          totalItems,
+          loading: false,
+          error: null
+      })),
 );
+
 
 export function biometricReducer(state: DonneeBiometriqueState | undefined, action: Action): DonneeBiometriqueState {
   return featureReducer(state, action);

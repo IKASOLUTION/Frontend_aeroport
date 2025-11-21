@@ -74,19 +74,19 @@
                     </td>
                     <td class="table-separator">
                         <div class="flex gap-2">
-                            <i class="pi pi-check-circle text-green-500" *ngIf="donneeBio.empreinteGauche1"
+                            <i class="pi pi-check-circle text-green-500" *ngIf="donneeBio.empreinteGauchePath"
                                 pTooltip="Empreinte gauche"></i>
-                            <i class="pi pi-times-circle text-red-500" *ngIf="!donneeBio.empreinteGauche1"
+                            <i class="pi pi-times-circle text-red-500" *ngIf="!donneeBio.empreinteGauchePath"
                                 pTooltip="Empreinte gauche manquante"></i>
 
-                            <i class="pi pi-check-circle text-green-500" *ngIf="donneeBio.empreinteDroite1"
+                            <i class="pi pi-check-circle text-green-500" *ngIf="donneeBio.empreinteDroitePath"
                                 pTooltip="Empreinte droite"></i>
-                            <i class="pi pi-times-circle text-red-500" *ngIf="!donneeBio.empreinteDroite1"
+                            <i class="pi pi-times-circle text-red-500" *ngIf="!donneeBio.empreinteDroitePath"
                                 pTooltip="Empreinte droite manquante"></i>
 
-                            <i class="pi pi-check-circle text-green-500" *ngIf="donneeBio.empreintePouces1"
+                            <i class="pi pi-check-circle text-green-500" *ngIf="donneeBio.empreintePoucesPath"
                                 pTooltip="Empreintes pouces"></i>
-                            <i class="pi pi-times-circle text-red-500" *ngIf="!donneeBio.empreintePouces1"
+                            <i class="pi pi-times-circle text-red-500" *ngIf="!donneeBio.empreintePoucesPath"
                                 pTooltip="Empreintes pouces manquantes"></i>
                         </div>
                     </td>
@@ -104,7 +104,7 @@
                         <button pButton icon="pi pi-eye" class="p-button-rounded p-button-primary mr-2"
                             pTooltip="Voir détail" tooltipPosition="top" (click)="selectDonneeBiometrique(donneeBio)">
                         </button>
-                        <button pButton icon="pi pi-fingerprint" class="p-button-rounded p-button-info mr-2"
+                        <button pButton icon="pi pi-id-card" class="p-button-rounded p-button-info mr-2"
                             pTooltip="Capturer biométrie" tooltipPosition="top"
                             (click)="openCaptureBiometriqueModal(donneeBio)">
                         </button>
@@ -160,7 +160,7 @@
                 </div>
 
                 <!-- Statuts -->
-                <div class="col-12">
+                <!-- <div class="col-12">
                     <label for="statuts" class="block mb-2 font-semibold">
                         Statuts
                     </label>
@@ -168,7 +168,7 @@
                         optionLabel="label" optionValue="value" placeholder="Sélectionnez des statuts"
                         [showClear]="true" display="chip">
                     </p-multiSelect>
-                </div>
+                </div> -->
             </div>
         </form>
     </ng-template>
@@ -378,8 +378,8 @@
             <div class="grid">
                 <div class="col-12 md:col-6">
                     <label for="informationPersonnelle">Personne <span class="text-red-500">*</span></label>
-                    <p-dropdown id="informationPersonnelle" name="informationPersonnelle"
-                        [options]="informationPersonnelles" [(ngModel)]="informationPersonnelle"
+                    <p-dropdown id="informationPersonnelle"
+                        [options]="informationPersonnelles" [(ngModel)]="informationPersonnelleId"
                         optionLabel="nomFamille" optionValue="id" placeholder="Sélectionner une personne"
                         styleClass="w-full">
                         <!-- <ng-template pTemplate="selectedItem">

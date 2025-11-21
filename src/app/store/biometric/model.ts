@@ -6,13 +6,14 @@ export interface DonneeBiometrique {
   empreinteGauche1?: boolean;
   empreintePouces1?: boolean;
   informationPersonnelleId?: number;
- empreinteGauche:File,
+  empreinteGauche:File,
   empreinteDroite: File,
   empreintePouces: File,
   photoBiometrique?: File | null;
   informationPersonnelle?: InformationPersonnelle;
   typeCapture?:TypeCapture;
    statut?: StatutDonneeBio;
+   dateCapture?: Date;
 
 
 }

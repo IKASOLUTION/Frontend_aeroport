@@ -108,7 +108,7 @@ export class DonneeBiometriqueComponent implements OnInit, OnDestroy {
     empreinteGauche = signal<EmpreinteCapture>({ image: null, capturee: false });
     empreinteDroite = signal<EmpreinteCapture>({ image: null, capturee: false });
     empreintePouces = signal<EmpreinteCapture>({ image: null, capturee: false });
-    informationPersonnelle :InformationPersonnelle ={};
+    informationPersonnelleId: number | null = null;
 
     capturedPhotoPourBiometrie = signal<string | null>(null);
     isSaving = signal<boolean>(false);
@@ -186,7 +186,6 @@ export class DonneeBiometriqueComponent implements OnInit, OnDestroy {
         const searchParams: SearchDto = {
             dateDebut: this.dateDebut,
             dateFin: this.dateFin,
-            selectedStatuts: this.selectedStatuts.length > 0 ? this.selectedStatuts : undefined,
             page: this.page,
             size: this.rows
         };
@@ -385,12 +384,12 @@ export class DonneeBiometriqueComponent implements OnInit, OnDestroy {
         }
 
         this.biometric.set({
-            informationPersonnelleId: this.informationPersonnelle.id,
+            informationPersonnelleId: this.informationPersonnelleId ?? 0,
             typeCapture: this.typeCapture,
             empreinteGauche: empreinteGaucheFile,
             empreinteDroite: empreinteDroiteFile,
             empreintePouces: empreintePoucesFile,
-            photoBiometrique: photoBiometriqueFile
+            photoBiometrique: photoBiometriqueFile,
         });
 
 

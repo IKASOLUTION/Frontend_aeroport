@@ -51,8 +51,8 @@ export interface SearchDto {
     dateDebut: Date;
     dateFin: Date;
     statutVols?: StatutVol[];
-    status?: StatutVoyageur[],
-    selectedStatuts?: StatutDonneeBio[]
+    status?: StatutVoyageur[];
+    selectedStatuts?: StatutDonneeBio[];
     aeroportId?: number;
     motifVoyageId?: number;
     page?: number;

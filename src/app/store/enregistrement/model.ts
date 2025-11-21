@@ -39,6 +39,8 @@ export interface Enregistrement {
   statut?: string;
   informationPersonnelle?: InformationPersonnelle;
   informationPersonnelleId?: number;
+  aeroportDepart?: string;
+  aeroportDestination?: string;
 }
 
 

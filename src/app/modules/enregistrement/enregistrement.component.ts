@@ -29,7 +29,7 @@ import { EmpreinteCapture, Enregistrement, InformationPersonnelle, MotifVoyage, 
 import { DonneeBiometrique } from 'src/app/store/biometric/model';
 import { LoadingSpinnerComponent } from '../loading-spinner.component';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { Vol } from 'src/app/store/vol/model';
+import { TypeVol, Vol } from 'src/app/store/vol/model';
 import { CountryService } from 'src/app/demo/service/country.service';
 import { NationaliteService } from 'src/app/demo/service/nationalite.service';
 
@@ -120,6 +120,7 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   selectedCountry: any;
   nationalites: any[] = [];
   selectedNationalite: any;
+  type =TypeVol.ARRIVEE;
 
   ngOnInit(): void {
     this.initializeFormData();
@@ -264,15 +265,15 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
     }
   }
 
-  onVolSelectionChange(volId: number): void {
+  /* onVolSelectionChange(volId: number): void {
     const selectedVol = this.volList().find(v => v.id === volId);
     if (selectedVol) {
       this.selectedVolInfo.set(selectedVol);
       this.formData.update(data => ({
         ...data,
         volId: volId,
-        villeDepart: selectedVol.villeDepart?.nom,
-        villeDestination: selectedVol.villeArrivee?.nom,
+        villeDepart: selectedVol.aeroport?.nomAeroport,
+        villeDestination: selectedVol.nomAgentConnecteAeroport,
         dateVoyage: selectedVol.dateDepart
           ? new Date(selectedVol.dateDepart).toISOString().split('T')[0]
           : '',
@@ -281,7 +282,45 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
           : ''
       }));
     }
-  }
+  } */
+ onVolSelectionChange(volId: number): void {
+  const selectedVol = this.volList().find(v => v.id === volId);
+
+  if (!selectedVol) return;
+
+  // Met à jour la sélection affichée
+  this.selectedVolInfo.set(selectedVol);
+
+  // Détermine les valeurs selon typeVol
+  const isArrivee = selectedVol.typeVol ===  TypeVol.ARRIVEE;
+
+  const aeroport = selectedVol.aeroport?.nomAeroport ?? '';
+  const agentAeroport = selectedVol.nomAgentConnecteAeroport ?? '';
+
+  // Si ARRIVEE => aeroport → agent
+  // Sinon => agent → aeroport
+  const villeDepart = isArrivee ? aeroport : agentAeroport;
+  const villeDestination = isArrivee ? agentAeroport : aeroport;
+
+  // Conversion dates
+  const isoDate = selectedVol.dateDepart
+    ? new Date(selectedVol.dateDepart).toISOString()
+    : null;
+
+  const dateVoyage = isoDate ? isoDate.split('T')[0] : '';
+  const heureVoyage = isoDate ? isoDate.split('T')[1].substring(0, 5) : '';
+
+  // Mise à jour du formulaire
+  this.formData.update(data => ({
+    ...data,
+    volId,
+    villeDepart,
+    villeDestination,
+    dateVoyage,
+    heureVoyage
+  }));
+}
+
 
   validateForm(): boolean {
     const errors: Record<string, string> = {};
