@@ -32,6 +32,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TypeVol, Vol } from 'src/app/store/vol/model';
 import { CountryService } from 'src/app/demo/service/country.service';
 import { NationaliteService } from 'src/app/demo/service/nationalite.service';
+import { Router } from '@angular/router';
 
 interface Passager {
   id: number;
@@ -75,6 +76,7 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private countryService = inject(CountryService);
   private nationaliteService = inject(NationaliteService);
+  private router = inject(Router);
 
   // Signals pour la gestion de l'état local
   formData = signal<Enregistrement>({
@@ -113,7 +115,7 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   private mediaStream: MediaStream | null = null;
 
   // Options pour les dropdowns
-  typesDocument: Array<'PASSEPORT' | 'CNI' | 'PERMIS_CONDUIRE'> = ['PASSEPORT', 'CNI', 'PERMIS_CONDUIRE'];
+  typesDocument: Array<'PASSEPORT' | 'CNI'> = ['PASSEPORT', 'CNI'];
   etatsVoyage: Array<'ALLER' | 'RETOUR' | 'ALLER_RETOUR'> = ['ALLER', 'RETOUR', 'ALLER_RETOUR'];
 
   countries: any[] = [];
@@ -363,7 +365,6 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
       });
       return;
     }
-console.log("========================this.prepareEnregistrementData()=================",this.prepareEnregistrementData())
     const enregistrementData = this.prepareEnregistrementData();
     this.store.dispatch(enregistrementAction.createEnregistrement(enregistrementData));
 
@@ -581,6 +582,8 @@ console.log("========================this.prepareEnregistrementData()===========
     const biometricData = this.biometric();
     if (biometricData) {
       this.store.dispatch(biometricAction.createDonneeBiometrique(biometricData));
+
+      this.router.navigateByUrl('/admin/gestion-enregistrements');
     }
 
     this.closeBiometricModal();

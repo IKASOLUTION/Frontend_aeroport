@@ -46,11 +46,11 @@ import { TagModule } from 'primeng/tag';
         CommonModule,
         TableModule,
         LoadingSpinnerComponent,
-        ButtonModule, 
-        RippleModule, 
-        TooltipModule, 
-        ToolbarModule, 
-        ToastModule, 
+        ButtonModule,
+        RippleModule,
+        TooltipModule,
+        ToolbarModule,
+        ToastModule,
         InputTextModule,
         InputTextareaModule,
         FormsValidationComponent,
@@ -59,9 +59,9 @@ import { TagModule } from 'primeng/tag';
         DropdownModule,
         CalendarModule,
         MultiSelectModule,
-        SplitButtonModule, 
-        PaginatorModule, 
-        DialogModule, 
+        SplitButtonModule,
+        PaginatorModule,
+        DialogModule,
         FieldsetModule,
         TagModule,
         ConfirmDialogModule
@@ -72,32 +72,32 @@ import { TagModule } from 'primeng/tag';
 })
 export class VolComponent implements OnInit, OnDestroy {
     destroy$ = new Subject<boolean>();
-    
+
     // Observables
     volList$!: Observable<Array<Vol>>;
     villeList$!: Observable<Array<Ville>>;
     compagnieList$!: Observable<Array<Compagnie>>;
     aeroportList$!: Observable<Array<Aeroport>>;
-    
+
     // Listes de données
     vols: Vol[] = [];
     villes: Ville[] = [];
     compagnies: Compagnie[] = [];
     aeroports: Aeroport[] = [];
-    
+
     // Objet sélectionné
     vol: Vol = {};
     selectedVol: Vol = {};
-    
+
     // Configuration du tableau
     cols: any[] = [];
-    
+
     // Options pour les dropdowns
     typesVol = [
         { label: 'Arrivée', value: TypeVol.ARRIVEE },
         { label: 'Départ', value: TypeVol.DEPART }
     ];
-    
+
     statutsVol = [
         { label: 'Programmé', value: StatutVol.PROGRAMME },
         { label: 'Confirmé', value: StatutVol.CONFIRME },
@@ -105,7 +105,7 @@ export class VolComponent implements OnInit, OnDestroy {
         { label: 'Retardé', value: StatutVol.RETARDE },
         { label: 'Annulé', value: StatutVol.ANNULE }
     ];
-    
+
     // État du formulaire et recherche
     keyword = '';
     enableFilter = false;
@@ -125,7 +125,7 @@ export class VolComponent implements OnInit, OnDestroy {
 
     // Filtres de recherche
     selectedStatuts: StatutVol[] = [StatutVol.PROGRAMME];
-   
+
     dateDebut: Date | null = null;
     dateFin: Date | null = null;
     isDetailModalOpen = false;
@@ -133,10 +133,10 @@ export class VolComponent implements OnInit, OnDestroy {
 
     constructor(
         private fb: FormBuilder,
-        private store: Store<AppState>, 
+        private store: Store<AppState>,
         private messageService: MessageService,
         private confirmationService: ConfirmationService
-    ) {}
+    ) { }
 
     ngOnInit(): void {
         // Définir les colonnes du tableau
@@ -151,12 +151,12 @@ export class VolComponent implements OnInit, OnDestroy {
             { field: 'dateArrivee', header: 'Date d\'arrivée' },
             { field: 'statut', header: 'Statut' }
         ];
-        
-        
+
+
         this.createFormSearch();
         this.createFormVol();
         this.createFormFilter();
-        
+
         // Initialiser les dates (7 derniers jours par défaut)
         this.dateDebut = new Date();
         this.dateDebut.setDate(this.dateDebut.getDate() - 7);
@@ -167,7 +167,7 @@ export class VolComponent implements OnInit, OnDestroy {
         // Charger les villes
         this.villeList$ = this.store.pipe(select(villeSelector.villeList));
         this.store.dispatch(villeAction.loadVille());
-        
+
         this.villeList$.pipe(takeUntil(this.destroy$))
             .subscribe(value => {
                 if (value) {
@@ -179,7 +179,7 @@ export class VolComponent implements OnInit, OnDestroy {
         // Charger les compagnies
         this.compagnieList$ = this.store.pipe(select(compagnieSelector.compagnieList));
         this.store.dispatch(compagnieAction.loadCompagnie());
-        
+
         this.compagnieList$.pipe(takeUntil(this.destroy$))
             .subscribe(value => {
                 if (value) {
@@ -191,7 +191,7 @@ export class VolComponent implements OnInit, OnDestroy {
         // Charger les aéroports
         this.aeroportList$ = this.store.pipe(select(aeroportSelector.aeroportList));
         this.store.dispatch(aeroportAction.loadAeroport());
-        
+
         this.aeroportList$.pipe(takeUntil(this.destroy$))
             .subscribe(value => {
                 if (value) {
@@ -209,11 +209,11 @@ export class VolComponent implements OnInit, OnDestroy {
                     this.loading = false;
                     this.vols = [...value];
                     console.log('=== Vols reçus ===', value);
-                } else { 
+                } else {
                     this.loading = false;
                 }
             });
- 
+
         // Écouter le total d'items pour la pagination
         this.store.pipe(
             select(volSelector.volTotalItems),
@@ -231,7 +231,7 @@ export class VolComponent implements OnInit, OnDestroy {
         ).subscribe(status => {
             if (status && status.message) {
                 this.showToast(status.status, status.message);
-                
+
                 // Recharger après une opération réussie
                 if (status.status === StatusEnum.success) {
                     this.loadVolsWithFilters();
@@ -240,25 +240,41 @@ export class VolComponent implements OnInit, OnDestroy {
         });
     }
 
+
+    getDureeVol(): string {
+        if (!this.selectedVol?.dateDepart || !this.selectedVol?.dateArrivee) return 'N/A';
+
+        const depart = new Date(this.selectedVol.dateDepart);
+        const arrivee = new Date(this.selectedVol.dateArrivee);
+
+        const diffMs = arrivee.getTime() - depart.getTime();
+
+        if (diffMs <= 0) return "Données invalides";
+
+        const heures = Math.floor(diffMs / (1000 * 60 * 60));
+        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+        return `${heures}h ${minutes}min`;
+    }
     foundAeroport() {
-        if(this.volFormGroup.get('typeVol')?.value == TypeVol.ARRIVEE){
+        if (this.volFormGroup.get('typeVol')?.value == TypeVol.ARRIVEE) {
             this.label = "Aéroport depart";
         } else {
-             this.label = "Aéroport arrivé";
+            this.label = "Aéroport arrivé";
         }
     }
     // Ouvrir le modal de détail
-  openDetailModal(vol: Vol) {
-    this.selectedVol = vol;
-    this.isDetailModalOpen = true;
-  }
-  
-  // Fermer le modal de détail
-  closeDetailModal() {
-    this.isDetailModalOpen = false;
-    this.selectedVol = {};
-  }
-     closeFilterDialog(): void {
+    openDetailModal(vol: Vol) {
+        this.selectedVol = vol;
+        this.isDetailModalOpen = true;
+    }
+
+    // Fermer le modal de détail
+    closeDetailModal() {
+        this.isDetailModalOpen = false;
+        this.selectedVol = {};
+    }
+    closeFilterDialog(): void {
         this.filterDialog = false;
     }
 
@@ -364,7 +380,7 @@ export class VolComponent implements OnInit, OnDestroy {
         this.filterFormGroup.patchValue({
             dateDebut: this.dateDebut,
             dateFin: this.dateFin,
-            statutVols:  this.selectedStatuts
+            statutVols: this.selectedStatuts
         });
         this.filterDialog = true;
     }
@@ -384,10 +400,10 @@ export class VolComponent implements OnInit, OnDestroy {
         this.dateDebut = formValue.dateDebut;
         this.dateFin = formValue.dateFin;
         this.selectedStatuts = formValue.statutVols || [];
-        
+
         this.page = 0;
         this.first = 0;
-        
+
         this.filterDialog = false;
         this.loadVolsWithFilters();
     }
@@ -397,16 +413,16 @@ export class VolComponent implements OnInit, OnDestroy {
         this.dateDebut.setDate(this.dateDebut.getDate() - 7);
         this.dateFin = new Date();
         this.selectedStatuts = [];
-        
+
         this.filterFormGroup.patchValue({
             dateDebut: this.dateDebut,
             dateFin: this.dateFin,
             statutVols: []
         });
-        
+
         this.page = 0;
         this.first = 0;
-        
+
         this.loadVolsWithFilters();
     }
 
@@ -430,15 +446,15 @@ export class VolComponent implements OnInit, OnDestroy {
         this.isUpdate = false;
         this.volDialog = true;
     }
-removeAccents(str: string): string {
-  return str
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
-}
+    removeAccents(str: string): string {
+        return str
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
+    }
 
     update(form: Vol): void {
         this.popupHeader = 'Modifier un vol';
-        const selectedTypeVol =TypeVol.DEPART;
+        const selectedTypeVol = TypeVol.DEPART;
         if (!form.typeVol && form.typeVol?.toString() === 'Arrivée') {
             form.typeVol = TypeVol.ARRIVEE;
         }
@@ -452,9 +468,9 @@ removeAccents(str: string): string {
             villeArrivee: form.villeArrivee,
             dateDepart: form.dateDepart ? new Date(form.dateDepart) : null,
             dateArrivee: form.dateArrivee ? new Date(form.dateArrivee) : null,
-            statut: this.statutsVol.find(s =>  this.removeAccents(s.label).toUpperCase() === form.statut?.toString())?.value
+            statut: this.statutsVol.find(s => this.removeAccents(s.label).toUpperCase() === form.statut?.toString())?.value
         });
-        
+
         this.vol = { ...form };
         this.volDialog = true;
         this.isUpdate = true;
@@ -472,7 +488,7 @@ removeAccents(str: string): string {
         }
 
         const formValue = this.volFormGroup.value;
-        
+
         const volToSave: Vol = {
             numero: formValue.numero?.trim().toUpperCase(),
             typeVol: formValue.typeVol,
@@ -484,7 +500,7 @@ removeAccents(str: string): string {
             dateArrivee: formValue.dateArrivee,
             statut: formValue.statut
         };
-        
+
         if (this.isUpdate && formValue.id) {
             volToSave.id = formValue.id;
         }
@@ -496,12 +512,12 @@ removeAccents(str: string): string {
             size: this.rows,
             sortBy: 'dateDepart,desc'
         };
-        
+
         console.log("===== COMPOSANT - Objet Vol à dispatcher =====", volToSave);
 
         this.confirmationService.confirm({
-            message: this.isUpdate ? 
-                'Êtes-vous sûr de vouloir modifier ce vol?' : 
+            message: this.isUpdate ?
+                'Êtes-vous sûr de vouloir modifier ce vol?' :
                 'Êtes-vous sûr de vouloir ajouter ce vol?',
             header: 'Confirmation',
             icon: 'pi pi-exclamation-triangle',
@@ -511,11 +527,11 @@ removeAccents(str: string): string {
             rejectLabel: 'Non',
             accept: () => {
                 if (this.isUpdate) {
-                    this.store.dispatch(volAction.updateVol({ vol: volToSave , search: searchDto}));
+                    this.store.dispatch(volAction.updateVol({ vol: volToSave, search: searchDto }));
                 } else {
                     this.store.dispatch(volAction.createVol({ vol: volToSave, search: searchDto }));
                 }
-                
+
                 this.resetForm();
             }
         });
@@ -549,25 +565,25 @@ removeAccents(str: string): string {
     }
 
     confirmChangeStatus(vol: Vol): void {
-        const newStatus: StatutVol = vol.statut === StatutVol.CONFIRME ? 
-            StatutVol.ANNULE : 
+        const newStatus: StatutVol = vol.statut === StatutVol.CONFIRME ?
+            StatutVol.ANNULE :
             StatutVol.CONFIRME;
         const action = newStatus === StatutVol.CONFIRME ? 'confirmer' : 'annuler';
-        
+
         this.confirmationService.confirm({
             message: `Êtes-vous sûr de vouloir ${action} le vol "${vol.numero}" ?`,
             header: 'Confirmation de changement de statut',
             icon: 'pi pi-exclamation-triangle',
-            acceptButtonStyleClass: vol.statut === StatutVol.CONFIRME ? 
-                'p-button-warning' : 
+            acceptButtonStyleClass: vol.statut === StatutVol.CONFIRME ?
+                'p-button-warning' :
                 'p-button-success',
             rejectButtonStyleClass: 'p-button-secondary',
             acceptLabel: 'Oui, ' + action,
             rejectLabel: 'Annuler',
             accept: () => {
-                const updatedVol: Vol = { 
-                    ...vol, 
-                    statut: newStatus 
+                const updatedVol: Vol = {
+                    ...vol,
+                    statut: newStatus
                 };
                 this.store.dispatch(volAction.changerStatusVol({ vol: updatedVol }));
             }
@@ -575,18 +591,18 @@ removeAccents(str: string): string {
     }
 
     getTypeVolSeverity(type: TypeVol | undefined): string {
-    switch (type) {
-      case TypeVol.ARRIVEE:
-        return 'info';
-      case TypeVol.DEPART:
-        return 'success';
-      default:
-        return 'secondary';
+        switch (type) {
+            case TypeVol.ARRIVEE:
+                return 'info';
+            case TypeVol.DEPART:
+                return 'success';
+            default:
+                return 'secondary';
+        }
     }
-  }
     getStatutClass(statut: string | undefined): string {
         if (!statut) return 'badge-secondary';
-        
+
         switch (statut) {
             case StatutVol.CONFIRME.toString():
                 return 'badge-primary';
@@ -598,31 +614,31 @@ removeAccents(str: string): string {
                 console.log('=== PROGRAMME ===');
                 return 'badge-warning';
             case StatutVol.RETARDE.toString():
-                return 'badge-warning'; 
+                return 'badge-warning';
             default:
                 return 'badge-secondary';
         }
     }
 
     getStatutDetail(statut: StatutVol | undefined): string {
-    if (!statut) return 'secondary';
-    
-    switch (statut.toString()) {
-      case StatutVol.CONFIRME.toString():
-        return 'primary';
-      case StatutVol.EFFECTUE.toString():
-        return 'success';
-      case StatutVol.ANNULE.toString():
-        return 'danger';
-      case StatutVol.PROGRAMME.toString():
-        console.log('=== PROGRAMME ===');
-        return 'warning';
-      case StatutVol.RETARDE.toString():
-        return 'warning';
-      default:
-        return 'secondary';
+        if (!statut) return 'secondary';
+
+        switch (statut.toString()) {
+            case StatutVol.CONFIRME.toString():
+                return 'primary';
+            case StatutVol.EFFECTUE.toString():
+                return 'success';
+            case StatutVol.ANNULE.toString():
+                return 'danger';
+            case StatutVol.PROGRAMME.toString():
+                console.log('=== PROGRAMME ===');
+                return 'warning';
+            case StatutVol.RETARDE.toString():
+                return 'warning';
+            default:
+                return 'secondary';
+        }
     }
-  }
 
     cancel(): void {
         this.volFormGroup.reset();

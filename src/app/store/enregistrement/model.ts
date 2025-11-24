@@ -63,7 +63,8 @@ export  enum MotifVoyage {
 
 export enum TypeDocument {
     
-    PASSEPORT, CNI, PERMIS_CONDUIRE
+    PASSEPORT, CNI
+    //PERMIS_CONDUIRE
     
 }
 

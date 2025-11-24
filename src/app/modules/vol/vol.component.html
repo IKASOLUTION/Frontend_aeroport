@@ -2,7 +2,7 @@
     <div class="col-12 md:col-12">
         <p-table #dt styleClass="p-datatable-gridlines p-datatable-sm p-datatable" [value]="vols" [columns]="cols"
             [rows]="5" [paginator]="true" [rowsPerPageOptions]="[5, 10, 20, 30]" [showCurrentPageReport]="true"
-            [globalFilterFields]="['numero', 'villeNomD', 'villeNomA', 'compagnie.nomCompagine', 'statut']"
+            [globalFilterFields]="['numero', 'villeNomD', 'villeNomA','typeVol', 'compagnie.nomCompagine', 'statut']"
             currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
             [(selection)]="selectedVol" selectionMode="single" [rowHover]="true" dataKey="id" [loading]="loading">
 
@@ -74,17 +74,17 @@
                             {{ vol.aeroport?.nomAeroport }}
 
                         </span>
-                         <span *ngIf="vol.typeVol != 'ARRIVEE'">
+                        <span *ngIf="vol.typeVol != 'ARRIVEE'">
                             {{ vol.nomAgentConnecteAeroport }}
 
                         </span>
-                        
+
                         <i class="fa-solid fa-arrow-right pi pi-arrow-right mr-2 mx-1 text-gray-400"></i>
                         <span *ngIf="vol.typeVol == 'ARRIVEE'">
                             {{ vol.nomAgentConnecteAeroport }}
 
                         </span>
-                         <span *ngIf="vol.typeVol != 'ARRIVEE'">
+                        <span *ngIf="vol.typeVol != 'ARRIVEE'">
                             {{ vol.aeroport?.nomAeroport }}
 
                         </span>
@@ -227,7 +227,7 @@
                                 </div>
                             </div>
 
-                           
+
                         </div>
                     </p-fieldset>
                 </div>
@@ -325,7 +325,7 @@
                                 </div>
                             </div>
 
-                             <!-- Statut -->
+                            <!-- Statut -->
                             <div class="col-12">
                                 <div class="field">
                                     <label for="statut">
@@ -372,7 +372,7 @@
                     <label for="dateDebut" class="block mb-2 font-semibold">
                         Date de début <span class="text-red-500">*</span>
                     </label>
-                    <p-calendar id="dateDebut" formControlName="dateDebut" dateFormat="dd/mm/yy" [showIcon]="true"
+                    <p-calendar id="dateDebut" formControlName="dateDebut" appendTo="body" dateFormat="dd/mm/yy" [showIcon]="true"
                         placeholder="Sélectionner une date" [maxDate]="filterFormGroup.get('dateFin')?.value">
                     </p-calendar>
                     <small class="text-red-500"
@@ -386,7 +386,7 @@
                     <label for="dateFin" class="block mb-2 font-semibold">
                         Date de fin <span class="text-red-500">*</span>
                     </label>
-                    <p-calendar id="dateFin" formControlName="dateFin" dateFormat="dd/mm/yy" [showIcon]="true"
+                    <p-calendar id="dateFin" formControlName="dateFin" appendTo="body" dateFormat="dd/mm/yy" [showIcon]="true"
                         placeholder="Sélectionner une date" [minDate]="filterFormGroup.get('dateDebut')?.value">
                     </p-calendar>
                     <small class="text-red-500"
@@ -501,6 +501,13 @@
                 <i class="pi pi-calendar-plus mr-2"></i>Date d'arrivée:
             </span>
             {{ selectedVol.dateArrivee | date: 'dd/MM/yyyy HH:mm' || 'N/A' }}
+        </div>
+
+        <div class="field col-12 md:col-6">
+            <span class="font-bold">
+                <i class="pi pi-clock mr-2"></i>Durée du vol:
+            </span>
+            {{ getDureeVol() }}
         </div>
 
         <!-- Statut -->
