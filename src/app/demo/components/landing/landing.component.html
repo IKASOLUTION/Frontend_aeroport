@@ -1,308 +1,269 @@
 <div class="surface-ground">
+    <!-- Navigation -->
     <div style="height: 68px; backdrop-filter: blur(17px);"
         class="flex justify-content-between align-items-center z-3 px-5 bg-black-alpha-40 top-0 w-full fixed">
         <div>
-            <img draggable="false" src="assets/layout/images/logo.png" alt="">
+            <a href="/" class="text-3xl font-bold text-white no-underline">NEYWAONGO</a>
         </div>
   
-        <a pRipple class="cursor-pointer block lg:hidden text-white" pStyleClass="@next" enterFromClass="hidden" leaveToClass="hidden" [hideOnOutsideClick]="true">
+        <a pRipple class="cursor-pointer block lg:hidden text-white" pStyleClass="@next" enterFromClass="hidden" 
+           leaveToClass="hidden" [hideOnOutsideClick]="true">
             <i class="pi pi-bars text-4xl"></i>
         </a>
         
-        <div id="menu" class="align-items-center flex-grow-1 hidden lg:flex absolute lg:static w-full lg:px-0 z-3 shadow-2 lg:shadow-none fadein" style="top:68px; right: 0%;">
+        <div id="menu" class="align-items-center flex-grow-1 hidden lg:flex absolute lg:static w-full lg:px-0 z-3 shadow-2 lg:shadow-none" 
+             style="top:68px; right: 0%;">
             <ul class="list-none p-3 lg:p-0 m-0 ml-auto flex lg:align-items-center select-none flex-column lg:flex-row cursor-pointer surface-0 lg:bg-transparent">
                 <li>
-                    <a class="flex m-0 md:ml-5 px-0 py-3 text-900 line-height-3" pStyleClass="#menu" enterFromClass="hidden" leaveToClass="hidden">
-                        <span>HOME</span>
+                    <a class="flex m-0 md:ml-5 px-0 py-3 text-white line-height-3 no-underline hover:text-green-300" 
+                       (click)="scrollToElement(accueil)" pStyleClass="#menu" enterFromClass="hidden" leaveToClass="hidden">
+                        <span>Accueil</span>
                     </a>
                 </li>
                 <li>
-                    <a class="flex m-0 md:ml-5 px-0 py-3 text-900 line-height-3" (click)="scrollToElement(features)" pStyleClass="#menu" enterFromClass="hidden" leaveToClass="hidden">
-                        <span>FEATURES</span>
+                    <a class="flex m-0 md:ml-5 px-0 py-3 text-white line-height-3 no-underline hover:text-green-300" 
+                       (click)="scrollToElement(procedure)" pStyleClass="#menu" enterFromClass="hidden" leaveToClass="hidden">
+                        <span>Procédure</span>
                     </a>
                 </li>
                 <li>
-                    <a class="flex m-0 md:ml-5 px-0 py-3 text-900 line-height-3" (click)="scrollToElement(collaboration)" pStyleClass="#menu" enterFromClass="hidden" leaveToClass="hidden">
-                        <span>COLLABORATION</span>
+                    <a class="flex m-0 md:ml-5 px-0 py-3 text-white line-height-3 no-underline hover:text-green-300" 
+                       (click)="scrollToElement(conditions)" pStyleClass="#menu" enterFromClass="hidden" leaveToClass="hidden">
+                        <span>Conditions</span>
                     </a>
                 </li>
                 <li>
-                    <a class="flex m-0 md:ml-5 px-0 py-3 text-900 line-height-3" (click)="scrollToElement(events)" pStyleClass="#menu" enterFromClass="hidden" leaveToClass="hidden">
-                        <span>EVENTS</span>
+                    <a class="flex m-0 md:ml-5 px-0 py-3 text-white line-height-3 no-underline hover:text-green-300" 
+                       (click)="scrollToElement(compagnies)" pStyleClass="#menu" enterFromClass="hidden" leaveToClass="hidden">
+                        <span>Compagnies</span>
                     </a>
                 </li>
                 <li>
-                    <a class="flex m-0 md:ml-5 px-0 py-3 text-900 line-height-3" (click)="scrollToElement(video)" pStyleClass="#menu" enterFromClass="hidden" leaveToClass="hidden">
-                        <span>VIDEO</span>
+                    <a class="flex m-0 md:ml-5 px-0 py-3 text-white line-height-3 no-underline hover:text-green-300" 
+                       (click)="scrollToElement(faq)" pStyleClass="#menu" enterFromClass="hidden" leaveToClass="hidden">
+                        <span>FAQ</span>
                     </a>
                 </li>
                 <li>
-                    <button pButton pRipple type="button" label="LET'S TRY" class="surface-900 text-0 m-0 mt-3 md:mt-0 md:ml-5" pStyleClass="#menu" enterFromClass="hidden" leaveToClass="hidden"></button>
+                    <button pButton pRipple type="button" label="Connexion" icon="pi pi-user" 
+                            class="p-button-rounded bg-green-600 border-none m-0 mt-3 md:mt-0 md:ml-5" 
+                            pStyleClass="#menu" enterFromClass="hidden" leaveToClass="hidden"></button>
                 </li>
             </ul>
         </div>
     </div>
-    <div  class="h-screen">
-        <div  style="perspective: 101px;"
-            class="h-screen overflow-x-hidden overflow-y-auto absolute top-0 left-0 right-0 bottom-0">
-            <div   class="hidden lg:block absolute top-0 right-0 bottom-0 left-0  parallax__layer__0">
-                <img draggable="false" src="assets/layout/images/landing/layer-0-opt.jpg"
-                    class="w-full h-full block absolute bottom-0" />
-            </div>
-            <div  class="hidden lg:block absolute top-0 right-0 bottom-0 left-0  parallax__layer__1">
-                <img draggable="false" src="assets/layout/images/landing/layer-1-opt.png"
-                    class="w-full block absolute bottom-0" />
-            </div>
 
-            <div class="hidden lg:flex absolute right-0 bottom-0 left-0 parallax__layer__3 justify-content-center"
-                style="top:27%">
-                <div>
-                    <h1 class="m-0 -mb-4 text-4xl text-white">LET'S</h1>
-                    <h1 class="m-0 text-white" style="font-size: 15rem">EXPLORE</h1>
-                    <div class="flex -mt-4 justify-content-end">
-                        <h1 class="m-0 text-white text-4xl">TO ULTIMA</h1>
+    <!-- Hero Section -->
+    <div #accueil class="hero-gradient" style="height: 100vh; position: relative; overflow: hidden;">
+        <div class="flex justify-content-center align-items-center h-full relative z-2 px-4">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-6xl font-bold text-white mb-4">
+                    NEYWAONGO <span class="text-yellow-300">au Burkina Faso</span>
+                </h1>
+                <p class="text-xl md:text-2xl text-white mb-6 max-w-4xl mx-auto">
+                    Accélérez votre processus d'enregistrement à l'aéroport du Burkina Faso avec notre plateforme de pré-enregistrement en ligne
+                </p>
+                <div class="flex flex-column sm:flex-row justify-content-center gap-3">
+                    <button pButton pRipple label="Commencer maintenant" icon="pi pi-arrow-right" 
+                            class="p-button-lg bg-white text-green-700 border-none font-bold" 
+                            (click)="scrollToElement(services)"></button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Decorative elements -->
+        <div class="absolute" style="top: 25%; left: 25%; width: 16rem; height: 16rem; background: white; 
+             border-radius: 50%; filter: blur(80px); opacity: 0.1; animation: pulse 3s ease-in-out infinite;"></div>
+        <div class="absolute" style="bottom: 33%; right: 25%; width: 12rem; height: 12rem; background: #fcd34d; 
+             border-radius: 50%; filter: blur(80px); opacity: 0.1; animation: pulse 3s ease-in-out infinite; animation-delay: 1s;"></div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="bg-black" style="position: relative;">
+        
+        <!-- Services Section -->
+        <div #services class="py-8 px-4" style="max-width: 1200px; margin: 0 auto;">
+            <div class="text-center mb-6">
+                <div class="surface-500 text-white text-sm p-2 border-round-lg inline-block mb-3">SERVICES</div>
+                <h2 class="text-white text-3xl md:text-4xl font-bold mb-4">Services NEYWAONGO</h2>
+                <p class="text-white-alpha-80 text-xl">Simplifiez votre voyage en vous pré-enregistrant avec NEYWAONGO</p>
+            </div>
+            
+            <div class="grid mt-6">
+                <div *ngFor="let service of servicesList " class="col-12 md:col-6">
+                    <div class="card-hover surface-card border-round-2xl p-6 h-full">
+                        <div class="flex align-items-center justify-content-center mb-4" 
+                             [ngClass]="service.buttonClass" 
+                             style="width: 4rem; height: 4rem; border-radius: 50%;">
+                            <i [class]="service.icon + ' text-3xl text-white'"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3">{{service.title}}</h3>
+                        <p class="text-600 mb-4 text-lg">{{service.description}}</p>
+                        <button pButton pRipple [label]="service.buttonText" icon="pi pi-arrow-right" 
+                                iconPos="right" [ngClass]="service.buttonClass" 
+                                class="border-none font-bold"></button>
                     </div>
                 </div>
             </div>
-            <div class="hidden lg:block absolute top-0 right-0 bottom-0 left-0  parallax__layer__2">
-                <img draggable="false" src="assets/layout/images/landing/layer-2-opt.png" class="w-full block absolute bottom-0" />
-            </div>
+        </div>
 
-            <div class="absolute flex justify-content-center align-items-center w-full h-full parallax__layer__3" style="top:112px;">
-                    <button pButton label="GET STARTED"
-                    (click)="scrollBehavior(parallax_body)"
-                    style="backdrop-filter:blur(7px)"
-                    class="p-button-text text-900 bg-white-alpha-20 text-lg px-5 py-3 font-semibold hover:bg-white hover:text-0 border-round-xl border-white-alpha-30 border-1"></button>
+        <!-- Procedure Section -->
+        <div #procedure class="py-8 px-4" style="max-width: 1200px; margin: 0 auto;">
+            <div class="text-center mb-6">
+                <div class="surface-500 text-white text-sm p-2 border-round-lg inline-block mb-3">PROCÉDURE</div>
+                <h2 class="text-white text-3xl md:text-4xl font-bold mb-4">Procédure de Pré-enregistrement</h2>
+                <p class="text-white-alpha-80 text-xl">Suivez ces étapes simples pour un voyage sans stress</p>
             </div>
-
-            <div class="block lg:hidden h-28rem bg-center bg-no-repeat bg-cover"
-                style="top: 68px; background:url(assets/layout/images/landing/landing-hero-image.jpg)">
-                <div class="flex justify-content-center align-items-center h-full">
-                    <div class="flex flex-column">
-                        <h1 class="m-0 text-base text-white">LET'S</h1>
-                        <h1 class="m-0 text-white">EXPLORE</h1>
-                        <div class="flex justify-content-end">
-                            <h1 class="m-0 text-white text-sm">TO ULTIMA</h1>
+            
+            <div class="grid mt-6">
+                <div *ngFor="let proc of procedures" class="col-12 md:col-6 lg:col-3">
+                    <div class="procedure-card surface-card border-round-2xl p-5 text-center h-full border-1 border-transparent">
+                        <div class="flex align-items-center justify-content-center mx-auto mb-4" 
+                             [ngClass]="proc.colorClass" 
+                             style="width: 5rem; height: 5rem; border-radius: 50%; border: 4px solid white; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
+                            <span class="text-white text-4xl font-bold">{{proc.number}}</span>
                         </div>
-                        <div class="flex justify-content-center mt-2">
-                            <button pButton label="GET STARTED" (click)="scrollBehavior(parallax_body)" style="backdrop-filter:blur(7px)" class="p-button-text text-900 text-xs bg-white-alpha-20 font-semibold hover:bg-white hover:text-0 border-white-alpha-30 border-1"></button>
+                        <h3 class="text-xl font-bold mb-3">{{proc.title}}</h3>
+                        <p class="text-600">{{proc.description}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conditions Section -->
+        <div #conditions class="py-8 px-4" style="max-width: 1200px; margin: 0 auto;">
+            <div class="text-center mb-6">
+                <div class="surface-500 text-white text-sm p-2 border-round-lg inline-block mb-3">CONDITIONS</div>
+                <h2 class="text-white text-3xl md:text-4xl font-bold mb-4">Conditions de Voyage</h2>
+                <p class="text-white-alpha-80 text-xl">Tout ce que vous devez savoir avant votre voyage</p>
+            </div>
+            
+            <div class="grid mt-6">
+                <div *ngFor="let condition of conditionsList" class="col-12 lg:col-4">
+                    <div class="card-hover surface-card border-round-2xl p-6 h-full">
+                        <div class="flex align-items-center justify-content-center mb-4" 
+                             [ngClass]="condition.colorClass" 
+                             style="width: 3.5rem; height: 3.5rem; border-radius: 50%;">
+                            <i [class]="condition.icon + ' text-xl text-white'"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4">{{condition.title}}</h3>
+                        <ul class="list-none p-0 m-0">
+                            <li *ngFor="let item of condition.items" class="flex align-items-start mb-3">
+                                <i class="pi pi-check-circle text-green-600 mr-3 mt-1"></i>
+                                <span class="text-600">{{item}}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Airlines Section -->
+        <div #compagnies class="py-8 px-4" style="max-width: 1200px; margin: 0 auto;">
+            <div class="text-center mb-6">
+                <div class="surface-500 text-white text-sm p-2 border-round-lg inline-block mb-3">COMPAGNIES</div>
+                <h2 class="text-white text-3xl md:text-4xl font-bold mb-4">Compagnies Aériennes</h2>
+                <p class="text-white-alpha-80 text-xl">Les compagnies aériennes desservant le Burkina Faso</p>
+            </div>
+            
+            <div class="grid mt-6">
+                <div *ngFor="let airline of airlines" class="col-6 sm:col-4 md:col-3 lg:col-2">
+                    <div class="card-hover surface-card border-round-2xl p-4 text-center h-full">
+                        <div class="flex align-items-center justify-content-center mx-auto mb-3" 
+                             [ngClass]="airline.colorClass" 
+                             style="width: 4rem; height: 4rem; border-radius: 50%;">
+                            <i class="pi pi-send text-xl text-white"></i>
+                        </div>
+                        <p class="font-medium text-sm m-0">{{airline.name}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div #faq class="py-8 px-4" style="max-width: 1000px; margin: 0 auto;">
+            <div class="text-center mb-6">
+                <div class="surface-500 text-white text-sm p-2 border-round-lg inline-block mb-3">FAQ</div>
+                <h2 class="text-white text-3xl md:text-4xl font-bold mb-4">Questions Fréquentes</h2>
+                <p class="text-white-alpha-80 text-xl">Trouvez les réponses à vos questions</p>
+            </div>
+            
+            <div class="mt-6">
+                <div *ngFor="let faq of faqs; let i = index" class="faq-item surface-card border-round-2xl mb-3 overflow-hidden">
+                    <button (click)="toggleFAQ(i)" 
+                            class="flex justify-content-between align-items-center w-full p-5 text-left cursor-pointer bg-transparent border-none hover:surface-hover">
+                        <span class="text-lg font-medium">{{faq.question}}</span>
+                        <i [class]="faq.expanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'" 
+                           class="text-green-600 text-lg"></i>
+                    </button>
+                    <div *ngIf="faq.expanded" class="px-5 pb-5 pt-2 text-600 line-height-3">
+                        {{faq.answer}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Newsletter Section -->
+        <div class="py-8 px-4" style="max-width: 1200px; margin: 0 auto;">
+            <div class="p-5 border-round-2xl" 
+                 style="background: linear-gradient(110.43deg, #059669 0.04%, #10b981 100.11%);">
+                <div class="grid align-items-center">
+                    <div class="col-12 lg:col-8">
+                        <h3 class="text-white font-bold text-2xl mb-2">NEWSLETTER</h3>
+                        <p class="text-white m-0">Inscrivez-vous à notre newsletter pour rester informé des dernières fonctionnalités et mises à jour.</p>
+                    </div>
+                    <div class="col-12 lg:col-4">
+                        <div class="flex gap-2">
+                            <input pInputText placeholder="Email Address" 
+                                   class="w-full bg-white-alpha-20 border-white text-white border-round-md" />
+                            <button pButton pRipple label="REJOINDRE" 
+                                    class="bg-white text-green-700 border-none font-bold border-round-md"></button>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div #parallax_body class="lg:top-100 block absolute left-0 right-0 h-full z-2">
-                <div>
-                    <div class="grid grid-nogutter p-2 lg:p-5" style="background-color: #000;">
-                        <div class="col-6 lg:col-3 flex align-items-center justify-content-center gap-3">
-                            <img draggable="false" src="assets/layout/images/landing/landing-logo1.png" alt="">
+        <!-- Footer -->
+        <div class="px-4 pb-6" style="max-width: 1200px; margin: 0 auto;">
+            <div class="grid">
+                <div class="col-12 lg:col-3">
+                    <div class="text-white">
+                        <h4 class="text-sm text-500 font-medium mb-3">CONTACT</h4>
+                        <div class="flex gap-4 mb-4">
+                            <a href="#"><i class="pi pi-github text-white text-2xl"></i></a>
+                            <a href="#"><i class="pi pi-twitter text-white text-2xl"></i></a>
+                            <a href="#"><i class="pi pi-facebook text-white text-2xl"></i></a>
                         </div>
-                        <div class="col-6 lg:col-3 flex align-items-center justify-content-center gap-3">
-                            <img draggable="false" src="assets/layout/images/landing/landing-logo2.png" alt="">
-                        </div>
-                        <div class="col-6 lg:col-3 flex align-items-center justify-content-center gap-3">
-                            <img draggable="false" src="assets/layout/images/landing/landing-logo3.png" alt="">
-                        </div>
-                        <div class="col-6 lg:col-3 flex align-items-center justify-content-center gap-3">
-                            <img draggable="false" src="assets/layout/images/landing/landing-logo4.png" alt="">
-                        </div>
+                        <p class="text-sm mb-3">+226 00 00 00 00<br>Aéroport International de Ouagadougou</p>
+                        <span class="text-sm">©Copyright 2025 NEYWAONGO</span>
                     </div>
                 </div>
-                <div class="pt-5" style="background-color: #000;">
-                    <div #features class="flex flex-column align-items-center gap-3">
-                        <div class="surface-500 text-white text-sm p-2 border-round-lg">FEATURES</div>
-                        <span class="text-white text-2xl uppercase">All you need is the Ultima.</span>
-                        <h1 class="m-0 text-6xl"
-                            style="background: linear-gradient(110.43deg, #868CD0 0.04%, #FF5759 100.11%); background-clip: text; -webkit-background-clip: text; color: transparent;">
-                            ULTIMA</h1>
+                <div class="col-12 lg:col-3">
+                    <div class="text-white">
+                        <h4 class="text-sm text-500 font-medium mb-3">À PROPOS</h4>
+                        <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">Nos Valeurs</a>
+                        <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">Notre Équipe</a>
+                        <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">Notre Histoire</a>
+                        <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">Carrières</a>
                     </div>
-                    <div class="flex flex-column align-items-center">
-                        <div class="grid pt-6 p-4" style="max-width:1200px">
-                            <div class="col-6 lg:col-4">
-                                <div onmouseenter="this.style.background='linear-gradient(110.43deg, rgba(134,140,208,.5) 0.04%, rgba(255,87,89,.5) 100.11%)'"
-                                    onmouseleave="this.style.background='unset'"
-                                    class="flex justify-content-center flex-column gap-3 border-1 border-50 border-round-2xl p-5 cursor-pointer h-full">
-                                    <i class="pi pi-palette text-4xl text-white"></i>
-                                    <span class="font-semibold text-white">Creative Design</span>
-                                    <span class="text-white">Unleash your brand's full potential with our creative design services.</span>
-                                    <span class="text-primary-300 font-medium flex align-items-center">Learn more <i class="pi pi-arrow-right ml-2"></i></span>
-                                </div>
-                            </div>
-                            <div class="col-6 lg:col-4">
-                                <div onmouseenter="this.style.background='linear-gradient(110.43deg, rgba(134,140,208,.5) 0.04%, rgba(255,87,89,.5) 100.11%)'"
-                                    onmouseleave="this.style.background='unset'"
-                                    class="flex justify-content-center flex-column gap-3 border-1 border-50 border-round-2xl p-5 cursor-pointer h-full">
-                                    <i class="pi pi-mobile text-4xl text-white"></i>
-                                    <span class="font-semibold text-white">Responsive Design</span>
-                                    <span class="text-white">Make sure your website looks great and functions seamlessly on any device with responsive design.</span>
-                                    <span class="text-primary-300 font-medium flex align-items-center">Learn more <i class="pi pi-arrow-right ml-2"></i></span>
-                                </div>
-                            </div>
-                            <div class="col-6 lg:col-4">
-                                <div onmouseenter="this.style.background='linear-gradient(110.43deg, rgba(134,140,208,.5) 0.04%, rgba(255,87,89,.5) 100.11%)'"
-                                    onmouseleave="this.style.background='unset'"
-                                    class="flex justify-content-center flex-column gap-3 border-1 border-50 border-round-2xl p-5 cursor-pointer h-full">
-                                    <i class="pi pi-sync text-4xl text-white"></i>
-                                    <span class="font-semibold text-white">Cross Browser Support</span>
-                                    <span class="text-white">Don't let browser compatibility hold you back. Our cross browser support ensures your website works perfectly on all browsers.</span>
-                                    <span class="text-primary-300 font-medium flex align-items-center">Learn more <i class="pi pi-arrow-right ml-2"></i></span>
-                                </div>
-                            </div>
-                            <div class="col-6 lg:col-4">
-                                <div onmouseenter="this.style.background='linear-gradient(110.43deg, rgba(134,140,208,.5) 0.04%, rgba(255,87,89,.5) 100.11%)'"
-                                    onmouseleave="this.style.background='unset'"
-                                    class="flex justify-content-center flex-column gap-3 border-1 border-50 border-round-2xl p-5 cursor-pointer h-full">
-                                    <i class="pi pi-th-large text-4xl text-white"></i>
-                                    <span class="font-semibold text-white">Well Organized</span>
-                                    <span class="text-white">Our well-organized approach guarantees a smooth design process from start to finish.</span>
-                                    <span class="text-primary-300 font-medium flex align-items-center">Learn more <i class="pi pi-arrow-right ml-2"></i></span>
-                                </div>
-                            </div>
-                            <div class="col-6 lg:col-4">
-                                <div onmouseenter="this.style.background='linear-gradient(110.43deg, rgba(134,140,208,.5) 0.04%, rgba(255,87,89,.5) 100.11%)'"
-                                    onmouseleave="this.style.background='unset'"
-                                    class="flex justify-content-center flex-column gap-3 border-1 border-50 border-round-2xl text-white p-5 cursor-pointer h-full">
-                                    <i class="pi pi-code text-4xl text-white"></i>
-                                    <span class="font-semibold text-white">Easy to Product</span>
-                                    <span class="text-white">We make product creation easy with straightforward and intuitive processes.</span>
-                                    <span class="text-primary-300 font-medium flex align-items-center">Learn more <i class="pi pi-arrow-right ml-2"></i></span>
-                                </div>
-                            </div>
-                            <div class="col-6 lg:col-4">
-                                <div onmouseenter="this.style.background='linear-gradient(110.43deg, rgba(134,140,208,.5) 0.04%, rgba(255,87,89,.5) 100.11%)'"
-                                    onmouseleave="this.style.background='unset'"
-                                    class="flex justify-content-center flex-column gap-3 border-1 border-50 border-round-2xl text-white p-5 cursor-pointer h-full">
-                                    <i class="pi pi-box text-4xl"></i>
-                                    <span class="font-semibold">Top Notch Quality</span>
-                                    <span>Expect top notch quality in all of our work, delivering exceptional results every time.</span>
-                                    <span class="text-primary-300 font-medium flex align-items-center">Learn more <i class="pi pi-arrow-right ml-2"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div #collaboration style="max-width: 1200px;"
-                            class="flex flex-column lg:flex-row gap-8 mt-6 py-6 px-4 w-full">
-                            <div class="flex flex-column align-items-end justify-content-center">
-                                <div class="surface-50 text-white text-sm p-2 border-round-lg mb-4">PLAY AS A TEAM
-                                </div>
-                                <div>
-                                    <h1 class="m-0 text-6xl font-bold text-right"
-                                        style="background: linear-gradient(110.43deg, #868CD0 0.04%, #FF5759 100.11%); background-clip: text; -webkit-background-clip: text; color: transparent;">
-                                        COLLABORATION</h1>
-                                    <p class="text-white text-right mt-3">The Earth is a very small stage in a vast cosmic arena. Think
-                                        of
-                                        the
-                                        rivers of blood
-                                        spilled by all those generals and emperors so that, in glory and triumph, they
-                                        could become
-                                        the momentary masters of a fraction of a dot.</p>
-                                </div>
-                            </div>
-                            <img draggable="false" src="assets/layout/images/landing/collaboration-image.png" alt="">
-                        </div>
-                        <div #events style="max-width: 1200px;"
-                            class="flex flex-column lg:flex-row gap-8 mt-6 py-6 px-4 w-full">
-                            <img draggable="false" src="assets/layout/images/landing/easyfollow-image.png" alt="">
-                            <div class="flex flex-column align-items-start justify-content-center">
-                                <div class="surface-50 text-white text-sm p-2 border-round-lg mb-4">EVENTS</div>
-                                <div>
-                                    <h1 class="m-0 text-6xl font-bold"
-                                        style="background: linear-gradient(110.43deg, #868CD0 0.04%, #FF5759 100.11%); background-clip: text; -webkit-background-clip: text; color: transparent;">
-                                        EASY FOLLOW</h1>
-                                    <p class="text-white mt-2">It has been said that astronomy is a humbling and
-                                        character-building experience. There is perhaps no better demonstration of the
-                                        folly of
-                                        human conceits than this distant image of our tiny world.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div #video style="max-width: 1200px;"
-                            class="flex gap-4 mt-6 py-6 flex-column align-items-center w-full">
-                            <div class="surface-50 text-white text-sm p-2 border-round-lg">VIDEO</div>
-                            <h1 class="m-0 text-6xl font-bold"
-                                style="background: linear-gradient(110.43deg, #868CD0 0.04%, #FF5759 100.11%); background-clip: text; -webkit-background-clip: text; color: transparent;">
-                                SHOWREELS</h1>
-                            <div class="mt-3 relative">
-                                <iframe class="border-none border-round-lg z-3 max-w-full" width="600" height="400"
-                                    src="https://www.youtube.com/embed/tgbNymZ7vqY">
-                                </iframe>
-                                <div class="absolute z-0" style="top:-50px; left:-50px;"><img draggable="false"
-                                        class="opacity-40" src="assets/layout/images/landing/landing-ellipse.png"
-                                        alt=""></div>
-                                <div class="absolute z-0" style="bottom:-50px; right:-50px; filter: blur(4px);"><img
-                                        draggable="false" class="opacity-40"
-                                        src="assets/layout/images/landing/landing-ellipse2.png" alt=""></div>
-                                <div class="absolute z-0" style="bottom:-50px; right:10px; filter: blur(4px);"><img
-                                        draggable="false" class="opacity-40"
-                                        src="assets/layout/images/landing/landing-ellipse2.png" alt=""></div>
-                            </div>
-                        </div>
-                        <div class="py-6 px-4 mt-6 w-full flex justify-content-center">
-                            <div class="p-5 flex flex-column gap-3 align-items-start justify-content-between lg:flex-row lg:align-items-center border-round-2xl w-full"
-                                style="background: linear-gradient(110.43deg, #868CD0 0.04%, #FF5759 100.11%); max-width: 1200px;">
-                                <div class="flex flex-column gap-2">
-                                    <h1 class="m-0 text-white font-bold text-2xl">NEWSLETTER</h1>
-                                    <p class="m-0 text-white">Sign up for our newsletter and stay up-to-date on the latest features and updates for our platform.</p>
-                                </div>
-                                <div class="flex align-items-center gap-2">
-                                    <input pInputText placeholder="Email Address" class="bg-transparent border-white border-round-md">
-                                    <button pButton class="p-button-text text-white border-1 border-white border-round-md h-full" label="JOIN"></button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="w-full px-4" style="max-width: 1200px">
-                            <div class="grid gap-3 lg:gap-0 lg:grid-nogutter pb-6">
-                                <div class="col-12 lg:col-3">
-                                    <div class="w-full text-white flex flex-column gap-3">
-                                        <h1 class="m-0 font-medium text-sm text-500">CONTACT US</h1>
-                                        <div class="flex gap-5">
-                                            <a href="#"><i class="pi pi-github text-white text-2xl"></i></a>
-                                            <a href="#"><i class="pi pi-twitter text-white text-2xl"></i></a>
-                                            <a href="#"><i class="pi pi-linkedin text-white text-2xl"></i></a>
-                                        </div>
-                                        <p class="m-0 text-base lg:text-sm">
-                                            (415) 931-1624 794
-                                            Mcallister <br> St San Francisco, 94102
-                                        </p>
-                                        <span class="text-base lg:text-sm">©Copyright 202X</span>
-                                    </div>
-                                </div>
-                                <div class="col-12 lg:col-3">
-                                    <div class="w-full text-white flex flex-column gap-3">
-                                        <h1 class="m-0 font-medium text-sm text-500">ABOUT US</h1>
-                                        <a href="#"><span class="text-base lg:text-sm block text-white">Our
-                                                Values</span></a>
-                                        <a href="#"><span class="text-base lg:text-sm block text-white">Our
-                                                Team</span></a>
-                                        <a href="#"><span class="text-base lg:text-sm block text-white">Our
-                                                History</span></a>
-                                        <a href="#"><span class="text-base lg:text-sm block text-white">Career & Join
-                                                Us</span></a>
-                                    </div>
-                                </div>
-                                <div class="col-12 lg:col-3">
-                                    <div class="w-full text-white flex flex-column gap-3">
-                                        <h1 class="m-0 font-medium text-sm text-500">SITE MAP</h1>
-                                        <a href="#"><span
-                                                class="text-base lg:text-sm block text-white">Dashboard</span></a>
-                                        <a href="#"><span class="text-base lg:text-sm block text-white">CRUD</span></a>
-                                        <a href="#"><span
-                                                class="text-base lg:text-sm block text-white">Invoice</span></a>
-                                        <a href="#"><span class="text-base lg:text-sm block text-white">Help </span></a>
-                                    </div>
-                                </div>
-                                <div class="col-12 lg:col-3">
-                                    <div class="w-full text-white flex flex-column gap-3">
-                                        <h1 class="m-0 font-medium text-sm text-500">CALENDAR</h1>
-                                        <a href="#"><span
-                                                class="text-base lg:text-sm block text-white">Widgets</span></a>
-                                        <a href="#"><span
-                                                class="text-base lg:text-sm block text-white">Documentation</span></a>
-                                        <a href="#"><span class="text-base lg:text-sm block text-white">Buy
-                                                Now</span></a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                </div>
+                <div class="col-12 lg:col-3">
+                    <div class="text-white">
+                        <h4 class="text-sm text-500 font-medium mb-3">SERVICES</h4>
+                        <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">Pré-enregistrement</a>
+                        <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">Vérification</a>
+                        <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">Support</a>
+                        <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">FAQ</a>
+                    </div>
+                </div>
+                <div class="col-12 lg:col-3">
+                    <div class="text-white">
+                        <h4 class="text-sm text-500 font-medium mb-3">LIENS RAPIDES</h4>
+                        <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">Accueil</a>
+                        <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">Documentation</a>
+                        <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">Conditions</a>
+                        <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">Confidentialité</a>
                     </div>
                 </div>
             </div>
