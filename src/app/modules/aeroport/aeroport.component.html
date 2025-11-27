@@ -45,7 +45,7 @@
                     <th style="font-weight: bold;">Nom de l'aéroport
                         <p-columnFilter type="text" display="menu" field="nomAeroport"></p-columnFilter>
                     </th>
-                    <th style="font-weight: bold;">Ville
+                    <th style="font-weight: bold;">Localité
                         <p-columnFilter type="text" display="menu" field="ville.nom"></p-columnFilter>
                     </th>
                     <th style="font-weight: bold;">Pays
@@ -89,13 +89,7 @@
                                 (click)="confirmChangeStatus(aeroport)">
                         </button>
 
-                        <button pButton 
-                                icon="pi pi-trash" 
-                                class="p-button-rounded p-button-danger" 
-                                pTooltip="Supprimer" 
-                                tooltipPosition="top"
-                                (click)="deleteAeroport(aeroport)">
-                        </button>
+                     
                     </td>
                 </tr>
             </ng-template>
@@ -170,25 +164,30 @@
                             </div>
 
                             <!-- Type d'aéroport -->
-                            <div class="col-12 md:col-6">
+                             <div class="col-12 md:col-6">
                                 <div class="field">
                                     <label for="typeAeroport">
-                                        Type d'aéroport 
+                                        Statut 
                                         <span class="required" style="color: red !important;">*</span>
                                     </label>
-                                    <input id="typeAeroport"
-                                           type="text"
-                                           pInputText
-                                           formControlName="typeAeroport"
-                                           placeholder="Ex: International"
-                                           [class.ng-invalid]="aeroportFormGroup.get('typeAeroport')?.invalid && aeroportFormGroup.get('typeAeroport')?.touched"/>
+                                    <p-dropdown id="typeAeroport"
+                                                [options]="[
+                                                    {label: 'International', value: 'INTERNATIONAL'},
+                                                    {label: 'National', value: 'NATIONAL'}
+                                                ]"
+                                                formControlName="typeAeroport"
+                                                optionLabel="label"
+                                                optionValue="value"
+                                                placeholder="Sélectionnez un type"
+                                                [style]="{'width': '100%'}"
+                                                [class.ng-invalid]="aeroportFormGroup.get('typeAeroport')?.invalid && aeroportFormGroup.get('typeAeroport')?.touched">
+                                    </p-dropdown>
                                     <small class="p-error" 
                                            *ngIf="aeroportFormGroup.get('typeAeroport')?.invalid && aeroportFormGroup.get('typeAeroport')?.touched">
-                                        Le type est requis
+                                        Le Type d'aeroport est requis
                                     </small>
                                 </div>
                             </div>
-
                             <!-- Statut -->
                             <div class="col-12">
                                 <div class="field">
@@ -224,7 +223,7 @@
                             <div class="col-12 md:col-6">
                                 <div class="field">
                                     <label for="ville">
-                                        Ville 
+                                        Localité 
                                         <span class="required" style="color: red !important;">*</span>
                                     </label>
                                     <p-dropdown id="ville"

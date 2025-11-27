@@ -25,6 +25,13 @@ export enum Statut {
        LEVEE= 'LEVEE'
 }
 
+export enum TypeAeroport {
+
+    INTERNATIONAL= 'INTERNATIONAL',
+    NATIONAL = 'NATIONAL',
+    
+}
+
 
 export enum StatutVoyage {
   ACTIF= 'ACTIF',

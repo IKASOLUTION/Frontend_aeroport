@@ -6,45 +6,53 @@ import { GlobalConfig } from "src/app/config/global.config";
 import { Endpoints } from "src/app/config/module.endpoints";
 
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class UserService {
-constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-$getUsers(): Observable<User[]> {
-  
+  $getUsers(): Observable<User[]> {
+
     // @FIXME: get request
-    return this.http.get<User[]>( `${GlobalConfig.getEndpoint(Endpoints.USER)}`).pipe(
+    return this.http.get<User[]>(`${GlobalConfig.getEndpoint(Endpoints.USER)}`).pipe(
       catchError(this.handleError())
     );
-}
+  }
 
-createUser(user: User): Observable<any> {
+  createUser(user: User): Observable<any> {
     // @FIXME: post request
     return this.http.post(`${GlobalConfig.getEndpoint(Endpoints.USER)}`, user);
   }
 
-updateUser(user: User): Observable<any> {
+  updateUser(user: User): Observable<any> {
     // @FIXME: post request
     return this.http.put(`${GlobalConfig.getEndpoint(Endpoints.USER)}/${user.id}`, user);
-}
-deleteAdherent(user: User): Observable<any> {
+  }
+  deleteAdherent(user: User): Observable<any> {
     // @FIXME: post request
     return this.http.patch(`${GlobalConfig.getEndpoint(Endpoints.USER)}/${user.id}`, user);
-}
+  }
 
-activerDesactiver(user: User): Observable<any> {
+  activerDesactiver(user: User): Observable<any> {
     // @FIXME: post request
     return this.http.get(`${GlobalConfig.getEndpoint(Endpoints.USER)}/active-desactive-user/${user.id}`);
-}
+  }
 
-updatePwd(user: User): Observable<any> {
+  updatePwd(user: User): Observable<any> {
     // @FIXME: post request
     return this.http.post(`${GlobalConfig.getEndpoint(Endpoints.USER)}/account/change-password`, user);
   }
 
-private handleError<T>() {
+
+  getUsersCountThisMonth(): Observable<number> {
+    return this.http.get<number>(
+      `${GlobalConfig.getEndpoint(Endpoints.USER)}/count-created-this-month`
+    ).pipe(
+      catchError(this.handleError())
+    );
+  }
+  private handleError<T>() {
     return (error: HttpErrorResponse) => {
-        return throwError(() => error.message || 'Something went wrong');
+      return throwError(() => error.message || 'Something went wrong');
     };
   }
 

@@ -5,13 +5,13 @@
             <div class="flex justify-content-between mb-3">
                 <div>
                     <span class="block text-500 font-medium mb-3">Total Utilisateurs</span>
-                    <div class="text-900 font-medium text-xl">152</div>
+                    <div class="text-900 font-medium text-xl">{{totalUsers}}</div>
                 </div>
                 <div class="flex align-items-center justify-content-center bg-blue-100 border-round" style="width:2.5rem;height:2.5rem">
                     <i class="pi pi-users text-blue-500 text-xl"></i>
                 </div>
             </div>
-            <span class="text-green-500 font-medium">24 nouveaux</span>
+            <span class="text-green-500 font-medium">{{ usersCountThisMonth }} nouveaux</span>
             <span class="text-500"> ce mois</span>
         </div>
     </div>
@@ -21,7 +21,7 @@
             <div class="flex justify-content-between mb-3">
                 <div>
                     <span class="block text-500 font-medium mb-3">Total Vols</span>
-                    <div class="text-900 font-medium text-xl">450</div>
+                    <div class="text-900 font-medium text-xl">{{volsRecentsTotal}}</div>
                 </div>
                 <div class="flex align-items-center justify-content-center bg-orange-100 border-round" style="width:2.5rem;height:2.5rem">
                     <i class="pi pi-send text-orange-500 text-xl"></i>
@@ -37,7 +37,7 @@
             <div class="flex justify-content-between mb-3">
                 <div>
                     <span class="block text-500 font-medium mb-3">Passagers Enregistrés</span>
-                    <div class="text-900 font-medium text-xl">8,240</div>
+                    <div class="text-900 font-medium text-xl">{{totalVoyage}}</div>
                 </div>
                 <div class="flex align-items-center justify-content-center bg-cyan-100 border-round" style="width:2.5rem;height:2.5rem">
                     <i class="pi pi-id-card text-cyan-500 text-xl"></i>
@@ -53,13 +53,13 @@
             <div class="flex justify-content-between mb-3">
                 <div>
                     <span class="block text-500 font-medium mb-3">Liste Noire</span>
-                    <div class="text-900 font-medium text-xl">28</div>
+                    <div class="text-900 font-medium text-xl">{{listeNoireTotal}}</div>
                 </div>
                 <div class="flex align-items-center justify-content-center bg-purple-100 border-round" style="width:2.5rem;height:2.5rem">
                     <i class="pi pi-exclamation-triangle text-purple-500 text-xl"></i>
                 </div>
             </div>
-            <span class="text-red-500 font-medium">3 nouvelles</span>
+            <span class="text-red-500 font-medium">{{notificationsCount}}</span>
             <span class="text-500"> alertes</span>
         </div>
     </div>
@@ -89,32 +89,48 @@
                     <p-menu #menu1 [popup]="true" [model]="[{label: 'Actualiser', icon: 'pi pi-refresh'},{label: 'Exporter', icon: 'pi pi-download'}]"></p-menu>
                 </div>
             </div>
-            <p-table [value]="volsRecents" [rows]="5" [paginator]="true" responsiveLayout="scroll">
-                <ng-template pTemplate="header">
-                    <tr>
-                        <th>Numéro Vol</th>
-                        <th>Compagnie</th>
-                        <th>Départ</th>
-                        <th>Arrivée</th>
-                        <th>Statut</th>
-                        <th>Date</th>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-vol>
+           <p-table [value]="vols" [rows]="5" [paginator]="true" responsiveLayout="scroll">
+    <ng-template pTemplate="header">
+        <tr>
+            <th>Numéro Vol</th>
+            <th>Compagnie</th>
+            <th>Itnéraire</th>
+            <th>Date</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-vol>
                     <tr>
                         <td><span class="font-bold">{{vol.numero}}</span></td>
-                        <td>{{vol.compagnie}}</td>
-                        <td>{{vol.depart}}</td>
-                        <td>{{vol.arrivee}}</td>
-                        <td>
-                            <span [class]="'badge-strip badge-strip-' + vol.statutClass">
-                                {{vol.statut}}
+                        <td>{{vol.compagnie.nomCompagine}}</td>
+                        <td class="table-separator px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <span *ngIf="vol.typeVol == 'ARRIVEE'">
+                                {{ vol.aeroport?.nomAeroport }}
+
+                            </span>
+                            <span *ngIf="vol.typeVol != 'ARRIVEE'">
+                                {{ vol.nomAgentConnecteAeroport }}
+
+                            </span>
+
+                            <i class="fa-solid fa-arrow-right pi pi-arrow-right mr-2 mx-1 text-gray-400"></i>
+                            <span *ngIf="vol.typeVol == 'ARRIVEE'">
+                                {{ vol.nomAgentConnecteAeroport }}
+
+                            </span>
+                            <span *ngIf="vol.typeVol != 'ARRIVEE'">
+                                {{ vol.aeroport?.nomAeroport }}
+
                             </span>
                         </td>
-                        <td>{{vol.date}}</td>
+                        <td class="table-separator">
+                        <span [class]="'badge ' + getStatutClass(vol.statut)">
+                            {{vol.statut || 'N/A'}}
+                        </span>
+                    </td>
+                        <td>{{vol.dateDepart}}</td>
                     </tr>
                 </ng-template>
-            </p-table>
+    </p-table>
         </div>
     </div>
 

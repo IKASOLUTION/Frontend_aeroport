@@ -1,7 +1,7 @@
 import { Message } from "primeng/api";
 import { Profil } from "../profil/model";
 import { Ville } from "../ville/model";
-import { StatutAeroport } from "../global-config/model";
+import { StatutAeroport, TypeAeroport } from "../global-config/model";
 
 export interface Aeroport {
     id?: number;
@@ -18,7 +18,8 @@ export interface Aeroport {
     siteWeb?: string;
     telephone?: string;
     telephoneResponsable?: string;
-    typeAeroport?: string;
+    typeAeroport?: TypeAeroport;
+
     latitude?: number; 
     longitude?: number; 
 }

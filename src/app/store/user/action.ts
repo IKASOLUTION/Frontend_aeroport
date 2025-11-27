@@ -7,3 +7,8 @@ export const activerDesactiver = createAction('[App Init] active or desactive Us
 export const loadUser = createAction('[App Init] load Users');
 export const setUser = createAction('[App Init] set User',  props<{users: User[]}>());
 export const deleteAllUser = createAction('[App Init] delete Profils', props<{users: Array<User>}>());
+export const loadUsersCountThisMonth = createAction('[Dashboard] Load Users Count This Month');
+export const setUsersCountThisMonth = createAction(
+  '[Dashboard] Set Users Count This Month', 
+  props<{ count: number }>()
+);

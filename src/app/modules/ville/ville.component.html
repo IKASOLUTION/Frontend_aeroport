@@ -1,7 +1,7 @@
 
 
 <div class="grid">
-<h3 class="text-3xl font-semibold text-gray-800">Gestion des Villes</h3>
+<h3 class="text-3xl font-semibold text-gray-800">Gestion des Localités</h3>
     <div class="col-12 md:col-12">
         <p-table #dt 
          styleClass="p-datatable-gridlines p-datatable-sm p-datatable"
@@ -20,7 +20,7 @@
                  <ng-template pTemplate="caption">
 					<div class="flex justify-content-between flex-column sm:flex-row">
                         <div>
-                        <button pButton label="Nouvelle Ville" class="p-button-success mr-2 mb-2" icon="pi pi-plus" (click)="addVille()" ></button>
+                        <button pButton label="Nouvelle localité" class="p-button-success mr-2 mb-2" icon="pi pi-plus" (click)="addVille()" ></button>
                     </div>
                         <h5 class="p-button-outlined mb-2"></h5>
 						<span class="p-input-icon-left mb-2">
@@ -32,7 +32,7 @@
 
             <ng-template pTemplate="header">
         <tr>
-            <th style="font-weight: bold;">Ville
+            <th style="font-weight: bold;">Localité
                 <p-columnFilter type="text" display="menu" field="nom"></p-columnFilter>
             </th>
             <th style="font-weight: bold;">Pays
@@ -67,7 +67,7 @@
     <ng-template pTemplate="emptymessage">
         <tr>
             <td colspan="3" style="text-align: center; font-size: 1.2em; color: red; font-weight: bold;">
-                <span class="text-danger">Aucune ville trouvée !</span>
+                <span class="text-danger">Aucune localité trouvée !</span>
             </td>
         </tr>
     </ng-template>

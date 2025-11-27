@@ -32,7 +32,25 @@ export interface Vol {
 
 
 
+export interface VolStatistics {
+  programme: number;
+  confirme: number;
+  annule: number;
+  retarde: number;
+  effectue: number;
+}
 
+
+export interface VolTableDisplay {
+  numero: string;
+  compagnie: string;
+  depart: string;
+  arrivee: string;
+  statut: string;
+  statutClass: string;
+  date: string;
+  volOriginal?: Vol; // Référence au vol original
+}
 
 
 

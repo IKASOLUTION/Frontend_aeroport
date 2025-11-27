@@ -5,6 +5,7 @@ import { UserState } from './state';
 
 const initialState: UserState = {
   users: [], 
+   countUsersCreatedThisMonth: 0
 };
 
 const featureReducer = createReducer<UserState>(
@@ -15,7 +16,16 @@ const featureReducer = createReducer<UserState>(
       users: users
     };
   }),
+  
+  on(featureActions.setUsersCountThisMonth, (state, { count }): UserState => {
+    return {
+      ...state,
+      countUsersCreatedThisMonth: count
+    };
+  })
 );
+
+
 
 export function UserReducer(state: UserState | undefined, action: Action): UserState {
   return featureReducer(state, action);
