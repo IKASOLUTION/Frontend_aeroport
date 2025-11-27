@@ -16,8 +16,15 @@ export class LoginService {
     login(credentials: any): Observable<any> {
         return this.authServerProvider.login(credentials).pipe(
             tap((response: any) => {
-                console.log('Données de connexion reçues:', response);
-                this.router.navigateByUrl('/admin/dashboard');
+                console.log('Données de connexion reçues:', response , credentials);
+                if(credentials.type =="PASSAGER") {
+                    this.router.navigateByUrl('/site-aeroport/accueil');
+
+                } else {
+                
+                    this.router.navigateByUrl('/admin/dashboard');
+                }
+                
             }),
             switchMap((response: any) => {
                 // Récupérer et mettre à jour l'identité de l'utilisateur

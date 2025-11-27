@@ -5,49 +5,61 @@
         <div>
             <a href="/" class="text-3xl font-bold text-white no-underline">NEYWAONGO</a>
         </div>
-  
-        <a pRipple class="cursor-pointer block lg:hidden text-white" pStyleClass="@next" enterFromClass="hidden" 
-           leaveToClass="hidden" [hideOnOutsideClick]="true">
+
+        <a pRipple class="cursor-pointer block lg:hidden text-white" pStyleClass="@next" enterFromClass="hidden"
+            leaveToClass="hidden" [hideOnOutsideClick]="true">
             <i class="pi pi-bars text-4xl"></i>
         </a>
-        
-        <div id="menu" class="align-items-center flex-grow-1 hidden lg:flex absolute lg:static w-full lg:px-0 z-3 shadow-2 lg:shadow-none" 
-             style="top:68px; right: 0%;">
-            <ul class="list-none p-3 lg:p-0 m-0 ml-auto flex lg:align-items-center select-none flex-column lg:flex-row cursor-pointer surface-0 lg:bg-transparent">
+
+        <div id="menu"
+            class="align-items-center flex-grow-1 hidden lg:flex absolute lg:static w-full lg:px-0 z-3 shadow-2 lg:shadow-none"
+            style="top:68px; right: 0%;">
+            <ul
+                class="list-none p-3 lg:p-0 m-0 ml-auto flex lg:align-items-center select-none flex-column lg:flex-row cursor-pointer surface-0 lg:bg-transparent">
                 <li>
-                    <a class="flex m-0 md:ml-5 px-0 py-3 text-white line-height-3 no-underline hover:text-green-300" 
-                       (click)="scrollToElement(accueil)" pStyleClass="#menu" enterFromClass="hidden" leaveToClass="hidden">
+                    <a class="flex m-0 md:ml-5 px-0 py-3 text-white line-height-3 no-underline hover:text-green-300"
+                        (click)="scrollToElement(accueil)" pStyleClass="#menu" enterFromClass="hidden"
+                        leaveToClass="hidden">
                         <span>Accueil</span>
                     </a>
                 </li>
                 <li>
-                    <a class="flex m-0 md:ml-5 px-0 py-3 text-white line-height-3 no-underline hover:text-green-300" 
-                       (click)="scrollToElement(procedure)" pStyleClass="#menu" enterFromClass="hidden" leaveToClass="hidden">
+                    <a class="flex m-0 md:ml-5 px-0 py-3 text-white line-height-3 no-underline hover:text-green-300"
+                        (click)="scrollToElement(procedure)" pStyleClass="#menu" enterFromClass="hidden"
+                        leaveToClass="hidden">
                         <span>Procédure</span>
                     </a>
                 </li>
                 <li>
-                    <a class="flex m-0 md:ml-5 px-0 py-3 text-white line-height-3 no-underline hover:text-green-300" 
-                       (click)="scrollToElement(conditions)" pStyleClass="#menu" enterFromClass="hidden" leaveToClass="hidden">
+                    <a class="flex m-0 md:ml-5 px-0 py-3 text-white line-height-3 no-underline hover:text-green-300"
+                        (click)="scrollToElement(conditions)" pStyleClass="#menu" enterFromClass="hidden"
+                        leaveToClass="hidden">
                         <span>Conditions</span>
                     </a>
                 </li>
                 <li>
-                    <a class="flex m-0 md:ml-5 px-0 py-3 text-white line-height-3 no-underline hover:text-green-300" 
-                       (click)="scrollToElement(compagnies)" pStyleClass="#menu" enterFromClass="hidden" leaveToClass="hidden">
+                    <a class="flex m-0 md:ml-5 px-0 py-3 text-white line-height-3 no-underline hover:text-green-300"
+                        (click)="scrollToElement(compagnies)" pStyleClass="#menu" enterFromClass="hidden"
+                        leaveToClass="hidden">
                         <span>Compagnies</span>
                     </a>
                 </li>
                 <li>
-                    <a class="flex m-0 md:ml-5 px-0 py-3 text-white line-height-3 no-underline hover:text-green-300" 
-                       (click)="scrollToElement(faq)" pStyleClass="#menu" enterFromClass="hidden" leaveToClass="hidden">
+                    <a class="flex m-0 md:ml-5 px-0 py-3 text-white line-height-3 no-underline hover:text-green-300"
+                        (click)="scrollToElement(faq)" pStyleClass="#menu" enterFromClass="hidden"
+                        leaveToClass="hidden">
                         <span>FAQ</span>
                     </a>
                 </li>
                 <li>
-                    <button pButton pRipple type="button" label="Connexion" icon="pi pi-user" 
-                            class="p-button-rounded bg-green-600 border-none m-0 mt-3 md:mt-0 md:ml-5" 
-                            pStyleClass="#menu" enterFromClass="hidden" leaveToClass="hidden"></button>
+                    <button *ngIf="!(isAuthenticated$ | async)" pButton pRipple type="button"
+                        [routerLink]="['/site-aeroport/auth']" label="Connexion" icon="pi pi-user"
+                        class="p-button-rounded bg-green-600 border-none m-0 mt-3 md:mt-0 md:ml-5" pStyleClass="#menu"
+                        enterFromClass="hidden" leaveToClass="hidden"></button>
+                    <button *ngIf="(isAuthenticated$ | async)" pButton pRipple type="button" (click)="logout()" label="Déconnexion"
+                        icon="pi pi-sign-out" class="p-button-rounded bg-red-500 border-none m-0 mt-3 md:mt-0 md:ml-5">
+                    </button>
+
                 </li>
             </ul>
         </div>
@@ -61,47 +73,48 @@
                     NEYWAONGO <span class="text-yellow-300">au Burkina Faso</span>
                 </h1>
                 <p class="text-xl md:text-2xl text-white mb-6 max-w-4xl mx-auto">
-                    Accélérez votre processus d'enregistrement à l'aéroport du Burkina Faso avec notre plateforme de pré-enregistrement en ligne
+                    Accélérez votre processus d'enregistrement à l'aéroport du Burkina Faso avec notre plateforme de
+                    pré-enregistrement en ligne
                 </p>
                 <div class="flex flex-column sm:flex-row justify-content-center gap-3">
-                    <button pButton pRipple label="Commencer maintenant" icon="pi pi-arrow-right" 
-                            class="p-button-lg bg-white text-green-700 border-none font-bold" 
-                            (click)="scrollToElement(services)"></button>
+                    <button pButton pRipple label="Commencer maintenant" icon="pi pi-arrow-right"
+                        class="p-button-lg bg-white text-green-700 border-none font-bold"
+                        (click)="scrollToElement(services)"></button>
                 </div>
             </div>
         </div>
-        
+
         <!-- Decorative elements -->
         <div class="absolute" style="top: 25%; left: 25%; width: 16rem; height: 16rem; background: white; 
              border-radius: 50%; filter: blur(80px); opacity: 0.1; animation: pulse 3s ease-in-out infinite;"></div>
-        <div class="absolute" style="bottom: 33%; right: 25%; width: 12rem; height: 12rem; background: #fcd34d; 
+        <div class="absolute"
+            style="bottom: 33%; right: 25%; width: 12rem; height: 12rem; background: #fcd34d; 
              border-radius: 50%; filter: blur(80px); opacity: 0.1; animation: pulse 3s ease-in-out infinite; animation-delay: 1s;"></div>
     </div>
 
     <!-- Main Content -->
     <div class="bg-black" style="position: relative;">
-        
+
         <!-- Services Section -->
         <div #services class="py-8 px-4" style="max-width: 1200px; margin: 0 auto;">
             <div class="text-center mb-6">
                 <div class="surface-500 text-white text-sm p-2 border-round-lg inline-block mb-3">SERVICES</div>
                 <h2 class="text-white text-3xl md:text-4xl font-bold mb-4">Services NEYWAONGO</h2>
-                <p class="text-white-alpha-80 text-xl">Simplifiez votre voyage en vous pré-enregistrant avec NEYWAONGO</p>
+                <p class="text-white-alpha-80 text-xl">Simplifiez votre voyage en vous pré-enregistrant avec NEYWAONGO
+                </p>
             </div>
-            
+
             <div class="grid mt-6">
                 <div *ngFor="let service of servicesList " class="col-12 md:col-6">
                     <div class="card-hover surface-card border-round-2xl p-6 h-full">
-                        <div class="flex align-items-center justify-content-center mb-4" 
-                             [ngClass]="service.buttonClass" 
-                             style="width: 4rem; height: 4rem; border-radius: 50%;">
+                        <div class="flex align-items-center justify-content-center mb-4" [ngClass]="service.buttonClass"
+                            style="width: 4rem; height: 4rem; border-radius: 50%;">
                             <i [class]="service.icon + ' text-3xl text-white'"></i>
                         </div>
                         <h3 class="text-2xl font-bold mb-3">{{service.title}}</h3>
                         <p class="text-600 mb-4 text-lg">{{service.description}}</p>
-                        <button pButton pRipple [label]="service.buttonText" icon="pi pi-arrow-right" 
-                                iconPos="right" [ngClass]="service.buttonClass" 
-                                class="border-none font-bold"></button>
+                        <button pButton pRipple [label]="service.buttonText" icon="pi pi-arrow-right" iconPos="right"
+                            [ngClass]="service.buttonClass" class="border-none font-bold"></button>
                     </div>
                 </div>
             </div>
@@ -114,13 +127,14 @@
                 <h2 class="text-white text-3xl md:text-4xl font-bold mb-4">Procédure de Pré-enregistrement</h2>
                 <p class="text-white-alpha-80 text-xl">Suivez ces étapes simples pour un voyage sans stress</p>
             </div>
-            
+
             <div class="grid mt-6">
                 <div *ngFor="let proc of procedures" class="col-12 md:col-6 lg:col-3">
-                    <div class="procedure-card surface-card border-round-2xl p-5 text-center h-full border-1 border-transparent">
-                        <div class="flex align-items-center justify-content-center mx-auto mb-4" 
-                             [ngClass]="proc.colorClass" 
-                             style="width: 5rem; height: 5rem; border-radius: 50%; border: 4px solid white; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
+                    <div
+                        class="procedure-card surface-card border-round-2xl p-5 text-center h-full border-1 border-transparent">
+                        <div class="flex align-items-center justify-content-center mx-auto mb-4"
+                            [ngClass]="proc.colorClass"
+                            style="width: 5rem; height: 5rem; border-radius: 50%; border: 4px solid white; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
                             <span class="text-white text-4xl font-bold">{{proc.number}}</span>
                         </div>
                         <h3 class="text-xl font-bold mb-3">{{proc.title}}</h3>
@@ -137,13 +151,12 @@
                 <h2 class="text-white text-3xl md:text-4xl font-bold mb-4">Conditions de Voyage</h2>
                 <p class="text-white-alpha-80 text-xl">Tout ce que vous devez savoir avant votre voyage</p>
             </div>
-            
+
             <div class="grid mt-6">
                 <div *ngFor="let condition of conditionsList" class="col-12 lg:col-4">
                     <div class="card-hover surface-card border-round-2xl p-6 h-full">
-                        <div class="flex align-items-center justify-content-center mb-4" 
-                             [ngClass]="condition.colorClass" 
-                             style="width: 3.5rem; height: 3.5rem; border-radius: 50%;">
+                        <div class="flex align-items-center justify-content-center mb-4"
+                            [ngClass]="condition.colorClass" style="width: 3.5rem; height: 3.5rem; border-radius: 50%;">
                             <i [class]="condition.icon + ' text-xl text-white'"></i>
                         </div>
                         <h3 class="text-2xl font-bold mb-4">{{condition.title}}</h3>
@@ -165,13 +178,12 @@
                 <h2 class="text-white text-3xl md:text-4xl font-bold mb-4">Compagnies Aériennes</h2>
                 <p class="text-white-alpha-80 text-xl">Les compagnies aériennes desservant le Burkina Faso</p>
             </div>
-            
+
             <div class="grid mt-6">
                 <div *ngFor="let airline of airlines" class="col-6 sm:col-4 md:col-3 lg:col-2">
                     <div class="card-hover surface-card border-round-2xl p-4 text-center h-full">
-                        <div class="flex align-items-center justify-content-center mx-auto mb-3" 
-                             [ngClass]="airline.colorClass" 
-                             style="width: 4rem; height: 4rem; border-radius: 50%;">
+                        <div class="flex align-items-center justify-content-center mx-auto mb-3"
+                            [ngClass]="airline.colorClass" style="width: 4rem; height: 4rem; border-radius: 50%;">
                             <i class="pi pi-send text-xl text-white"></i>
                         </div>
                         <p class="font-medium text-sm m-0">{{airline.name}}</p>
@@ -187,14 +199,15 @@
                 <h2 class="text-white text-3xl md:text-4xl font-bold mb-4">Questions Fréquentes</h2>
                 <p class="text-white-alpha-80 text-xl">Trouvez les réponses à vos questions</p>
             </div>
-            
+
             <div class="mt-6">
-                <div *ngFor="let faq of faqs; let i = index" class="faq-item surface-card border-round-2xl mb-3 overflow-hidden">
-                    <button (click)="toggleFAQ(i)" 
-                            class="flex justify-content-between align-items-center w-full p-5 text-left cursor-pointer bg-transparent border-none hover:surface-hover">
+                <div *ngFor="let faq of faqs; let i = index"
+                    class="faq-item surface-card border-round-2xl mb-3 overflow-hidden">
+                    <button (click)="toggleFAQ(i)"
+                        class="flex justify-content-between align-items-center w-full p-5 text-left cursor-pointer bg-transparent border-none hover:surface-hover">
                         <span class="text-lg font-medium">{{faq.question}}</span>
-                        <i [class]="faq.expanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'" 
-                           class="text-green-600 text-lg"></i>
+                        <i [class]="faq.expanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+                            class="text-green-600 text-lg"></i>
                     </button>
                     <div *ngIf="faq.expanded" class="px-5 pb-5 pt-2 text-600 line-height-3">
                         {{faq.answer}}
@@ -205,19 +218,20 @@
 
         <!-- Newsletter Section -->
         <div class="py-8 px-4" style="max-width: 1200px; margin: 0 auto;">
-            <div class="p-5 border-round-2xl" 
-                 style="background: linear-gradient(110.43deg, #059669 0.04%, #10b981 100.11%);">
+            <div class="p-5 border-round-2xl"
+                style="background: linear-gradient(110.43deg, #059669 0.04%, #10b981 100.11%);">
                 <div class="grid align-items-center">
                     <div class="col-12 lg:col-8">
                         <h3 class="text-white font-bold text-2xl mb-2">NEWSLETTER</h3>
-                        <p class="text-white m-0">Inscrivez-vous à notre newsletter pour rester informé des dernières fonctionnalités et mises à jour.</p>
+                        <p class="text-white m-0">Inscrivez-vous à notre newsletter pour rester informé des dernières
+                            fonctionnalités et mises à jour.</p>
                     </div>
                     <div class="col-12 lg:col-4">
                         <div class="flex gap-2">
-                            <input pInputText placeholder="Email Address" 
-                                   class="w-full bg-white-alpha-20 border-white text-white border-round-md" />
-                            <button pButton pRipple label="REJOINDRE" 
-                                    class="bg-white text-green-700 border-none font-bold border-round-md"></button>
+                            <input pInputText placeholder="Email Address"
+                                class="w-full bg-white-alpha-20 border-white text-white border-round-md" />
+                            <button pButton pRipple label="REJOINDRE"
+                                class="bg-white text-green-700 border-none font-bold border-round-md"></button>
                         </div>
                     </div>
                 </div>
@@ -242,17 +256,23 @@
                 <div class="col-12 lg:col-3">
                     <div class="text-white">
                         <h4 class="text-sm text-500 font-medium mb-3">À PROPOS</h4>
-                        <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">Nos Valeurs</a>
-                        <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">Notre Équipe</a>
-                        <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">Notre Histoire</a>
-                        <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">Carrières</a>
+                        <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">Nos
+                            Valeurs</a>
+                        <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">Notre
+                            Équipe</a>
+                        <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">Notre
+                            Histoire</a>
+                        <a href="#"
+                            class="block text-white no-underline mb-2 text-sm hover:text-green-300">Carrières</a>
                     </div>
                 </div>
                 <div class="col-12 lg:col-3">
                     <div class="text-white">
                         <h4 class="text-sm text-500 font-medium mb-3">SERVICES</h4>
-                        <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">Pré-enregistrement</a>
-                        <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">Vérification</a>
+                        <a href="#"
+                            class="block text-white no-underline mb-2 text-sm hover:text-green-300">Pré-enregistrement</a>
+                        <a href="#"
+                            class="block text-white no-underline mb-2 text-sm hover:text-green-300">Vérification</a>
                         <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">Support</a>
                         <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">FAQ</a>
                     </div>
@@ -261,9 +281,12 @@
                     <div class="text-white">
                         <h4 class="text-sm text-500 font-medium mb-3">LIENS RAPIDES</h4>
                         <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">Accueil</a>
-                        <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">Documentation</a>
-                        <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">Conditions</a>
-                        <a href="#" class="block text-white no-underline mb-2 text-sm hover:text-green-300">Confidentialité</a>
+                        <a href="#"
+                            class="block text-white no-underline mb-2 text-sm hover:text-green-300">Documentation</a>
+                        <a href="#"
+                            class="block text-white no-underline mb-2 text-sm hover:text-green-300">Conditions</a>
+                        <a href="#"
+                            class="block text-white no-underline mb-2 text-sm hover:text-green-300">Confidentialité</a>
                     </div>
                 </div>
             </div>

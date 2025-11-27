@@ -16,15 +16,23 @@ export const authInitializerFactory = (): (() => Promise<boolean>) => {
     return new Promise<boolean>((resolve) => {
       const accessToken = authServerProvider.getAccessToken();
       const refreshToken = authServerProvider.getRefreshToken();
+      const currentUrl = router.url; // <-- Récupère l'URL actuelle
 
-      // Si aucun token, rediriger vers login
+      // Si aucun token
       if (!accessToken && !refreshToken) {
-        router.navigate(['/admin/login']);
+
+        // Si l'utilisateur essaie d'accéder à une route admin
+        if (currentUrl.startsWith('/admin')) {
+          router.navigate(['/admin/login']);
+        } else {
+          router.navigate(['/site-aeroport/accueil']);
+        }
+
         resolve(true);
         return;
       }
 
-      // Si refreshToken existe mais pas d'accessToken : tenter de rafraîchir
+      // Si refreshToken existe mais pas d'accessToken → essayer de rafraîchir
       if (!accessToken && refreshToken) {
         authServerProvider.refreshToken().pipe(
           map((response: any) => {
@@ -34,7 +42,14 @@ export const authInitializerFactory = (): (() => Promise<boolean>) => {
           catchError((error) => {
             console.error('Échec du rafraîchissement au démarrage:', error);
             loginService.logout();
-            router.navigate(['/admin/login']);
+
+            // Si tentative admin
+            if (currentUrl.startsWith('/admin')) {
+              router.navigate(['/admin/login']);
+            } else {
+              router.navigate(['/site-aeroport/accueil']);
+            }
+
             return of(false);
           })
         ).subscribe({
@@ -42,8 +57,7 @@ export const authInitializerFactory = (): (() => Promise<boolean>) => {
           error: () => resolve(true)
         });
       } else {
-        // Token présent : continuer
-        resolve(true);
+        resolve(true); // user déjà connecté → tout va bien
       }
     });
   };

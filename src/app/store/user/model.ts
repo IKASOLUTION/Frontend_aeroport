@@ -15,5 +15,7 @@ export interface User {
   profil?: Profil;
   activated?: boolean;
   login?: string;
+  phone?: string;
+  password?: string;
 }
 

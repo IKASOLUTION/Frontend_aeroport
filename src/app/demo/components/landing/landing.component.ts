@@ -5,6 +5,11 @@ import { ButtonModule } from 'primeng/button';
 import { StyleClassModule } from 'primeng/styleclass';
 import { RippleModule } from 'primeng/ripple';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { UserService } from 'src/app/store/user/service';
+import { AccountService } from 'src/app/service-util/auth/account.service';
+import { Observable } from 'rxjs';
+import { AuthServerProvider } from 'src/app/service-util/auth/auth-jwt.service';
 
 interface Service {
     icon: string;
@@ -88,6 +93,7 @@ interface FAQ {
         StyleClassModule,
         ButtonModule,
         InputTextModule,
+        RouterModule
     ],
 })
 export class LandingComponent implements OnInit {
@@ -96,10 +102,13 @@ export class LandingComponent implements OnInit {
     conditionsList: Condition[] = [];
     airlines: Airline[] = [];
     faqs: FAQ[] = [];
+    isAuthenticated = false;
+    isAuthenticated$!: Observable<boolean>;
     
-    constructor(private layoutService: LayoutService) {}
+    constructor(private layoutService: LayoutService,private auth: AuthServerProvider, private accountService:AccountService) {}
 
     ngOnInit() {
+         this.isAuthenticated$ = this.auth.isAuthenticated$;
         this.initializeServices();
         this.initializeProcedures();
         this.initializeConditions();
@@ -107,6 +116,9 @@ export class LandingComponent implements OnInit {
         this.initializeFAQs();
     }
 
+    logout(): void {
+  this.accountService.logoutSite();
+}
     initializeServices() {
         this.servicesList = [
             {

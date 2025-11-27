@@ -3,6 +3,11 @@
   <h3 class="text-3xl font-semibold text-gray-800">Effectuer un Enregistrement</h3>
 </div>
  -->
+
+
+
+ 
+
 <form (ngSubmit)="submitEnregistrement()" #enregistrementForm="ngForm" novalidate>
   <p-card styleClass="shadow-lg">
 
@@ -23,6 +28,8 @@
           <p-button label="Scanner" icon="pi pi-camera" severity="secondary" size="small" (onClick)="demarrerCamera('recto')"></p-button>
           <small *ngIf="formErrors()['imageRecto']" class="p-error block text-center">{{ formErrors()['imageRecto'] }}</small>
         </div>
+
+        
 
         <!-- Capture Document Verso -->
         <div class="col-12 md:col-4">
@@ -489,6 +496,7 @@
     }
   </ng-template>
 </p-dialog>
+
 
 <app-loading-spinner></app-loading-spinner>
 

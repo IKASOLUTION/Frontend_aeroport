@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef, signal, inject } f
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Store, select } from '@ngrx/store';
-import { Subject, takeUntil } from 'rxjs';
+import { filter, Subject, takeUntil } from 'rxjs';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import * as enregistrementAction from '../../store/enregistrement/action';
 import * as enregistrementSelector from '../../store/enregistrement/selector';
@@ -33,6 +33,7 @@ import { TypeVol, Vol } from 'src/app/store/vol/model';
 import { CountryService } from 'src/app/demo/service/country.service';
 import { NationaliteService } from 'src/app/demo/service/nationalite.service';
 import { Router } from '@angular/router';
+import { RegulaDocumentReaderService } from 'src/app/service-util/auth/regularForensic.service';
 
 interface Passager {
   id: number;
@@ -70,6 +71,7 @@ interface Passager {
 export class EnregistrementComponent implements OnInit, OnDestroy {
   @ViewChild('videoElement') videoElement!: ElementRef<HTMLVideoElement>;
   @ViewChild('canvasElement') canvasElement!: ElementRef<HTMLCanvasElement>;
+  
 
   private store = inject(Store);
   private messageService = inject(MessageService);
@@ -123,9 +125,53 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   nationalites: any[] = [];
   selectedNationalite: any;
   type =TypeVol.ARRIVEE;
+   // Remplacer l'injection
+  regulaService = inject(RegulaDocumentReaderService);
+  
+  // Observables
+  deviceStatus$ = this.regulaService.getDeviceStatus();
+  identityData$ = this.regulaService.getIdentityData();
+  
+  // État local
+  isScanning = signal<boolean>(false);
+  autoDetectionEnabled = signal<boolean>(false);
 
   ngOnInit(): void {
     this.initializeFormData();
+    
+    // Surveiller le statut du lecteur
+   /*  this.deviceStatus$.pipe(takeUntil(this.destroy$)).subscribe(status => {
+      if (status.error) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur Lecteur',
+          detail: status.error,
+          life: 5000
+        });
+      } else if (status.connected) {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Lecteur connecté',
+          detail: 'Regula 70X4M prêt',
+          life: 3000
+        });
+      }
+       */
+      // Notification si un document est détecté
+      /* if (status.documentPresent && this.autoDetectionEnabled()) {
+        this.lireDocumentAuto();
+      }
+    });
+
+    // Surveiller les données d'identité
+    this.identityData$.pipe(
+      takeUntil(this.destroy$),
+      filter(data => data !== null)
+    ).subscribe(data => {
+      if (data) {
+        this.remplirFormulaireAvecDonnees(data);
+      }
+    }); */
     this.subscribeToStoreUpdates();
     this.loadVols();
     this.loadMotifs();
@@ -136,6 +182,259 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
             this.nationalites = nationalites;
         });
   }
+
+
+  /**
+   * Vérifie la connexion au lecteur Regula
+   */
+  async verifierLecteur() {
+    try {
+      const status = await this.regulaService.refreshStatus();
+      
+      if (!status.connected) {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Lecteur non disponible',
+          detail: 'Veuillez installer et démarrer le Regula Document Reader SDK',
+          life: 5000
+        });
+        return;
+      }
+
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Lecteur prêt',
+        detail: status.deviceName || 'Regula 70X4M',
+        life: 3000
+      });
+    } catch (error) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: (error as Error).message || 'Impossible de vérifier le lecteur',
+        life: 5000
+      });
+    }
+  }
+
+  /**
+   * Active/désactive la détection automatique
+   */
+  toggleAutoDetection() {
+    if (this.autoDetectionEnabled()) {
+      this.regulaService.stopDocumentDetection();
+      this.autoDetectionEnabled.set(false);
+      this.messageService.add({
+        severity: 'info',
+        summary: 'Détection désactivée',
+        detail: 'La détection automatique est maintenant désactivée',
+        life: 2000
+      });
+    } else {
+      this.regulaService.startDocumentDetection();
+      this.autoDetectionEnabled.set(true);
+      this.messageService.add({
+        severity: 'info',
+        summary: 'Détection activée',
+        detail: 'Insérez un document dans le lecteur',
+        life: 2000
+      });
+    }
+  }
+
+  /**
+   * Lit le document manuellement
+   */
+  async lireDocument() {
+    if (this.isScanning()) {
+      return;
+    }
+
+    this.isScanning.set(true);
+
+    try {
+      // Vérifier d'abord la présence d'un document
+      const hasDocument = await this.regulaService.checkDocumentPresence();
+      
+      if (!hasDocument) {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Document absent',
+          detail: 'Veuillez insérer un document dans le lecteur',
+          life: 4000
+        });
+        this.isScanning.set(false);
+        return;
+      }
+
+      // Message de traitement
+      this.messageService.add({
+        severity: 'info',
+        summary: 'Lecture en cours',
+        detail: 'Traitement du document...',
+        life: 2000
+      });
+
+      // Lire les données
+      this.regulaService.readDocument().subscribe({
+        next: (data) => {
+          console.log('Données lues:', data);
+          
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Lecture réussie',
+            detail: `Document de ${data.firstName} ${data.lastName} traité`,
+            life: 3000
+          });
+          
+          this.isScanning.set(false);
+        },
+        error: (err) => {
+          console.error('Erreur lecture:', err);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur de lecture',
+            detail: err.message || 'Impossible de lire le document',
+            life: 5000
+          });
+          this.isScanning.set(false);
+        }
+      });
+    } catch (error) {
+      console.error('Erreur:', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: (error as Error).message || 'Une erreur est survenue',
+        life: 5000
+      });
+      this.isScanning.set(false);
+    }
+  }
+
+  /**
+   * Lecture automatique lorsqu'un document est détecté
+   */
+  private async lireDocumentAuto() {
+    if (this.isScanning()) {
+      return;
+    }
+
+    // Désactiver temporairement la détection auto
+    this.autoDetectionEnabled.set(false);
+    this.regulaService.stopDocumentDetection();
+
+    await this.lireDocument();
+
+    // Réactiver la détection après 3 secondes
+    setTimeout(() => {
+      this.autoDetectionEnabled.set(true);
+      this.regulaService.startDocumentDetection();
+    }, 3000);
+  }
+
+  /**
+   * Capture une image du document
+   */
+  async capturerImageDocument(type: 'white' | 'ir' | 'uv' = 'white') {
+    try {
+      const image = await this.regulaService.captureImage(type);
+      
+      // Assigner l'image selon le type
+      if (type === 'white') {
+        this.formData.update(form => ({
+          ...form,
+         // imageRecto: image
+        }));
+      } else if (type === 'ir') {
+        this.formData.update(form => ({
+          ...form,
+        //  imageVerso: image
+        }));
+      }
+
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Image capturée',
+        detail: `Image ${type} capturée avec succès`,
+        life: 2000
+      });
+    } catch (error) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur de capture',
+        detail: (error as Error).message || 'Impossible de capturer l\'image',
+        life: 4000
+      });
+    }
+  }
+
+  /**
+   * Remplit le formulaire avec les données du document
+   */
+  private remplirFormulaireAvecDonnees(data: any): void {
+    this.formData.update(form => ({
+      ...form,
+      // Type de document
+      //typeDocument: this.mapDocumentType(data.documentType),
+      numeroDocument: data.documentNumber || form.numeroDocument,
+      
+      // Dates
+      dateDelivrance: data.issueDate || form.dateDelivrance,
+      
+      // Informations personnelles
+      nomFamille: data.lastName || form.nomFamille,
+      prenom: data.firstName || form.prenom,
+      dateNaissance: data.dateOfBirth || form.dateNaissance,
+      lieuNaissance: data.placeOfBirth || form.lieuNaissance,
+      nationalite: data.nationality || form.nationalite,
+      
+      // Numéro national
+      numeroNip: data.nationalNumber || form.numeroNip,
+      
+      // Adresse
+      adresseBurkina: data.address || form.adresseBurkina,
+      
+      // Photo
+      photoProfil: data.photo || form.photoProfil
+    }));
+
+    // Sélectionner la nationalité
+   
+
+  }
+
+  /**
+   * Convertit le type de document Regula vers le type local
+   */
+  private mapDocumentType(docType?: string): 'PASSEPORT' | 'CNI' | undefined {
+    if (!docType) return undefined;
+    
+    if (docType.toLowerCase().includes('passeport') || docType.toLowerCase().includes('passport')) {
+      return TypeDocument.PASSEPORT.toString() as 'PASSEPORT';
+    } else if (docType.toLowerCase().includes('carte') || docType.toLowerCase().includes('card')) {
+      return TypeDocument.CNI.toString() as 'CNI';
+    }
+    
+    return undefined;
+  }
+
+  /**
+   * Efface les données du lecteur
+   */
+  effacerDonneesLecteur(): void {
+    this.regulaService.clearData();
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Données effacées',
+      detail: 'Les données du lecteur ont été effacées',
+      life: 2000
+    });
+  }
+
+ 
+
+
 
   findPays(country: any) {
         if (country && country.name) {

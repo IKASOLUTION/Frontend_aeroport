@@ -155,4 +155,9 @@ export class AccountService {
         this.resetAuthenticationState();
         this.router.navigate(['/admin/login']);
     }
+
+    logoutSite(): void {
+        this.resetAuthenticationState();
+        this.router.navigate(['/site-aeroport/accueil']);
+    }
 }

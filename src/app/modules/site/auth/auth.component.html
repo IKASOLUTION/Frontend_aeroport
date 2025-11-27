@@ -1,0 +1,427 @@
+<div class="auth-wrapper">
+  <p-toast></p-toast>
+  
+  <div class="auth-container">
+    <!-- Left Side - Branding -->
+    <div class="auth-branding">
+      <div class="branding-content">
+        <div class="logo-section">
+          <i class="pi pi-shield text-6xl mb-4"></i>
+          <h1 class="text-4xl font-bold mb-2">NEYWAONGO</h1>
+          <p class="text-lg opacity-90">Votre plateforme de pré-enregistrement</p>
+        </div>
+        
+        <div class="features-list">
+          <div class="feature-item">
+            <i class="pi pi-check-circle"></i>
+            <span>Processus rapide et sécurisé</span>
+          </div>
+          <div class="feature-item">
+            <i class="pi pi-check-circle"></i>
+            <span>Gain de temps à l'aéroport</span>
+          </div>
+          <div class="feature-item">
+            <i class="pi pi-check-circle"></i>
+            <span>Support disponible 24/7</span>
+          </div>
+          <div class="feature-item">
+            <i class="pi pi-check-circle"></i>
+            <span>Données sécurisées</span>
+          </div>
+        </div>
+        
+        <div class="decoration-circles">
+          <div class="circle circle-1"></div>
+          <div class="circle circle-2"></div>
+          <div class="circle circle-3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side - Forms -->
+    <div class="auth-forms">
+      <div class="forms-container">
+        
+        <!-- Login Form -->
+        <div *ngIf="activeView === 'login'" class="form-wrapper animate-fade-in">
+          <div class="form-header">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">Bon retour !</h2>
+            <p class="text-gray-600">Connectez-vous pour accéder à votre espace</p>
+          </div>
+
+          <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="mt-8">
+            <!-- Email -->
+            <div class="form-group">
+              <label for="login-email" class="form-label">
+                <i class="pi pi-envelope mr-2"></i>
+                Adresse email
+              </label>
+              <span class="p-input-icon-left w-full">
+                <i class="pi pi-at"></i>
+                <input 
+                  pInputText 
+                  id="login-email" 
+                  formControlName="email"
+                  class="w-full"
+                  placeholder="exemple@email.com"
+                  [ngClass]="{'p-invalid': isFieldInvalid(loginForm, 'email')}"
+                />
+              </span>
+              <small 
+                *ngIf="isFieldInvalid(loginForm, 'email')" 
+                class="p-error block mt-1"
+              >
+                {{ getErrorMessage(loginForm, 'email') }}
+              </small>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+              <div class="flex justify-content-between align-items-center mb-2">
+                <label for="login-password" class="form-label mb-0">
+                  <i class="pi pi-lock mr-2"></i>
+                  Mot de passe
+                </label>
+                <a 
+                  (click)="switchView('forgot')" 
+                  class="text-sm text-primary font-medium cursor-pointer hover:underline"
+                >
+                  Mot de passe oublié ?
+                </a>
+              </div>
+              <p-password
+                id="login-password"
+                formControlName="password"
+                placeholder="Entrez votre mot de passe"
+                [toggleMask]="true"
+                [feedback]="false"
+                styleClass="w-full"
+                inputStyleClass="w-full"
+                [ngClass]="{'p-invalid': isFieldInvalid(loginForm, 'password')}"
+              >
+                <ng-template pTemplate="header">
+                  <i class="pi pi-lock"></i>
+                </ng-template>
+              </p-password>
+              <small 
+                *ngIf="isFieldInvalid(loginForm, 'password')" 
+                class="p-error block mt-1"
+              >
+                {{ getErrorMessage(loginForm, 'password') }}
+              </small>
+            </div>
+
+            <!-- Submit Button -->
+            <button 
+              pButton 
+              pRipple
+              type="submit" 
+              label="Se connecter" 
+              icon="pi pi-sign-in"
+              class="w-full p-button-lg mt-6"
+              [loading]="loading"
+            ></button>
+
+            <!-- Divider -->
+            <div class="divider">
+              <span>OU</span>
+            </div>
+
+            <!-- Social Login -->
+            <div class="social-buttons">
+              <button 
+                pButton 
+                type="button"
+                class="p-button-outlined w-full mb-3"
+                icon="pi pi-google"
+                label="Continuer avec Google"
+              ></button>
+              <button 
+                pButton 
+                type="button"
+                class="p-button-outlined w-full"
+                icon="pi pi-facebook"
+                label="Continuer avec Facebook"
+              ></button>
+            </div>
+
+            <!-- Switch to Register -->
+            <div class="text-center mt-6">
+              <p class="text-gray-600">
+                Vous n'avez pas de compte ? 
+                <a 
+                  (click)="switchView('register')" 
+                  class="text-primary font-semibold cursor-pointer hover:underline ml-1"
+                >
+                  Créer un compte
+                </a>
+              </p>
+            </div>
+          </form>
+        </div>
+
+        <!-- Registration Form -->
+        <div *ngIf="activeView === 'register'" class="form-wrapper animate-fade-in">
+          <div class="form-header">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">Créer un compte</h2>
+            <p class="text-gray-600">Rejoignez NEYWAONGO en quelques clics</p>
+          </div>
+
+          <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="mt-8">
+            <!-- Name Fields -->
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div class="form-group">
+                <label for="first-name" class="form-label">
+                  <i class="pi pi-user mr-2"></i>
+                  Prénom
+                </label>
+                <input 
+                  pInputText 
+                  id="first-name" 
+                  formControlName="nom"
+                  class="w-full"
+                  placeholder="Votre prénom"
+                  [ngClass]="{'p-invalid': isFieldInvalid(registerForm, 'nom')}"
+                />
+                <small 
+                  *ngIf="isFieldInvalid(registerForm, 'nom')" 
+                  class="p-error block mt-1"
+                >
+                  {{ getErrorMessage(registerForm, 'nom') }}
+                </small>
+              </div>
+
+              <div class="form-group">
+                <label for="last-name" class="form-label">
+                  <i class="pi pi-user mr-2"></i>
+                  Nom
+                </label>
+                <input 
+                  pInputText 
+                  id="last-name" 
+                  formControlName="prenom"
+                  class="w-full"
+                  placeholder="Votre nom"
+                  [ngClass]="{'p-invalid': isFieldInvalid(registerForm, 'prenom')}"
+                />
+                <small 
+                  *ngIf="isFieldInvalid(registerForm, 'prenom')" 
+                  class="p-error block mt-1"
+                >
+                  {{ getErrorMessage(registerForm, 'prenom') }}
+                </small>
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+              <label for="register-email" class="form-label">
+                <i class="pi pi-envelope mr-2"></i>
+                Adresse email
+              </label>
+              <span class="p-input-icon-left w-full">
+                <i class="pi pi-at"></i>
+                <input 
+                  pInputText 
+                  id="register-email" 
+                  formControlName="email"
+                  class="w-full"
+                  placeholder="exemple@email.com"
+                  [ngClass]="{'p-invalid': isFieldInvalid(registerForm, 'email')}"
+                />
+              </span>
+              <small 
+                *ngIf="isFieldInvalid(registerForm, 'email')" 
+                class="p-error block mt-1"
+              >
+                {{ getErrorMessage(registerForm, 'email') }}
+              </small>
+            </div>
+
+            <!-- Phone -->
+            <div class="form-group">
+              <label for="phone" class="form-label">
+                <i class="pi pi-phone mr-2"></i>
+                Téléphone
+              </label>
+              <span class="p-input-icon-left w-full">
+                <i class="pi pi-mobile"></i>
+                <input 
+                  pInputText 
+                  id="phone" 
+                  formControlName="phone"
+                  class="w-full"
+                  placeholder="+226 00 00 00 00"
+                  [ngClass]="{'p-invalid': isFieldInvalid(registerForm, 'phone')}"
+                />
+              </span>
+              <small 
+                *ngIf="isFieldInvalid(registerForm, 'phone')" 
+                class="p-error block mt-1"
+              >
+                {{ getErrorMessage(registerForm, 'phone') }}
+              </small>
+            </div>
+
+            <!-- Password Fields -->
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div class="form-group">
+                <label for="register-password" class="form-label">
+                  <i class="pi pi-lock mr-2"></i>
+                  Mot de passe
+                </label>
+                <p-password
+                  id="register-password"
+                  formControlName="password"
+                  placeholder="••••••••"
+                  [toggleMask]="true"
+                  [feedback]="true"
+                  styleClass="w-full"
+                  inputStyleClass="w-full"
+                  [ngClass]="{'p-invalid': isFieldInvalid(registerForm, 'password')}"
+                ></p-password>
+                <small 
+                  *ngIf="isFieldInvalid(registerForm, 'password')" 
+                  class="p-error block mt-1"
+                >
+                  {{ getErrorMessage(registerForm, 'password') }}
+                </small>
+              </div>
+
+              <div class="form-group">
+                <label for="confirm-password" class="form-label">
+                  <i class="pi pi-lock mr-2"></i>
+                  Confirmer
+                </label>
+                <p-password
+                  id="confirm-password"
+                  formControlName="confirmPassword"
+                  placeholder="••••••••"
+                  [toggleMask]="true"
+                  [feedback]="false"
+                  styleClass="w-full"
+                  inputStyleClass="w-full"
+                  [ngClass]="{'p-invalid': isFieldInvalid(registerForm, 'confirmPassword') || registerForm.hasError('passwordMismatch')}"
+                ></p-password>
+                <small 
+                  *ngIf="isFieldInvalid(registerForm, 'confirmPassword') || registerForm.hasError('passwordMismatch')" 
+                  class="p-error block mt-1"
+                >
+                  {{ getErrorMessage(registerForm, 'confirmPassword') }}
+                </small>
+              </div>
+            </div>
+
+            <!-- Terms -->
+            <div class="field-checkbox mb-4">
+              <p-checkbox 
+                formControlName="terms" 
+                [binary]="true" 
+                inputId="terms"
+              ></p-checkbox>
+              <label for="terms" class="ml-2 text-sm text-gray-700">
+                J'accepte les 
+                <a href="#" class="text-primary hover:underline font-medium">termes et conditions</a>
+                et la 
+                <a href="#" class="text-primary hover:underline font-medium">politique de confidentialité</a>
+              </label>
+            </div>
+            <small 
+              *ngIf="isFieldInvalid(registerForm, 'terms')" 
+              class="p-error block -mt-2 mb-4"
+            >
+              {{ getErrorMessage(registerForm, 'terms') }}
+            </small>
+
+            <!-- Submit Button -->
+            <button 
+              pButton 
+              pRipple
+              type="submit" 
+              label="Créer mon compte" 
+              icon="pi pi-user-plus"
+              class="w-full p-button-lg"
+              [loading]="loading"
+            ></button>
+
+            <!-- Switch to Login -->
+            <div class="text-center mt-6">
+              <p class="text-gray-600">
+                Vous avez déjà un compte ? 
+                <a 
+                  (click)="switchView('login')" 
+                  class="text-primary font-semibold cursor-pointer hover:underline ml-1"
+                >
+                  Se connecter
+                </a>
+              </p>
+            </div>
+          </form>
+        </div>
+
+        <!-- Forgot Password Form -->
+        <div *ngIf="activeView === 'forgot'" class="form-wrapper animate-fade-in">
+          <div class="form-header">
+            <div class="text-center mb-4">
+              <div class="forgot-icon">
+                <i class="pi pi-key text-4xl"></i>
+              </div>
+            </div>
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">Mot de passe oublié ?</h2>
+            <p class="text-gray-600">Pas de souci, nous allons vous aider à le réinitialiser</p>
+          </div>
+
+          <form [formGroup]="forgotPasswordForm" (ngSubmit)="onForgotPassword()" class="mt-8">
+            <!-- Email -->
+            <div class="form-group">
+              <label for="forgot-email" class="form-label">
+                <i class="pi pi-envelope mr-2"></i>
+                Adresse email
+              </label>
+              <span class="p-input-icon-left w-full">
+                <i class="pi pi-at"></i>
+                <input 
+                  pInputText 
+                  id="forgot-email" 
+                  formControlName="email"
+                  class="w-full"
+                  placeholder="exemple@email.com"
+                  [ngClass]="{'p-invalid': isFieldInvalid(forgotPasswordForm, 'email')}"
+                />
+              </span>
+              <small 
+                *ngIf="isFieldInvalid(forgotPasswordForm, 'email')" 
+                class="p-error block mt-1"
+              >
+                {{ getErrorMessage(forgotPasswordForm, 'email') }}
+              </small>
+            </div>
+
+            <!-- Submit Button -->
+            <button 
+              pButton 
+              pRipple
+              type="submit" 
+              label="Envoyer le lien de réinitialisation" 
+              icon="pi pi-send"
+              class="w-full p-button-lg mt-6"
+              [loading]="loading"
+            ></button>
+
+            <!-- Back to Login -->
+            <div class="text-center mt-6">
+              <a 
+                (click)="switchView('login')" 
+                class="text-primary font-medium cursor-pointer hover:underline inline-flex align-items-center"
+              >
+                <i class="pi pi-arrow-left mr-2"></i>
+                Retour à la connexion
+              </a>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
