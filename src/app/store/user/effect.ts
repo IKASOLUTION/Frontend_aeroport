@@ -49,8 +49,8 @@ export class UserEffects {
         mergeMap(() =>
             this.userService.$getUsers().pipe(
                 switchMap(users => [
-                  //  GlobalConfig.setStatus(StatusEnum.success, this.successMsg),
-                    featureActions.setUser({users})
+                  // GlobalConfig.setStatus(StatusEnum.success, this.successMsg),
+                    featureActions.setUser({ users: users })
                                 
                 ]),
             catchError(error => of(GlobalConfig.setStatus(StatusEnum.error, error.error)))

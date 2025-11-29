@@ -170,12 +170,12 @@ export class VoyageComponent implements OnInit, OnDestroy {
         // Charger les vols avec filtres par défaut
         this.loadVoyagesWithFilters();
 
-        // Charger les villes
-       
-     
+        
 
-        // Écouter les résultats des vols
-        this.voyageList$.pipe(takeUntil(this.destroy$))
+        // Écouter les résultats des voyages
+    
+        this.voyageList$ = this.store.pipe(select(voyageSelector.voyageList));
+         this.voyageList$.pipe(takeUntil(this.destroy$))
     .subscribe(value => {
         console.log('=== Données voyages reçues ===', value);
         
@@ -204,7 +204,7 @@ export class VoyageComponent implements OnInit, OnDestroy {
  
         // Écouter le total d'items pour la pagination
         this.store.pipe(
-            select(volSelector.volTotalItems),
+            select(voyageSelector.voyageTotalItems),
             takeUntil(this.destroy$)
         ).subscribe(total => {
             if (total !== undefined) {

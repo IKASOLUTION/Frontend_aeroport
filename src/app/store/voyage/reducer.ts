@@ -2,7 +2,7 @@
 // ==================== vol.reducer.ts ====================
 import { Action, createReducer, on } from '@ngrx/store';
 import * as voyageAction from './action';
-import { initialVoyageState, VoyageState } from './state';
+import { initialVoyageState } from './state';
 
 export const VoyageReducer = createReducer(
     initialVoyageState,

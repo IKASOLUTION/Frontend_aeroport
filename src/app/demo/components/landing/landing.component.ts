@@ -5,11 +5,12 @@ import { ButtonModule } from 'primeng/button';
 import { StyleClassModule } from 'primeng/styleclass';
 import { RippleModule } from 'primeng/ripple';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { UserService } from 'src/app/store/user/service';
 import { AccountService } from 'src/app/service-util/auth/account.service';
 import { Observable } from 'rxjs';
 import { AuthServerProvider } from 'src/app/service-util/auth/auth-jwt.service';
+import { LoginService } from 'src/app/service-util/auth/login.service';
 
 interface Service {
     icon: string;
@@ -105,7 +106,8 @@ export class LandingComponent implements OnInit {
     isAuthenticated = false;
     isAuthenticated$!: Observable<boolean>;
     
-    constructor(private layoutService: LayoutService,private auth: AuthServerProvider, private accountService:AccountService) {}
+    constructor(private layoutService: LayoutService,private auth: AuthServerProvider,
+         private accountService:AccountService, private loginService:LoginService, private router: Router) {}
 
     ngOnInit() {
          this.isAuthenticated$ = this.auth.isAuthenticated$;
@@ -117,7 +119,10 @@ export class LandingComponent implements OnInit {
     }
 
     logout(): void {
-  this.accountService.logoutSite();
+        console.log('=======================logout=====================');
+  this.loginService.logout();
+  this.router.navigate(['/site-aeroport/accueil']);
+  console.log('=======================logout=====================');
 }
     initializeServices() {
         this.servicesList = [
