@@ -79,6 +79,12 @@ export class Endpoints {
     };
 
 
+    static readonly Regula = {
+        prod: `${SERVICE_PREFIX}/regula`,
+        mock: `assets/mock/regula.mock.json`
+    };
+
+
     
 
 

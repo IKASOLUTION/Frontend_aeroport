@@ -468,6 +468,8 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
     ).subscribe(value => {
       if (value) {
         this.volList.set([...value]);
+                console.log("---------Afficher les vol", this.volList);
+
       }
     });
 
