@@ -1,0 +1,70 @@
+<!-- Navigation -->
+<div style="height: 68px; backdrop-filter: blur(17px);"
+    class="flex justify-content-between align-items-center z-3 px-5 bg-black-alpha-40 top-0 w-full fixed">
+    <div>
+        <a href="/" class="text-3xl font-bold text-white no-underline">NEYWAONGO</a>
+    </div>
+
+    <a pRipple class="cursor-pointer block lg:hidden text-white" pStyleClass="@next" enterFromClass="hidden"
+        leaveToClass="hidden" [hideOnOutsideClick]="true">
+        <i class="pi pi-bars text-4xl"></i>
+    </a>
+
+    <div id="menu"
+        class="align-items-center flex-grow-1 hidden lg:flex absolute lg:static w-full lg:px-0 z-3 shadow-2 lg:shadow-none"
+        style="top:68px; right: 0%;">
+        <ul
+            class="list-none p-3 lg:p-0 m-0 ml-auto flex lg:align-items-center select-none flex-column lg:flex-row cursor-pointer surface-0 lg:bg-transparent">
+            <li>
+                <a class="flex m-0 md:ml-5 px-0 py-3 text-white line-height-3 no-underline hover:text-green-300"
+                    [routerLink]="['/']" pStyleClass="#menu" enterFromClass="hidden" leaveToClass="hidden">
+                    <span>Accueil</span>
+                </a>
+            </li>
+            <li>
+                <a class="flex m-0 md:ml-5 px-0 py-3 text-white line-height-3 no-underline hover:text-green-300"
+                    [routerLink]="['/']" fragment="procedure" pStyleClass="#menu" enterFromClass="hidden"
+                    leaveToClass="hidden">
+                    <span>Procédure</span>
+                </a>
+            </li>
+            <li *ngIf="isAuthenticated()">
+                <button pButton pRipple type="button" [routerLink]="['/site-aeroport/preEnregistrement']"
+                    label="Pré-enregistrement" icon="pi pi-user"
+                    class="p-button-rounded bg-green-600 border-none m-0 mt-3 md:mt-0 md:ml-5" pStyleClass="#menu"
+                    enterFromClass="hidden" leaveToClass="hidden"></button>
+            </li>
+            <li>
+                <a class="flex m-0 md:ml-5 px-0 py-3 text-white line-height-3 no-underline hover:text-green-300"
+                    [routerLink]="['/']" fragment="conditions" pStyleClass="#menu" enterFromClass="hidden"
+                    leaveToClass="hidden">
+                    <span>Conditions</span>
+                </a>
+            </li>
+            <li>
+                <a class="flex m-0 md:ml-5 px-0 py-3 text-white line-height-3 no-underline hover:text-green-300"
+                    [routerLink]="['/']" fragment="compagnies" pStyleClass="#menu" enterFromClass="hidden"
+                    leaveToClass="hidden">
+                    <span>Compagnies</span>
+                </a>
+            </li>
+            <li>
+                <a class="flex m-0 md:ml-5 px-0 py-3 text-white line-height-3 no-underline hover:text-green-300"
+                    [routerLink]="['/']" fragment="faq" pStyleClass="#menu" enterFromClass="hidden"
+                    leaveToClass="hidden">
+                    <span>FAQ</span>
+                </a>
+            </li>
+            <li>
+                <button *ngIf="!isAuthenticated()" pButton pRipple type="button"
+                    [routerLink]="['/site-aeroport/auth']" label="Connexion" icon="pi pi-user"
+                    class="p-button-rounded bg-green-600 border-none m-0 mt-3 md:mt-0 md:ml-5" pStyleClass="#menu"
+                    enterFromClass="hidden" leaveToClass="hidden"></button>
+                <button *ngIf="isAuthenticated()" pButton pRipple type="button" (click)="logout()"
+                    label="Déconnexion" icon="pi pi-sign-out"
+                    class="p-button-rounded bg-red-500 border-none m-0 mt-3 md:mt-0 md:ml-5">
+                </button>
+            </li>
+        </ul>
+    </div>
+</div>

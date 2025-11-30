@@ -36,6 +36,7 @@ import { CalendarModule } from 'primeng/calendar';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { FileUploadModule } from 'primeng/fileupload';
+import { NavbarComponent } from '../navbar/navbar.component';
 
 interface FormFieldConfig {
   key: string;
@@ -70,7 +71,8 @@ interface UploadFieldConfig {
     ButtonModule,
     ToastModule,
     FileUploadModule,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    NavbarComponent,
   ],
   providers: [MessageService],
   templateUrl: './preEnregistrement.component.html',

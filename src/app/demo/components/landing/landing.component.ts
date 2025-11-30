@@ -11,6 +11,7 @@ import { AccountService } from 'src/app/service-util/auth/account.service';
 import { Observable } from 'rxjs';
 import { AuthServerProvider } from 'src/app/service-util/auth/auth-jwt.service';
 import { LoginService } from 'src/app/service-util/auth/login.service';
+import { NavbarComponent } from 'src/app/modules/site/navbar/navbar.component';
 
 interface Service {
     icon: string;
@@ -94,7 +95,8 @@ interface FAQ {
         StyleClassModule,
         ButtonModule,
         InputTextModule,
-        RouterModule
+        RouterModule,
+        NavbarComponent
     ],
 })
 export class LandingComponent implements OnInit {
@@ -103,14 +105,11 @@ export class LandingComponent implements OnInit {
     conditionsList: Condition[] = [];
     airlines: Airline[] = [];
     faqs: FAQ[] = [];
-    isAuthenticated = false;
-    isAuthenticated$!: Observable<boolean>;
     
-    constructor(private layoutService: LayoutService,private auth: AuthServerProvider,
-         private accountService:AccountService, private loginService:LoginService, private router: Router) {}
+    
+    constructor() {}
 
     ngOnInit() {
-         this.isAuthenticated$ = this.auth.isAuthenticated$;
         this.initializeServices();
         this.initializeProcedures();
         this.initializeConditions();
@@ -118,13 +117,7 @@ export class LandingComponent implements OnInit {
         this.initializeFAQs();
     }
 
-    logout(): void {
-        console.log('=======================logout=====================');
-  this.loginService.logout();
-  this.router.navigate(['/site-aeroport/accueil']);
-  console.log('=======================logout=====================');
-}
-    initializeServices() {
+     initializeServices() {
         this.servicesList = [
             {
                 icon: 'pi pi-pencil',

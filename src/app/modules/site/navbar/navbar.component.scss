@@ -1,0 +1,139 @@
+// navbar.component.scss
+
+// Variables
+$navbar-height: 68px;
+$navbar-bg: rgba(0, 0, 0, 0.4);
+$navbar-blur: blur(17px);
+$transition-speed: 0.3s;
+
+// Navbar principale
+:host {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+// Menu mobile - animations
+#menu {
+  transition: all $transition-speed ease-in-out;
+
+  @media (max-width: 991px) {
+    &.hidden {
+      transform: translateY(-20px);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    &:not(.hidden) {
+      animation: slideDown $transition-speed ease-out;
+    }
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// Liens de navigation
+ul li a {
+  position: relative;
+  transition: color $transition-speed ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #4ade80; // green-300
+    transition: width $transition-speed ease;
+  }
+
+  &:hover::after {
+    width: 100%;
+  }
+}
+
+// Boutons
+button {
+  transition: all $transition-speed ease;
+
+  &.p-button-rounded {
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+// Logo hover effect
+a[href="/"] {
+  transition: all $transition-speed ease;
+
+  &:hover {
+    text-shadow: 0 0 20px rgba(74, 222, 128, 0.5);
+  }
+}
+
+// Icône menu hamburger
+.pi-bars {
+  transition: transform $transition-speed ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+// Responsive
+@media (max-width: 991px) {
+  #menu {
+    background: rgba(0, 0, 0, 0.95) !important;
+    backdrop-filter: blur(10px);
+    padding: 1rem;
+
+    ul {
+      width: 100%;
+
+      li {
+        width: 100%;
+
+        a, button {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    }
+  }
+}
+
+// Effet de survol du menu
+@media (min-width: 992px) {
+  ul li {
+    &:hover {
+      a {
+        color: #4ade80 !important; // green-300
+      }
+    }
+  }
+}
+
+// Animation de chargement pour les boutons
+button[loading] {
+  pointer-events: none;
+  opacity: 0.7;
+}
