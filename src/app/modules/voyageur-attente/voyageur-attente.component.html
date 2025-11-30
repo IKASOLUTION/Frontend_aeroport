@@ -11,9 +11,9 @@
             <ng-template pTemplate="caption">
                 <div class="flex justify-content-between flex-column sm:flex-row">
                     <div class="flex gap-2">
-                        <button pButton label="Nouvel enregistrement" [routerLink]="['/admin/gestion-enregistrements']"
+                        <!-- <button pButton label="Nouvel enregistrement" [routerLink]="['/admin/gestion-enregistrements']"
                             class="p-button-success mb-2" icon="pi pi-plus">
-                        </button>
+                        </button> -->
                         <button pButton label="Filtrer par période" class="p-button-info mb-2" icon="pi pi-filter"
                             (click)="openFilterDialog()">
                         </button>
@@ -89,8 +89,11 @@
                         </p-tag>
                     </td>
                     <td class="text-center">
-                        <button pButton icon="pi pi-eye" class="p-button-rounded p-button-primary mr-2"
+                        <!-- <button pButton icon="pi pi-eye" class="p-button-rounded p-button-primary mr-2"
                             pTooltip="Voir détail" tooltipPosition="top" (click)="selectEnregistrement(enregistrement)">
+                        </button> -->
+                         <button pButton icon="pi pi-eye" class="p-button-rounded p-button-primary mr-2"
+                            pTooltip="Voir détail" tooltipPosition="top" (click)="openEditModal(enregistrement)">
                         </button>
                         <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger"
                             pTooltip="Voir détail" tooltipPosition="top" (click)="confirmDelete(enregistrement)">
@@ -176,47 +179,59 @@
 </p-dialog>
 
 <!-- Modal Détail Enregistrement -->
-<p-dialog [(visible)]="isDetailModalOpen" [style]="{width: '1000px'}" header="Détails de l'enregistrement"
-    [modal]="true" [closable]="true" [draggable]="false" class="p-fluid">
 
-    <div class="p-fluid">
 
+
+
+
+
+<p-dialog [(visible)]="isEditModalOpen" [style]="{width: '1000px'}" 
+    header="Validation de l'enregistrement" [modal]="true" [closable]="true" 
+    [draggable]="false" class="p-fluid">
+
+    <form [formGroup]="editFormGroup">
         <!-- Section: Informations Document -->
         <p-fieldset legend="Informations Document" [toggleable]="false" styleClass="mb-3">
             <div class="grid">
                 <div class="field col-12 md:col-6">
-                    <span class="font-bold">
-                        <i class="pi pi-id-card mr-2"></i>Type de document:
-                    </span>
-                    {{ selectedEnregistrement.typeDocument || 'N/A' }}
+                    <label for="typeDocument" class="font-bold">
+                        <i class="pi pi-id-card mr-2"></i>Type de document
+                    </label>
+                    <p-dropdown id="typeDocument" formControlName="typeDocument" 
+                        [options]="typesDocument" optionLabel="label" optionValue="value"
+                        placeholder="Sélectionner un type" [showClear]="true">
+                    </p-dropdown>
+
                 </div>
 
                 <div class="field col-12 md:col-6">
-                    <span class="font-bold">
-                        <i class="pi pi-hashtag mr-2"></i>Numéro de document:
-                    </span>
-                    {{ selectedEnregistrement.numeroDocument || 'N/A' }}
-                </div>
-
-                <div class="field col-12 md:col-6" *ngIf="selectedEnregistrement.numeroNip">
-                    <span class="font-bold">
-                        <i class="pi pi-key mr-2"></i>Numéro NIP:
-                    </span>
-                    {{ selectedEnregistrement.numeroNip }}
+                    <label for="numeroDocument" class="font-bold">
+                        <i class="pi pi-hashtag mr-2"></i>Numéro de document
+                    </label>
+                    <input pInputText id="numeroDocument" formControlName="numeroDocument" />
                 </div>
 
                 <div class="field col-12 md:col-6">
-                    <span class="font-bold">
-                        <i class="pi pi-calendar mr-2"></i>Date de délivrance:
-                    </span>
-                    {{ selectedEnregistrement.dateDelivrance | date: 'dd/MM/yyyy' || 'N/A' }}
+                    <label for="numeroNip" class="font-bold">
+                        <i class="pi pi-key mr-2"></i>Numéro NIP
+                    </label>
+                    <input pInputText id="numeroNip" formControlName="numeroNip" />
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label for="dateDelivrance" class="font-bold">
+                        <i class="pi pi-calendar mr-2"></i>Date de délivrance
+                    </label>
+                    <p-calendar id="dateDelivrance" formControlName="dateDelivrance" 
+                        dateFormat="dd/mm/yy" [showIcon]="true">
+                    </p-calendar>
                 </div>
 
                 <div class="field col-12">
-                    <span class="font-bold">
-                        <i class="pi pi-map-marker mr-2"></i>Lieu de délivrance:
-                    </span>
-                    {{ selectedEnregistrement.lieuDelivrance || 'N/A' }}
+                    <label for="lieuDelivrance" class="font-bold">
+                        <i class="pi pi-map-marker mr-2"></i>Lieu de délivrance
+                    </label>
+                    <input pInputText id="lieuDelivrance" formControlName="lieuDelivrance" />
                 </div>
             </div>
         </p-fieldset>
@@ -225,45 +240,47 @@
         <p-fieldset legend="Informations Personnelles" [toggleable]="false" styleClass="mb-3">
             <div class="grid">
                 <div class="field col-12 md:col-6">
-                    <span class="font-bold">
-                        <i class="pi pi-user mr-2"></i>Nom de famille:
-                    </span>
-                    {{ selectedEnregistrement.nomFamille || 'N/A' }}
+                    <label for="nomFamille" class="font-bold">
+                        <i class="pi pi-user mr-2"></i>Nom de famille
+                    </label>
+                    <input pInputText id="nomFamille" formControlName="nomFamille" />
                 </div>
 
                 <div class="field col-12 md:col-6">
-                    <span class="font-bold">
-                        <i class="pi pi-user mr-2"></i>Prénom:
-                    </span>
-                    {{ selectedEnregistrement.prenom || 'N/A' }}
+                    <label for="prenom" class="font-bold">
+                        <i class="pi pi-user mr-2"></i>Prénom
+                    </label>
+                    <input pInputText id="prenom" formControlName="prenom" />
                 </div>
 
                 <div class="field col-12 md:col-6">
-                    <span class="font-bold">
-                        <i class="pi pi-calendar mr-2"></i>Date de naissance:
-                    </span>
-                    {{ selectedEnregistrement.dateNaissance | date: 'dd/MM/yyyy' || 'N/A' }}
+                    <label for="dateNaissance" class="font-bold">
+                        <i class="pi pi-calendar mr-2"></i>Date de naissance
+                    </label>
+                    <p-calendar id="dateNaissance" formControlName="dateNaissance" 
+                        dateFormat="dd/mm/yy" [showIcon]="true">
+                    </p-calendar>
                 </div>
 
                 <div class="field col-12 md:col-6">
-                    <span class="font-bold">
-                        <i class="pi pi-map-marker mr-2"></i>Lieu de naissance:
-                    </span>
-                    {{ selectedEnregistrement.lieuNaissance || 'N/A' }}
+                    <label for="lieuNaissance" class="font-bold">
+                        <i class="pi pi-map-marker mr-2"></i>Lieu de naissance
+                    </label>
+                    <input pInputText id="lieuNaissance" formControlName="lieuNaissance" />
                 </div>
 
                 <div class="field col-12 md:col-6">
-                    <span class="font-bold">
-                        <i class="pi pi-flag mr-2"></i>Nationalité:
-                    </span>
-                    {{ selectedEnregistrement.nationalite || 'N/A' }}
+                    <label for="nationalite" class="font-bold">
+                        <i class="pi pi-flag mr-2"></i>Nationalité
+                    </label>
+                    <input pInputText id="nationalite" formControlName="nationalite" />
                 </div>
 
-                <div class="field col-12 md:col-6" *ngIf="selectedEnregistrement.profession">
-                    <span class="font-bold">
-                        <i class="pi pi-briefcase mr-2"></i>Profession:
-                    </span>
-                    {{ selectedEnregistrement.profession }}
+                <div class="field col-12 md:col-6">
+                    <label for="profession" class="font-bold">
+                        <i class="pi pi-briefcase mr-2"></i>Profession
+                    </label>
+                    <input pInputText id="profession" formControlName="profession" />
                 </div>
             </div>
         </p-fieldset>
@@ -272,121 +289,249 @@
         <p-fieldset legend="Coordonnées" [toggleable]="false" styleClass="mb-3">
             <div class="grid">
                 <div class="field col-12 md:col-6">
-                    <span class="font-bold">
-                        <i class="pi pi-globe mr-2"></i>Pays de résidence:
-                    </span>
-                    {{ selectedEnregistrement.paysResidence || 'N/A' }}
+                    <label for="paysResidence" class="font-bold">
+                        <i class="pi pi-globe mr-2"></i>Pays de résidence
+                    </label>
+                    <input pInputText id="paysResidence" formControlName="paysResidence" />
                 </div>
 
-                <div class="field col-12 md:col-6" *ngIf="selectedEnregistrement.emailContact">
-                    <span class="font-bold">
-                        <i class="pi pi-envelope mr-2"></i>Email:
-                    </span>
-                    {{ selectedEnregistrement.emailContact }}
+                <div class="field col-12 md:col-6">
+                    <label for="emailContact" class="font-bold">
+                        <i class="pi pi-envelope mr-2"></i>Email
+                    </label>
+                    <input pInputText id="emailContact" type="email" formControlName="emailContact" />
                 </div>
 
-                <div class="field col-12 md:col-6" *ngIf="selectedEnregistrement.telephoneBurkina">
-                    <span class="font-bold">
-                        <i class="pi pi-phone mr-2"></i>Téléphone Burkina:
-                    </span>
-                    {{ selectedEnregistrement.telephoneBurkina }}
+                <div class="field col-12 md:col-6">
+                    <label for="telephoneBurkina" class="font-bold">
+                        <i class="pi pi-phone mr-2"></i>Téléphone Burkina
+                    </label>
+                    <input pInputText id="telephoneBurkina" formControlName="telephoneBurkina" />
                 </div>
 
-                <div class="field col-12 md:col-6" *ngIf="selectedEnregistrement.telephoneEtranger">
-                    <span class="font-bold">
-                        <i class="pi pi-phone mr-2"></i>Téléphone Étranger:
-                    </span>
-                    {{ selectedEnregistrement.telephoneEtranger }}
+                <div class="field col-12 md:col-6">
+                    <label for="telephoneEtranger" class="font-bold">
+                        <i class="pi pi-phone mr-2"></i>Téléphone Étranger
+                    </label>
+                    <input pInputText id="telephoneEtranger" formControlName="telephoneEtranger" />
                 </div>
 
-                <div class="field col-12" *ngIf="selectedEnregistrement.adresseBurkina">
-                    <span class="font-bold">
-                        <i class="pi pi-home mr-2"></i>Adresse Burkina:
-                    </span>
-                    {{ selectedEnregistrement.adresseBurkina }}
+                <div class="field col-12 md:col-6">
+                    <label for="adresseBurkina" class="font-bold">
+                        <i class="pi pi-home mr-2"></i>Adresse Burkina
+                    </label>
+                    <textarea pInputText id="adresseBurkina" formControlName="adresseBurkina" 
+                        rows="2"></textarea>
                 </div>
 
-                <div class="field col-12" *ngIf="selectedEnregistrement.adresseEtranger">
-                    <span class="font-bold">
-                        <i class="pi pi-home mr-2"></i>Adresse Étranger:
-                    </span>
-                    {{ selectedEnregistrement.adresseEtranger }}
+                <div class="field col-12 md:col-6">
+                    <label for="adresseEtranger" class="font-bold">
+                        <i class="pi pi-home mr-2"></i>Adresse Étranger
+                    </label>
+                    <textarea pInputText id="adresseEtranger" formControlName="adresseEtranger" 
+                        rows="2"></textarea>
                 </div>
             </div>
         </p-fieldset>
 
         <!-- Section: Informations de Voyage -->
-        <p-fieldset legend="Informations du dernier Voyage" [toggleable]="false" styleClass="mb-3">
+        <p-fieldset legend="Informations de Voyage" [toggleable]="false" styleClass="mb-3">
             <div class="grid">
                 <div class="field col-12 md:col-6">
-                    <span class="font-bold">
-                        <i class="pi pi-arrow-up mr-2"></i>Aéroport départ:
-                    </span>
-                    {{ selectedEnregistrement.aeroportDepart || 'N/A' }}
+                    <label for="aeroportDepart" class="font-bold">
+                        <i class="pi pi-arrow-up mr-2"></i>Aéroport départ
+                    </label>
+                    <input pInputText id="aeroportDepart" formControlName="aeroportDepart" />
                 </div>
 
                 <div class="field col-12 md:col-6">
-                    <span class="font-bold">
-                        <i class="pi pi-arrow-down mr-2"></i>Aéroport de destination:
-                    </span>
-                    {{ selectedEnregistrement.aeroportDestination || 'N/A' }}
+                    <label for="aeroportDestination" class="font-bold">
+                        <i class="pi pi-arrow-down mr-2"></i>Aéroport destination
+                    </label>
+                    <input pInputText id="aeroportDestination" formControlName="aeroportDestination" />
                 </div>
 
                 <div class="field col-12 md:col-6">
-                    <span class="font-bold">
-                        <i class="pi pi-calendar mr-2"></i>Date de vol:
-                    </span>
-                    {{ selectedEnregistrement.dateVoyage | date: 'dd/MM/yyyy' || 'N/A' }}
-                </div>
-
-                <div class="field col-12 md:col-6" *ngIf="selectedEnregistrement.heureVoyage">
-                    <span class="font-bold">
-                        <i class="pi pi-clock mr-2"></i>Heure de vol:
-                    </span>
-                    {{ selectedEnregistrement.heureVoyage }}
+                    <label for="dateVoyage" class="font-bold">
+                        <i class="pi pi-calendar mr-2"></i>Date de vol
+                    </label>
+                    <p-calendar id="dateVoyage" formControlName="dateVoyage" 
+                        dateFormat="dd/mm/yy" [showIcon]="true">
+                    </p-calendar>
                 </div>
 
                 <div class="field col-12 md:col-6">
-                    <span class="font-bold">
-                        <i class="pi pi-info-circle mr-2"></i>Motif du vol:
-                    </span>
-                    <!--  <p-tag 
-                        [value]="selectedEnregistrement.motifVoyage || 'N/A'" 
-                        [severity]="getMotifVoyageSeverity(selectedEnregistrement.motifVoyage)"
-                        styleClass="text-sm ml-2">
-                    </p-tag> -->
+                    <label for="heureVoyage" class="font-bold">
+                        <i class="pi pi-clock mr-2"></i>Heure de vol
+                    </label>
+                    <input pInputText id="heureVoyage" formControlName="heureVoyage" 
+                        placeholder="HH:MM" />
                 </div>
 
-                <div class="field col-12 md:col-6" *ngIf="selectedEnregistrement.etatVoyage">
-                    <span class="font-bold">
-                        <i class="pi pi-directions mr-2"></i>État du vol:
-                    </span>
-                    {{ selectedEnregistrement.etatVoyage }}
+                <div class="field col-12 md:col-6">
+                    <label for="dureeSejour" class="font-bold">
+                        <i class="pi pi-hourglass mr-2"></i>Durée de séjour (jours)
+                    </label>
+                    <input pInputText id="dureeSejour" type="number" formControlName="dureeSejour" />
                 </div>
 
-                <div class="field col-12 md:col-6" *ngIf="selectedEnregistrement.dureeSejour">
-                    <span class="font-bold">
-                        <i class="pi pi-hourglass mr-2"></i>Durée de séjour:
-                    </span>
-                    {{ selectedEnregistrement.dureeSejour }} jour(s)
-                </div>
-
-                <div class="field col-12 md:col-6" *ngIf="selectedEnregistrement.volId">
-                    <span class="font-bold">
-                        <i class="pi pi-send mr-2"></i>Vol associé:
-                    </span>
-                    Vol #{{ selectedEnregistrement.volId }}
-                </div>
+               
             </div>
         </p-fieldset>
-
-    </div>
+    </form>
 
     <ng-template pTemplate="footer">
-        <button pButton pRipple label="Fermer" icon="pi pi-times" class="p-button-danger" (click)="closeDetailModal()">
-        </button>
+        <div class="flex justify-content-end gap-2">
+            <button pButton label="Annuler" icon="pi pi-times" 
+                class="p-button-secondary" (click)="closeEditModal()">
+            </button>
+            <button pButton label="Valider" icon="pi pi-check" 
+                class="p-button-primary" (click)="saveEnregistrement()"
+                [disabled]="editFormGroup.invalid">
+            </button>
+        </div>
     </ng-template>
+</p-dialog>
 
+
+
+
+<p-dialog 
+  [visible]="isCaptureBiometriqueModalOpen" 
+  [modal]="true" 
+  [closable]="true"
+  [style]="{width: '60rem'}"
+  [breakpoints]="{'960px': '75vw', '640px': '95vw'}"
+  header="Capturer les Données Biométriques">
+    <div class="grid">
+      <!-- Main Gauche -->
+      <div class="col-12 md:col-6 p-4 border-1 border-round bg-gray-50">
+        <div class="flex align-items-center justify-content-between mb-3">
+          <div class="flex align-items-center">
+            <i class="pi pi-fingerprint text-4xl text-cyan-500 mr-3"></i>
+            <div>
+              <p class="font-semibold text-gray-700">4 doigts main gauche</p>
+              <p class="text-xs" [class]="empreinteGauche().capturee ? 'text-green-600' : 'text-gray-500'">
+                {{ empreinteGauche().capturee ? 'Capturé' : 'Prêt pour la capture' }}
+              </p>
+            </div>
+          </div>
+          <p-button 
+            [label]="empreinteGauche().capturee ? 'Recapturer' : 'Capturer'" 
+            severity="info" size="small"
+            (onClick)="capturerEmpreinte('empreinteGauche')">
+          </p-button>
+        </div>
+
+        @if (empreinteGauche().image) {
+          <div class="w-full h-12rem bg-white border-2 border-green-500 border-round overflow-hidden">
+            <img [src]="empreinteGauche().image" alt="Empreinte main gauche" class="w-full h-full object-fit-contain">
+          </div>
+        } @else {
+          <div class="w-full h-12rem bg-gray-200 border-round flex align-items-center justify-content-center">
+            <i class="pi pi-image text-6xl text-gray-400"></i>
+          </div>
+        }
+      </div>
+
+      <!-- Main Droite -->
+      <div class="col-12 md:col-6 p-4 border-1 border-round bg-gray-50">
+        <div class="flex align-items-center justify-content-between mb-3">
+          <div class="flex align-items-center">
+            <i class="pi pi-fingerprint text-4xl text-cyan-500 mr-3"></i>
+            <div>
+              <p class="font-semibold text-gray-700">4 doigts main droite</p>
+              <p class="text-xs" [class]="empreinteDroite().capturee ? 'text-green-600' : 'text-gray-500'">
+                {{ empreinteDroite().capturee ? 'Capturé' : 'Prêt pour la capture' }}
+              </p>
+            </div>
+          </div>
+          <p-button 
+            [label]="empreinteDroite().capturee ? 'Recapturer' : 'Capturer'" 
+            severity="info" size="small"
+            (onClick)="capturerEmpreinte('empreinteDroite')">
+          </p-button>
+        </div>
+
+        @if (empreinteDroite().image) {
+          <div class="w-full h-12rem bg-white border-2 border-green-500 border-round overflow-hidden">
+            <img [src]="empreinteDroite().image" alt="Empreinte main droite" class="w-full h-full object-fit-contain">
+          </div>
+        } @else {
+          <div class="w-full h-12rem bg-gray-200 border-round flex align-items-center justify-content-center">
+            <i class="pi pi-image text-6xl text-gray-400"></i>
+          </div>
+        }
+      </div>
+
+      <!-- Pouces -->
+      <div class="col-12 md:col-6 p-4 border-1 border-round bg-gray-50">
+        <div class="flex align-items-center justify-content-between mb-3">
+          <div class="flex align-items-center">
+            <i class="pi pi-thumbs-up text-4xl text-purple-500 mr-3"></i>
+            <div>
+              <p class="font-semibold text-gray-700">Les deux pouces</p>
+              <p class="text-xs" [class]="empreintePouces().capturee ? 'text-green-600' : 'text-gray-500'">
+                {{ empreintePouces().capturee ? 'Capturé' : 'Prêt pour la capture' }}
+              </p>
+            </div>
+          </div>
+          <p-button 
+            [label]="empreintePouces().capturee ? 'Recapturer' : 'Capturer'" 
+            severity="help" size="small"
+            (onClick)="capturerEmpreinte('empreintePouces')">
+          </p-button>
+        </div>
+
+        @if (empreintePouces().image) {
+          <div class="w-full h-12rem bg-white border-2 border-green-500 border-round overflow-hidden">
+            <img [src]="empreintePouces().image" alt="Empreinte pouces" class="w-full h-full object-fit-contain">
+          </div>
+        } @else {
+          <div class="w-full h-12rem bg-gray-200 border-round flex align-items-center justify-content-center">
+            <i class="pi pi-image text-6xl text-gray-400"></i>
+          </div>
+        }
+      </div>
+
+      <!-- Photo d'identité -->
+      <div class="col-12 md:col-6 p-4 border-1 border-round bg-gray-50">
+        <div class="flex align-items-center justify-content-between mb-3">
+          <div class="flex align-items-center">
+            <i class="pi pi-camera text-4xl text-green-500 mr-3"></i>
+            <div>
+              <p class="font-semibold text-gray-700">Photo d'identité</p>
+              <p class="text-xs" [class]="capturedPhotoPourBiometrie() ? 'text-green-600' : 'text-gray-500'">
+                {{ capturedPhotoPourBiometrie() ? 'Photo capturée' : 'Prêt pour la capture' }}
+              </p>
+            </div>
+          </div>
+          <p-button 
+            [label]="capturedPhotoPourBiometrie() ? 'Reprendre' : 'Prendre'" 
+            severity="success" size="small"
+            (onClick)="demarrerCamera('biometrique')">
+          </p-button>
+        </div>
+
+        @if (capturedPhotoPourBiometrie(); as photo) {
+          <div class="w-full h-12rem bg-white border-2 border-green-500 border-round overflow-hidden flex align-items-center justify-content-center">
+            <img [src]="photo" alt="Photo biométrique" class="max-w-full max-h-full object-fit-contain">
+          </div>
+        } @else {
+          <div class="w-full h-12rem bg-gray-200 border-round flex align-items-center justify-content-center">
+            <i class="pi pi-user text-6xl text-gray-400"></i>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="flex justify-content-end gap-2 mt-4">
+      <p-button label="Annuler" severity="secondary" (onClick)="closeBiometricModal()"></p-button>
+      <p-button label="Sauvegarder et Valider" icon="pi pi-save" [loading]="isSaving()"
+                [disabled]="!empreinteGauche().capturee || !empreinteDroite().capturee || !empreintePouces().capturee || !capturedPhotoPourBiometrie()"
+                (onClick)="validerAvecBiometrie()"></p-button>
+    </div>
+ 
 </p-dialog>
 
 <!-- Toast pour les notifications -->

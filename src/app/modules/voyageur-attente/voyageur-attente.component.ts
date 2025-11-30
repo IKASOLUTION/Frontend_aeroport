@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -21,7 +21,7 @@ import * as enregistrementSelector from '../../store/enregistrement/selector';
 import * as motifVoyageAction from '../../store/motifVoyage/action';
 import * as motifVoyageSelector from '../../store/motifVoyage/selector';
 import { LoadingSpinnerComponent } from '../loading-spinner.component';
-import { Enregistrement, TypeDocument } from 'src/app/store/enregistrement/model';
+import { EmpreinteCapture, Enregistrement, TypeDocument } from 'src/app/store/enregistrement/model';
 import { FieldsetModule } from 'primeng/fieldset';
 import { TagModule } from 'primeng/tag';
 import { SearchDto } from 'src/app/store/vol/model';
@@ -32,6 +32,9 @@ import { Router, RouterModule } from '@angular/router';
 import { MotifVoyage, StatutVoyageur } from 'src/app/store/motifVoyage/model';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DonneeBiometrique } from 'src/app/store/biometric/model';
+import * as biometricAction from '../../store/biometric/action';
+
 
 @Component({
     selector: 'app-voyageur-attente',
@@ -63,10 +66,15 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     styleUrl: './voyageur-attente.component.scss'
 })
 export class VoyageurAttenteComponent implements OnInit, OnDestroy {
+    @ViewChild('videoElement') videoElement!: ElementRef<HTMLVideoElement>;
+    @ViewChild('canvasElement') canvasElement!: ElementRef<HTMLCanvasElement>;
+
+
     destroy$ = new Subject<boolean>();
 
     // Listes de données
     enregistrementList = signal<Enregistrement[]>([]);
+    newEnregistrement: Enregistrement = {};
 
     // Objet sélectionné
     selectedEnregistrement: Enregistrement = {};
@@ -90,12 +98,40 @@ export class VoyageurAttenteComponent implements OnInit, OnDestroy {
     motifVoyages: MotifVoyage[] = [];
     aeroportSelected: Aeroport | null = null;
     motifVoyageSelected: MotifVoyage | null = null;
+    isEditModalOpen: boolean = false;
+    isCaptureBiometriqueModalOpen: boolean = false;
 
+    // Empreintes avec images
+    empreinteGauche = signal<EmpreinteCapture>({ image: null, capturee: false });
+    empreinteDroite = signal<EmpreinteCapture>({ image: null, capturee: false });
+    empreintePouces = signal<EmpreinteCapture>({ image: null, capturee: false });
+    // Modale Caméra
+    isCameraModalOpen = signal<boolean>(false);
+    isSaving = signal<boolean>(false);
+
+    capturedPhotoBase64 = signal<string | null>(null);
+    currentCameraTarget = signal<'recto' | 'verso' | 'profil' | 'biometrique' | 'empreinteGauche' | 'empreinteDroite' | 'empreintePouces' | null>(null);
+
+
+    capturedPhotoPourBiometrie = signal<string | null>(null);
+    biometric = signal<DonneeBiometrique | null>(null);
+    editFormGroup!: FormGroup;
     // Filtres de recherche
     dateDebut: Date | null = null;
     dateFin: Date | null = null;
     isDetailModalOpen = false;
     selectedStatuts: StatutVoyageur[] = [];
+    typesDocument = [
+        { label: 'Passeport', value: 'PASSEPORT' },
+        { label: 'CNI', value: 'CNI' }
+    ];
+    formData = signal<Enregistrement>({
+        typeDocument: TypeDocument.PASSEPORT,
+    });
+    private mediaStream: MediaStream | null = null;
+
+
+
     statutsVol = [
         { label: 'Validé', value: StatutVoyageur.VALIDE },
         { label: 'En_attente', value: StatutVoyageur.EN_ATTENTE },
@@ -106,6 +142,7 @@ export class VoyageurAttenteComponent implements OnInit, OnDestroy {
     constructor(
         private fb: FormBuilder,
         private store: Store<AppState>,
+
         private router: Router,
         private confirmationService: ConfirmationService,
         private messageService: MessageService
@@ -127,6 +164,8 @@ export class VoyageurAttenteComponent implements OnInit, OnDestroy {
 
         this.createFormSearch();
         this.createFormFilter();
+        this.createEditForm();
+
 
         // Initialiser les dates (7 derniers jours par défaut)
         this.dateDebut = new Date();
@@ -158,6 +197,8 @@ export class VoyageurAttenteComponent implements OnInit, OnDestroy {
                 }
             });
     }
+
+
 
     private loadEnregistrements(): void {
         if (!this.dateDebut || !this.dateFin) {
@@ -349,6 +390,329 @@ export class VoyageurAttenteComponent implements OnInit, OnDestroy {
     cancelFilter(): void {
         this.filterDialog = false;
     }
+
+
+    // Créer le formulaire d'édition
+    createEditForm(): void {
+        this.editFormGroup = this.fb.group({
+            // Informations Document
+            typeDocument: [null],
+            numeroDocument: [null],
+            numeroNip: [null],
+            dateDelivrance: [null],
+            lieuDelivrance: [null],
+
+            // Informations Personnelles
+            nomFamille: [null],
+            prenom: [null],
+            dateNaissance: [null],
+            lieuNaissance: [null],
+            nationalite: [null],
+            profession: [null],
+
+            // Coordonnées
+            paysResidence: [null],
+            emailContact: [null],
+            telephoneBurkina: [null],
+            telephoneEtranger: [null],
+            adresseBurkina: [null],
+            adresseEtranger: [null],
+
+            // Informations de Voyage
+            aeroportDepart: [null],
+            aeroportDestination: [null],
+            dateVoyage: [null],
+            heureVoyage: [null],
+            motifVoyage: [null],
+            etatVoyage: [null],
+            dureeSejour: [null],
+            statut: [null]
+        });
+    }
+
+
+
+    openEditModal(enregistrement: Enregistrement): void {
+        this.selectedEnregistrement = enregistrement;
+
+        // Pré-remplir le formulaire avec les données existantes
+        this.editFormGroup.patchValue({
+            typeDocument: enregistrement.typeDocument,
+            numeroDocument: enregistrement.numeroDocument,
+            numeroNip: enregistrement.numeroNip, // CORRECTION: c'était informationPersonnelle
+            dateDelivrance: enregistrement.dateDelivrance ? new Date(enregistrement.dateDelivrance) : null,
+            lieuDelivrance: enregistrement.lieuDelivrance,
+            nomFamille: enregistrement.nomFamille,
+            prenom: enregistrement.prenom,
+            dateNaissance: enregistrement.dateNaissance ? new Date(enregistrement.dateNaissance) : null,
+            lieuNaissance: enregistrement.lieuNaissance,
+            nationalite: enregistrement.nationalite,
+            profession: enregistrement.profession,
+            paysResidence: enregistrement.paysResidence,
+            emailContact: enregistrement.emailContact,
+            telephoneBurkina: enregistrement.telephoneBurkina,
+            telephoneEtranger: enregistrement.telephoneEtranger,
+            adresseBurkina: enregistrement.adresseBurkina,
+            adresseEtranger: enregistrement.adresseEtranger,
+            aeroportDepart: enregistrement.aeroportDepart,
+            aeroportDestination: enregistrement.aeroportDestination,
+            dateVoyage: enregistrement.dateVoyage ? new Date(enregistrement.dateVoyage) : null,
+            heureVoyage: enregistrement.heureVoyage,
+            motifVoyage: enregistrement.motifVoyage,
+            etatVoyage: enregistrement.etatVoyage,
+            dureeSejour: enregistrement.dureeSejour,
+
+        });
+
+        this.isEditModalOpen = true;
+    }
+    closeEditModal(): void {
+        this.isEditModalOpen = false;
+        this.editFormGroup.reset();
+        this.selectedEnregistrement = {};
+    }
+
+
+ saveEnregistrement(): void {
+    if (this.editFormGroup.valid) {
+        const updatedEnregistrement: Enregistrement = {
+            ...this.editFormGroup.value,
+            id: this.selectedEnregistrement?.id, // ✅ AJOUTEZ CETTE LIGNE
+            // Convertir les dates au format string si nécessaire
+            dateDelivrance: this.editFormGroup.value.dateDelivrance
+                ? new Date(this.editFormGroup.value.dateDelivrance).toISOString()
+                : undefined,
+            dateNaissance: this.editFormGroup.value.dateNaissance
+                ? new Date(this.editFormGroup.value.dateNaissance).toISOString()
+                : undefined,
+            dateVoyage: this.editFormGroup.value.dateVoyage
+                ? new Date(this.editFormGroup.value.dateVoyage).toISOString()
+                : undefined,
+            statut: StatutVoyageur.VALIDE,
+        };
+        
+        console.log("----------Voir status et ID-------", updatedEnregistrement);
+
+        // Dispatch l'action de mise à jour
+        this.store.dispatch(enregistrementAction.updateEnregistrement(updatedEnregistrement));
+
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Succès',
+            detail: 'Enregistrement mis à jour avec succès',
+            life: 3000
+        });
+        this.newEnregistrement = updatedEnregistrement;
+        this.closeEditModal();
+        this.isCaptureBiometriqueModalOpen = true;
+        this.loadEnregistrements();
+
+    } else {
+        this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: 'Veuillez remplir tous les champs requis',
+            life: 3000
+        });
+    }
+}
+    // Gestion de la caméra pour empreintes
+    async capturerEmpreinte(type: 'empreinteGauche' | 'empreinteDroite' | 'empreintePouces'): Promise<void> {
+        this.currentCameraTarget.set(type);
+        this.capturedPhotoBase64.set(null);
+        this.isCameraModalOpen.set(true);
+
+        try {
+            await this.waitForView();
+
+            this.mediaStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'user', width: 1280, height: 720 }
+            });
+
+            if (this.videoElement && this.videoElement.nativeElement) {
+                this.videoElement.nativeElement.srcObject = this.mediaStream;
+            }
+        } catch (error) {
+            console.error('Erreur d\'accès à la caméra:', error);
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Erreur caméra',
+                detail: 'Impossible d\'accéder à la caméra',
+                life: 3000
+            });
+            this.isCameraModalOpen.set(false);
+        }
+    }
+
+    async demarrerCamera(target: 'recto' | 'verso' | 'profil' | 'biometrique'): Promise<void> {
+        this.currentCameraTarget.set(target);
+        this.capturedPhotoBase64.set(null);
+        this.isCameraModalOpen.set(true);
+
+        try {
+            await this.waitForView();
+
+            this.mediaStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'user', width: 1280, height: 720 }
+            });
+
+            if (this.videoElement && this.videoElement.nativeElement) {
+                this.videoElement.nativeElement.srcObject = this.mediaStream;
+            }
+        } catch (error) {
+            console.error('Erreur d\'accès à la caméra:', error);
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Erreur caméra',
+                detail: 'Impossible d\'accéder à la caméra',
+                life: 3000
+            });
+            this.isCameraModalOpen.set(false);
+        }
+    }
+
+    private waitForView(): Promise<void> {
+        return new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    capturerPhoto(): void {
+        if (!this.videoElement || !this.canvasElement) return;
+
+        const video = this.videoElement.nativeElement;
+        const canvas = this.canvasElement.nativeElement;
+        const context = canvas.getContext('2d');
+
+        if (!context) return;
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const photoBase64 = canvas.toDataURL('image/jpeg', 0.8);
+        this.capturedPhotoBase64.set(photoBase64);
+    }
+
+    reprendrePhoto(): void {
+        this.capturedPhotoBase64.set(null);
+    }
+
+    confirmerPhoto(): void {
+        const photo = this.capturedPhotoBase64();
+        const target = this.currentCameraTarget();
+
+        if (!photo || !target) return;
+
+        if (target === 'biometrique') {
+            this.capturedPhotoPourBiometrie.set(photo);
+        } else if (target === 'empreinteGauche') {
+            this.empreinteGauche.set({ image: photo, capturee: true });
+        } else if (target === 'empreinteDroite') {
+            this.empreinteDroite.set({ image: photo, capturee: true });
+        } else if (target === 'empreintePouces') {
+            this.empreintePouces.set({ image: photo, capturee: true });
+        } else {
+            this.formData.update(data => ({
+                ...data,
+                [target === 'recto' ? 'imageRecto' : target === 'verso' ? 'imageVerso' : 'photoProfil']: photo
+            }));
+        }
+
+        this.arreterCamera();
+    }
+
+    arreterCamera(): void {
+        if (this.mediaStream) {
+            this.mediaStream.getTracks().forEach(track => track.stop());
+            this.mediaStream = null;
+        }
+        this.isCameraModalOpen.set(false);
+        this.capturedPhotoBase64.set(null);
+        this.currentCameraTarget.set(null);
+    }
+
+    closeBiometricModal(): void {
+        this.isCaptureBiometriqueModalOpen = false;
+        this.empreinteGauche.set({ image: null, capturee: false });
+        this.empreinteDroite.set({ image: null, capturee: false });
+        this.empreintePouces.set({ image: null, capturee: false });
+        this.capturedPhotoPourBiometrie.set(null);
+    }
+
+
+    validerAvecBiometrie(): void {
+        if (!this.empreinteGauche().capturee || !this.empreinteDroite().capturee ||
+            !this.empreintePouces().capturee || !this.capturedPhotoPourBiometrie()) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Données incomplètes',
+                detail: 'Veuillez capturer toutes les données biométriques',
+                life: 3000
+            });
+            return;
+        }
+
+        //const passager = this.passagerPourBiometrie();
+        //if (!passager) return;
+
+        // Convertir les images en fichiers
+        const empreinteGaucheFile = this.convertBase64ToFile(this.empreinteGauche().image, 'empreinte_gauche.jpg');
+        const empreinteDroiteFile = this.convertBase64ToFile(this.empreinteDroite().image, 'empreinte_droite.jpg');
+        const empreintePoucesFile = this.convertBase64ToFile(this.empreintePouces().image, 'empreinte_pouces.jpg');
+        const photoBiometriqueFile = this.convertBase64ToFile(this.capturedPhotoPourBiometrie(), 'photo_biometrique.jpg');
+
+        // Vérifier que toutes les conversions ont réussi
+        if (!empreinteGaucheFile || !empreinteDroiteFile || !empreintePoucesFile || !photoBiometriqueFile) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Erreur de conversion',
+                detail: 'Impossible de convertir les images capturées',
+                life: 3000
+            });
+            return;
+        }
+
+        this.biometric.set({
+            //informationPersonnelleId: this.enregistrementSelect()?.informationPersonnelleId,
+            informationPersonnelleId: this.newEnregistrement.informationPersonnelleId,
+
+            empreinteGauche: empreinteGaucheFile,
+            empreinteDroite: empreinteDroiteFile,
+            empreintePouces: empreintePoucesFile,
+            photoBiometrique: photoBiometriqueFile
+        });
+
+        const biometricData = this.biometric();
+        if (biometricData) {
+            this.store.dispatch(biometricAction.createDonneeBiometrique(biometricData));
+
+            this.router.navigateByUrl('/admin/gestion-enregistrements');
+        }
+
+        this.closeBiometricModal();
+        // this.resetForm();
+    }
+
+    private convertBase64ToFile(base64String: string | null, filename: string = 'photo.jpg'): File | undefined {
+        if (!base64String) return undefined;
+
+        try {
+            const base64Data = base64String.split(',')[1] || base64String;
+            const byteString = atob(base64Data);
+            const arrayBuffer = new ArrayBuffer(byteString.length);
+            const uint8Array = new Uint8Array(arrayBuffer);
+
+            for (let i = 0; i < byteString.length; i++) {
+                uint8Array[i] = byteString.charCodeAt(i);
+            }
+
+            const blob = new Blob([uint8Array], { type: 'image/jpeg' });
+            return new File([blob], filename, { type: 'image/jpeg' });
+        } catch (error) {
+            console.error('Erreur conversion base64 vers File:', error);
+            return undefined;
+        }
+    }
+
 
     ngOnDestroy(): void {
         this.destroy$.next(true);

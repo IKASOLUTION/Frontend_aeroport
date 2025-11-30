@@ -144,33 +144,29 @@
       <div class="col-12 md:col-6">
         <p-fieldset legend="Informations personnelles">
           <div class="field">
-            <label>Nom <span style="color:red">*</span></label>
+            <label>Nom </label>
             <input pInputText formControlName="nom" placeholder="Nom complet"/>
-            <small class="p-error" *ngIf="listeNoireFormGroup.get('nom')?.invalid && listeNoireFormGroup.get('nom')?.touched">
-              Le nom est requis
-            </small>
+           
           </div>
 
           <div class="field">
-            <label>Prénom <span style="color:red">*</span></label>
+            <label>Prénom </label>
             <input pInputText formControlName="prenom" placeholder="Prénom"/>
-            <small class="p-error" *ngIf="listeNoireFormGroup.get('prenom')?.invalid && listeNoireFormGroup.get('prenom')?.touched">
-              Le prénom est requis
-            </small>
+            
           </div>
 
           <div class="field">
-            <label>Date de naissance <span style="color:red">*</span></label>
+            <label>Date de naissance</label>
             <input type="date" pInputText formControlName="dateNaissance"/>
           </div>
 
           <div class="field">
-            <label>Lieu de naissance <span style="color:red">*</span></label>
+            <label>Lieu de naissance</label>
             <input pInputText formControlName="lieuNaissance" placeholder="Ex: Ouagadougou"/>
           </div>
 
           <div class="field">
-            <label>Motif <span style="color:red">*</span></label>
+            <label>Motif</label>
             <textarea pInputTextarea formControlName="motif" rows="2" placeholder="Raison d'inscription..."></textarea>
           </div>
         </p-fieldset>

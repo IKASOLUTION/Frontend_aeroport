@@ -120,7 +120,7 @@ export class AppMenuComponent implements OnInit {
                     routerLink: ['/admin/donnee-biometrique']
                 },
                 {
-                    label: 'Notification Urgente',
+                    label: 'Notification',
                     icon: 'fa-solid fa-bell',
                     routerLink: ['/admin/notification']
                 }

@@ -74,6 +74,7 @@ export enum TypeCapture {
     
 }
 
+
 export enum StatutDonneeBio {
     VALIDE, INVALIDE, EXPIREE
 }
