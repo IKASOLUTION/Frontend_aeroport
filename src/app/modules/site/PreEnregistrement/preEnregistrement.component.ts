@@ -1,16 +1,32 @@
-import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Store, select } from '@ngrx/store';
-import { Observable, Subject, takeUntil } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
 import { MessageService } from 'primeng/api';
+import { filter, debounceTime } from 'rxjs/operators';
+
+// Store Actions & Selectors
 import * as enregistrementAction from '../../../store/enregistrement/action';
 import * as enregistrementSelector from '../../../store/enregistrement/selector';
 import * as globalSelector from '../../../store/global-config/selector';
 import * as volAction from '../../../store/vol/action';
 import * as volSelector from '../../../store/vol/selector';
 
-// PrimeNG Imports
+// Models
+import { Enregistrement, MotifVoyage, TypeDocument } from 'src/app/store/enregistrement/model';
+import { TypeVol, Vol } from 'src/app/store/vol/model';
+
+// Services
+import { CountryService } from 'src/app/demo/service/country.service';
+import { NationaliteService } from 'src/app/demo/service/nationalite.service';
+import { RegulaService } from 'src/app/store/regular.service';
+
+// Components
+import { LoadingSpinnerComponent } from '../../loading-spinner.component';
+
+// PrimeNG Modules
 import { CardModule } from 'primeng/card';
 import { FieldsetModule } from 'primeng/fieldset';
 import { InputTextModule } from 'primeng/inputtext';
@@ -20,245 +36,295 @@ import { CalendarModule } from 'primeng/calendar';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { FileUploadModule } from 'primeng/fileupload';
-import { Enregistrement, MotifVoyage, TypeDocument } from 'src/app/store/enregistrement/model';
-import { TypeVol, Vol } from 'src/app/store/vol/model';
-import { CountryService } from 'src/app/demo/service/country.service';
-import { NationaliteService } from 'src/app/demo/service/nationalite.service';
-import { Router } from '@angular/router';
-import { LoadingSpinnerComponent } from '../../loading-spinner.component';
-import { RegulaService } from 'src/app/store/regular.service';
+
+interface FormFieldConfig {
+  key: string;
+  label: string;
+  icon: string;
+  placeholder: string;
+  type: 'text' | 'date' | 'dropdown' | 'number';
+  cols: number;
+  required: boolean;
+  inputType?: string;
+  options?: any[];
+}
+
+interface UploadFieldConfig {
+  key: string;
+  label: string;
+  icon: string;
+}
 
 @Component({
-    selector: 'app-front-enregistrement',
-    standalone: true,
-    imports: [
-        CommonModule,
-        FormsModule,
-        CardModule,
-        FieldsetModule,
-        InputTextModule,
-        InputNumberModule,
-        DropdownModule,
-        CalendarModule,
-        ButtonModule,
-        ToastModule,
-        FileUploadModule,
-        LoadingSpinnerComponent
-    ],
-    providers: [MessageService],
-    templateUrl: './preEnregistrement.component.html',
-    styleUrls: ['./preEnregistrement.component.scss']
+  selector: 'app-front-enregistrement',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    CardModule,
+    FieldsetModule,
+    InputTextModule,
+    InputNumberModule,
+    DropdownModule,
+    CalendarModule,
+    ButtonModule,
+    ToastModule,
+    FileUploadModule,
+    LoadingSpinnerComponent
+  ],
+  providers: [MessageService],
+  templateUrl: './preEnregistrement.component.html',
+  styleUrls: ['./preEnregistrement.component.scss']
 })
-export class PreEnregistrementComponent implements OnInit, OnDestroy {
+export class PreEnregistrementComponent implements OnInit {
+  // Services injection
+  private readonly fb = inject(FormBuilder);
+  private readonly store = inject(Store);
+  private readonly messageService = inject(MessageService);
+  private readonly regulaService = inject(RegulaService);
+  private readonly countryService = inject(CountryService);
+  private readonly nationaliteService = inject(NationaliteService);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
-    private store = inject(Store);
-    private messageService = inject(MessageService);
-    private regulaService = inject(RegulaService);
-    private destroy$ = new Subject<void>();
-    private countryService = inject(CountryService);
-    private nationaliteService = inject(NationaliteService);
-    private router = inject(Router);
+  // Signals
+  loading = signal(false);
+  isSaving = signal(false);
+  countries = signal<any[]>([]);
+  nationalites = signal<any[]>([]);
+  volList = signal<Vol[]>([]);
+  selectedVolInfo = signal<Vol | null>(null);
 
-    // Signals pour la gestion de l'état local
-    formData = signal<Enregistrement>({
-        typeDocument: TypeDocument.PASSEPORT,
-        etatVoyage: 'ALLER'
+  // Form
+  enregistrementForm!: FormGroup;
+
+  // Computed signals
+  hasErrors = computed(() => this.enregistrementForm?.invalid ?? false);
+
+  // Configuration des champs
+  readonly typeDocuments = [
+    { label: 'Passeport', value: TypeDocument.PASSEPORT },
+    { label: "Carte d'Identité", value: TypeDocument.CNI }
+  ];
+
+  readonly motifs = signal<{ libelle: string; value: MotifVoyage }[]>([
+    { libelle: 'Affaires', value: MotifVoyage.AFFAIRES },
+    { libelle: 'Tourisme', value: MotifVoyage.TOURISME },
+    { libelle: 'Famille', value: MotifVoyage.FAMILLE },
+    { libelle: 'Études', value: MotifVoyage.ETUDES },
+    { libelle: 'Médical', value: MotifVoyage.MEDICAL }
+  ]);
+
+  readonly etatVoyageOptions = [
+    { label: 'ALLER', value: 'ALLER' },
+    { label: 'RETOUR', value: 'RETOUR' },
+    { label: 'ALLER-RETOUR', value: 'ALLER_RETOUR' }
+  ];
+
+  readonly uploadFields: UploadFieldConfig[] = [
+    { key: 'imageRecto', label: 'Image recto du document', icon: 'pi pi-images' },
+    { key: 'imageVerso', label: 'Image verso du document', icon: 'pi pi-images' },
+    { key: 'photoProfil', label: 'Photo de profil', icon: 'pi pi-user' }
+  ];
+
+  readonly documentFields: FormFieldConfig[] = [
+    { key: 'numeroDocument', label: 'Numéro de document', icon: 'pi pi-hashtag', placeholder: 'Numéro de document', type: 'text', cols: 3, required: true },
+    { key: 'numeroNip', label: 'Numéro NIP (Optionnel)', icon: 'pi pi-key', placeholder: 'Numéro NIP', type: 'text', cols: 3, required: false },
+    { key: 'dateDelivrance', label: 'Date de délivrance', icon: 'pi pi-calendar', placeholder: 'Sélectionner la date', type: 'date', cols: 3, required: true },
+    { key: 'lieuDelivrance', label: 'Lieu de délivrance', icon: 'pi pi-map-marker', placeholder: 'Lieu de délivrance', type: 'text', cols: 3, required: true }
+  ];
+
+  readonly personalFields: FormFieldConfig[] = [
+    { key: 'prenom', label: 'Prénom', icon: 'pi pi-user', placeholder: 'Votre prénom', type: 'text', cols: 4, required: true },
+    { key: 'nomFamille', label: 'Nom de famille', icon: 'pi pi-user', placeholder: 'Votre nom de famille', type: 'text', cols: 4, required: true },
+    { key: 'profession', label: 'Profession', icon: 'pi pi-briefcase', placeholder: 'Votre profession', type: 'text', cols: 4, required: true },
+    { key: 'dateNaissance', label: 'Date de naissance', icon: 'pi pi-calendar', placeholder: 'Sélectionner la date', type: 'date', cols: 4, required: true },
+    { key: 'lieuNaissance', label: 'Lieu de naissance', icon: 'pi pi-map-marker', placeholder: 'Lieu de naissance', type: 'text', cols: 4, required: true },
+    { key: 'nationalite', label: 'Nationalité', icon: 'pi pi-flag', placeholder: 'Sélectionnez votre nationalité', type: 'dropdown', cols: 4, required: true }
+  ];
+
+  readonly contactFields: FormFieldConfig[] = [
+    { key: 'paysResidence', label: 'Pays de résidence', icon: 'pi pi-globe', placeholder: 'Sélectionnez le pays', type: 'dropdown', cols: 4, required: true },
+    { key: 'emailContact', label: 'Email (Optionnel)', icon: 'pi pi-envelope', placeholder: 'votre@email.com', type: 'text', cols: 4, required: false, inputType: 'email' },
+    { key: 'telephoneBurkina', label: 'Téléphone Burkina (Optionnel)', icon: 'pi pi-phone', placeholder: '+226 XX XX XX XX', type: 'text', cols: 4, required: false },
+    { key: 'telephoneEtranger', label: 'Téléphone Étranger (Optionnel)', icon: 'pi pi-phone', placeholder: 'Téléphone étranger', type: 'text', cols: 4, required: false },
+    { key: 'adresseBurkina', label: 'Adresse au Burkina', icon: 'pi pi-home', placeholder: 'Adresse au Burkina', type: 'text', cols: 4, required: true },
+    { key: 'adresseEtranger', label: "Adresse à l'étranger", icon: 'pi pi-home', placeholder: "Adresse à l'étranger", type: 'text', cols: 4, required: true }
+  ];
+
+  readonly travelFields: FormFieldConfig[] = [
+    { 
+      key: 'motifVoyage', 
+      label: 'Motif du voyage', 
+      icon: 'pi pi-question-circle', 
+      placeholder: 'Sélectionner un motif', 
+      type: 'dropdown', 
+      cols: 4, 
+      required: true,
+      options: this.motifs()
+    },
+    { 
+      key: 'etatVoyage', 
+      label: 'État du voyage', 
+      icon: 'pi pi-arrow-right-arrow-left', 
+      placeholder: 'Sélectionner', 
+      type: 'dropdown', 
+      cols: 4, 
+      required: true,
+      options: this.etatVoyageOptions
+    },
+    { 
+      key: 'dureeSejour', 
+      label: 'Durée du séjour (jours)', 
+      icon: 'pi pi-clock', 
+      placeholder: 'Durée en jours', 
+      type: 'number', 
+      cols: 4, 
+      required: true 
+    }
+  ];
+
+  ngOnInit(): void {
+    this.initializeForm();
+    this.loadInitialData();
+    this.subscribeToStoreUpdates();
+  }
+
+  private initializeForm(): void {
+    this.enregistrementForm = this.fb.group({
+      // Document d'Identité
+      typeDocument: [TypeDocument.PASSEPORT, Validators.required],
+      numeroDocument: ['', Validators.required],
+      numeroNip: [''],
+      dateDelivrance: [null, Validators.required],
+      lieuDelivrance: ['', Validators.required],
+      imageRecto: [null, Validators.required],
+      imageVerso: [null, Validators.required],
+      photoProfil: [null, Validators.required],
+
+      // Informations Personnelles
+      prenom: ['', Validators.required],
+      nomFamille: ['', Validators.required],
+      profession: ['', Validators.required],
+      dateNaissance: [null, Validators.required],
+      lieuNaissance: ['', Validators.required],
+      nationalite: [null, Validators.required],
+
+      // Coordonnées
+      paysResidence: [null, Validators.required],
+      emailContact: ['', [Validators.email]],
+      telephoneBurkina: [''],
+      telephoneEtranger: [''],
+      adresseBurkina: ['', Validators.required],
+      adresseEtranger: ['', Validators.required],
+
+      // Informations de Voyage
+      volId: [null, Validators.required],
+      motifVoyage: [null, Validators.required],
+      etatVoyage: ['ALLER', Validators.required],
+      dureeSejour: [1, [Validators.required, Validators.min(1)]],
+
+      // Champs automatiques (cachés)
+      villeDepart: [''],
+      villeDestination: [''],
+      dateVoyage: [''],
+      heureVoyage: ['']
     });
 
-    formErrors = signal<Record<string, string>>({});
-    isSaving = signal<boolean>(false);
-    loading = signal<boolean>(true);
+    // Auto-save sur changement (debounced)
+    this.enregistrementForm.valueChanges
+      .pipe(
+        debounceTime(500),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.saveToLocalStorage();
+      });
 
-    motifs = signal<{ libelle: string; value: MotifVoyage }[]>([]);
-    volList$!: Observable<Array<Vol>>;
-    volList: Array<Vol> = [];
-    selectedVolInfo = signal<Vol | null>(null);
+    // Charger depuis localStorage si disponible
+    this.loadFromLocalStorage();
+  }
 
-    // Options pour les dropdowns
-    countries: any[] = [];
-    selectedCountry: any;
-    nationalites: any[] = [];
-    selectedNationalite: any;
+  private async loadInitialData(): Promise<void> {
+    this.loading.set(true);
 
-    ngOnInit(): void {
-        this.initializeFormData();
-        this.subscribeToStoreUpdates();
-        this.volList$ = this.store.pipe(select(volSelector.volList));
-        this.store.dispatch(volAction.loadVol());
+    try {
+      // Dispatch pour charger les vols
+      this.store.dispatch(volAction.loadVol());
 
-        this.volList$.pipe(takeUntil(this.destroy$))
-            .subscribe(value => {
-                if (value) {
-                    this.volList = [...value];
-                }
-            });
-        this.loadMotifs();
+      // Charger en parallèle
+      const [countries, nationalites] = await Promise.all([
+        this.countryService.getCountries(),
+        this.nationaliteService.getCountries()
+      ]);
 
-        // Charger les pays et nationalités
-        this.countryService.getCountries().then((countries) => {
-            this.countries = countries;
-        });
-
-        this.nationaliteService.getCountries().then((nationalites) => {
-            this.nationalites = nationalites;
-        });
+      this.countries.set(countries);
+      this.nationalites.set(nationalites);
+    } catch (error) {
+      this.showToast('error', 'Erreur lors du chargement des données initiales');
+      console.error('Error loading initial data:', error);
+    } finally {
+      this.loading.set(false);
     }
+  }
 
-    private subscribeToStoreUpdates(): void {
-        // Écouter les vols
+  private subscribeToStoreUpdates(): void {
+    // Vols
+    this.store.select(volSelector.volList)
+      .pipe(
+        filter(vols => !!vols && vols.length > 0),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(vols => {
+        this.volList.set([...vols]);
+      });
 
+    // Notifications globales
+    this.store.select(globalSelector.status)
+      .pipe(
+        filter(status => !!status?.message),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(status => {
+        this.showToast(status.status, status.message);
+        this.isSaving.set(false);
+      });
 
-        // Écouter les notifications de statut
-        this.store.pipe(
-            select(globalSelector.status),
-            takeUntil(this.destroy$)
-        ).subscribe(status => {
-            if (status && status.message) {
-                this.showToast(status.status, status.message);
-            }
-        });
-
-        // Écouter la création réussie
-        this.store.pipe(
-            select(enregistrementSelector.selectedEnregistrement),
-            takeUntil(this.destroy$)
-        ).subscribe(created => {
-            if (created && created.id) {
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Succès',
-                    detail: 'Votre pré-enregistrement a été créé avec succès !',
-                    life: 5000
-                });
-
-                // Rediriger vers une page de confirmation
-                setTimeout(() => {
-                    this.router.navigateByUrl('/confirmation');
-                }, 2000);
-            }
-        });
-    }
-
-    private showToast(severity: string, message: string): void {
-        const severityMap: Record<string, 'success' | 'info' | 'warn' | 'error'> = {
-            'success': 'success',
-            'error': 'error',
-            'warning': 'warn',
-            'info': 'info'
-        };
-
+    // Création réussie
+    this.store.select(enregistrementSelector.selectedEnregistrement)
+      .pipe(
+        filter(created => !!created?.id),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(created => {
+        this.isSaving.set(false);
+        this.clearLocalStorage();
+        
         this.messageService.add({
-            severity: severityMap[severity] || 'info',
-            summary: this.getSummaryBySeverity(severity),
-            detail: message,
-            life: 5000
+          severity: 'success',
+          summary: 'Succès',
+          detail: 'Votre pré-enregistrement a été créé avec succès !',
+          life: 5000
         });
-    }
 
-    private getSummaryBySeverity(severity: string): string {
-        const summaries: Record<string, string> = {
-            'success': 'Succès',
-            'error': 'Erreur',
-            'warning': 'Attention',
-            'info': 'Information'
-        };
-        return summaries[severity] || 'Notification';
-    }
-
-    initializeFormData(): void {
-        this.formData.set({
-            typeDocument: TypeDocument.PASSEPORT,
-            etatVoyage: 'ALLER',
-            numeroDocument: '',
-            numeroNip: '',
-            dateDelivrance: '',
-            lieuDelivrance: '',
-            photoProfil: null,
-            imageRecto: null,
-            imageVerso: null,
-            nomFamille: '',
-            prenom: '',
-            dateNaissance: '',
-            lieuNaissance: '',
-            nationalite: '',
-            profession: '',
-            paysResidence: '',
-            emailContact: '',
-            telephoneBurkina: '',
-            telephoneEtranger: '',
-            adresseBurkina: '',
-            adresseEtranger: '',
-            volId: null,
-            villeDepart: '',
-            villeDestination: '',
-            dateVoyage: '',
-            heureVoyage: '',
-            motifVoyage: undefined,
-            dureeSejour: null
-        });
-    }
-
-    //   loadVols(): void {
-    //     this.store.dispatch(volAction.loadVol());
-    //   }
-
-    loadMotifs(): void {
-        this.motifs.set([
-            { libelle: 'Affaires', value: MotifVoyage.AFFAIRES },
-            { libelle: 'Tourisme', value: MotifVoyage.TOURISME },
-            { libelle: 'Famille', value: MotifVoyage.FAMILLE },
-            { libelle: 'Études', value: MotifVoyage.ETUDES },
-            { libelle: 'Médical', value: MotifVoyage.MEDICAL },
-        ]);
-    }
-
-    updateFormDataField(field: keyof Enregistrement, value: any): void {
-        this.formData.update(data => ({ ...data, [field]: value }));
-
-        // Effacer l'erreur pour ce champ si elle existe
-        if (this.formErrors()[field]) {
-            this.formErrors.update(errors => {
-                const newErrors = { ...errors };
-                delete newErrors[field];
-                return newErrors;
-            });
-        }
-    }
-
-    /**
-     * Gestion de l'upload de fichiers
-     */
-   onFileSelect(event: any, fieldName: 'imageRecto' | 'imageVerso' | 'photoProfil'): void {
-  const file = event.files[0];
-
-  if (file) {
-    // Vérifications existantes (taille, type)
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Fichier trop volumineux',
-        detail: 'La taille du fichier ne doit pas dépasser 5MB',
-        life: 3000
+        /* setTimeout(() => {
+          this.router.navigateByUrl('/confirmation');
+        }, 2000); */
       });
-      return;
-    }
+  }
 
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    if (!validTypes.includes(file.type)) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Type de fichier invalide',
-        detail: 'Seuls les fichiers JPG, JPEG et PNG sont acceptés',
-        life: 3000
-      });
-      return;
-    }
+  // File Upload avec OCR
+  onFileSelect(event: any, fieldName: 'imageRecto' | 'imageVerso' | 'photoProfil'): void {
+    const file = event.files?.[0];
+    if (!file) return;
+
+    // Validation
+    if (!this.validateFile(file)) return;
 
     const reader = new FileReader();
     reader.onload = (e: any) => {
       const base64String = e.target.result;
-      this.updateFormDataField(fieldName, base64String);
+      this.enregistrementForm.patchValue({ [fieldName]: base64String });
 
       this.messageService.add({
         severity: 'success',
@@ -267,309 +333,262 @@ export class PreEnregistrementComponent implements OnInit, OnDestroy {
         life: 2000
       });
 
-      // Lecture automatique du document si c'est le recto
+      // Auto-fill avec OCR uniquement pour le recto
       if (fieldName === 'imageRecto') {
         this.autoFillFromDocument(file);
       }
     };
 
     reader.onerror = () => {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erreur de lecture',
-        detail: 'Impossible de lire le fichier',
-        life: 3000
-      });
+      this.showToast('error', 'Impossible de lire le fichier');
     };
 
     reader.readAsDataURL(file);
   }
-}
 
-private autoFillFromDocument(file: File): void {
-  this.messageService.add({
-    severity: 'info',
-    summary: 'Lecture du document',
-    detail: 'Analyse du document en cours...',
-    life: 3000
-  });
+  private validateFile(file: File): boolean {
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
 
-  this.regulaService.verifyDocument(file).subscribe({
-    next: (response) => {
-      console.log('✅ Réponse Regula:', response);
+    if (file.size > maxSize) {
+      this.showToast('error', 'La taille du fichier ne doit pas dépasser 5MB');
+      return false;
+    }
+
+    if (!validTypes.includes(file.type)) {
+      this.showToast('error', 'Seuls les fichiers JPG, JPEG et PNG sont acceptés');
+      return false;
+    }
+
+    return true;
+  }
+
+  private autoFillFromDocument(file: File): void {
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Lecture du document',
+      detail: 'Analyse du document en cours...',
+      life: 3000
+    });
+
+    this.regulaService.verifyDocument(file)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          console.log('✅ Réponse Regula:', response);
+          
+          const documentInfo = this.regulaService.extractDocumentInfo(response);
+          this.fillFormWithDocumentInfo(documentInfo);
+          
+          this.showToast('success', 'Les informations ont été extraites automatiquement');
+        },
+        error: (error) => {
+          console.error('❌ Erreur Regula:', error);
+          this.showToast('warn', 'Le document n\'a pas pu être lu automatiquement. Remplissez manuellement.');
+        }
+      });
+  }
+
+  private fillFormWithDocumentInfo(documentInfo: any): void {
+    if (!documentInfo) return;
+
+    const updates: Partial<Enregistrement> = {};
+    const currentValues = this.enregistrementForm.value;
+
+    // Mapping des champs avec type safety
+    const fieldMapping: (keyof Enregistrement)[] = [
+      'nomFamille', 'prenom', 'dateNaissance', 'lieuNaissance', 
+      'nationalite', 'numeroDocument', 'dateDelivrance', 'lieuDelivrance'
+    ];
+
+    fieldMapping.forEach(field => {
+      if (!currentValues[field] && documentInfo[field]) {
+        (updates as any)[field] = documentInfo[field];
+      }
+    });
+
+    if (Object.keys(updates).length > 0) {
+      this.enregistrementForm.patchValue(updates);
       
-      const documentInfo = this.regulaService.extractDocumentInfo(response);
-      this.fillFormWithDocumentInfo(documentInfo);
+      console.log('📝 Formulaire mis à jour avec:', updates);
       
       this.messageService.add({
         severity: 'success',
-        summary: 'Document analysé',
-        detail: 'Les informations ont été extraites automatiquement',
-        life: 3000
+        summary: 'Champs remplis automatiquement',
+        detail: `${Object.keys(updates).length} champs ont été pré-remplis`,
+        life: 4000
       });
-    },
-    error: (error) => {
-      console.error('❌ Erreur Regula:', error);
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Lecture impossible',
-        detail: 'Le document n\'a pas pu être lu automatiquement. Remplissez manuellement.',
-        life: 5000
-      });
+    } else {
+      this.showToast('info', 'Le document ne contient pas de nouvelles informations à ajouter');
     }
-  });
-}
+  }
 
+  // Vol selection avec auto-fill
+  onVolSelectionChange(volId: number): void {
+    const selectedVol = this.volList().find(v => v.id === volId);
+    if (!selectedVol) return;
 
-manualDocumentRead(fileField: 'imageRecto' | 'imageVerso'): void {
-  const fileInput = document.querySelector(`[data-field="${fileField}"]`) as HTMLInputElement;
-  
-  if (fileInput && fileInput.files && fileInput.files[0]) {
-    this.autoFillFromDocument(fileInput.files[0]);
-  } else {
-    this.messageService.add({
-      severity: 'warn',
-      summary: 'Aucun fichier',
-      detail: 'Veuillez d\'abord sélectionner un fichier',
-      life: 3000
+    this.selectedVolInfo.set(selectedVol);
+
+    const isArrivee = selectedVol.typeVol === TypeVol.ARRIVEE;
+    const aeroport = selectedVol.aeroport?.nomAeroport ?? '';
+    const agentAeroport = selectedVol.nomAgentConnecteAeroport ?? '';
+
+    const villeDepart = isArrivee ? aeroport : agentAeroport;
+    const villeDestination = isArrivee ? agentAeroport : aeroport;
+
+    const isoDate = selectedVol.dateDepart ? new Date(selectedVol.dateDepart).toISOString() : null;
+    const dateVoyage = isoDate ? isoDate.split('T')[0] : '';
+    const heureVoyage = isoDate ? isoDate.split('T')[1].substring(0, 5) : '';
+
+    this.enregistrementForm.patchValue({
+      villeDepart,
+      villeDestination,
+      dateVoyage,
+      heureVoyage
     });
   }
-}
 
-private fillFormWithDocumentInfo(documentInfo: any): void {
-  if (!documentInfo) return;
-
-  // Mise à jour des champs seulement s'ils sont vides
-  const currentData = this.formData();
-
-  const updates: Partial<Enregistrement> = {};
-
-  // Informations personnelles
-  if (!currentData.nomFamille && documentInfo.nomFamille) {
-    updates.nomFamille = documentInfo.nomFamille;
-  }
-  if (!currentData.prenom && documentInfo.prenom) {
-    updates.prenom = documentInfo.prenom;
-  }
-  if (!currentData.dateNaissance && documentInfo.dateNaissance) {
-    updates.dateNaissance = documentInfo.dateNaissance;
-  }
-  if (!currentData.lieuNaissance && documentInfo.lieuNaissance) {
-    updates.lieuNaissance = documentInfo.lieuNaissance;
-  }
-  if (!currentData.nationalite && documentInfo.nationalite) {
-    updates.nationalite = documentInfo.nationalite;
+  // Helpers
+  getImagePreview(fieldName: string): string | null {
+    return this.enregistrementForm.get(fieldName)?.value;
   }
 
-  // Informations document
-  if (!currentData.numeroDocument && documentInfo.numeroDocument) {
-    updates.numeroDocument = documentInfo.numeroDocument;
-  }
-  if (!currentData.dateDelivrance && documentInfo.dateDelivrance) {
-    updates.dateDelivrance = documentInfo.dateDelivrance;
-  }
-  if (!currentData.lieuDelivrance && documentInfo.lieuDelivrance) {
-    updates.lieuDelivrance = documentInfo.lieuDelivrance;
-  }
-
-  // Appliquer les mises à jour
-  if (Object.keys(updates).length > 0) {
-    this.formData.update(data => ({ ...data, ...updates }));
+  getFieldError(fieldName: string): string | null {
+    const control = this.enregistrementForm.get(fieldName);
     
-    console.log('📝 Formulaire mis à jour avec:', updates);
+    if (control?.invalid && (control.dirty || control.touched)) {
+      if (control.hasError('required')) return 'Ce champ est requis';
+      if (control.hasError('email')) return 'Email invalide';
+      if (control.hasError('min')) return `La valeur minimale est ${control.getError('min').min}`;
+    }
     
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Champs remplis automatiquement',
-      detail: `${Object.keys(updates).length} champs ont été pré-remplis`,
-      life: 4000
-    });
-  } else {
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Aucune nouvelle information',
-      detail: 'Le document ne contient pas de nouvelles informations à ajouter',
-      life: 3000
+    return null;
+  }
+
+  private getFieldLabel(fieldName: string): string {
+    const labels: Record<string, string> = {
+      'imageRecto': 'recto',
+      'imageVerso': 'verso',
+      'photoProfil': 'de profil'
+    };
+    return labels[fieldName] || '';
+  }
+
+  // Submit
+  submitEnregistrement(): void {
+    if (this.enregistrementForm.invalid) {
+      this.markAllAsTouched();
+      this.showToast('warn', 'Veuillez corriger les erreurs dans le formulaire');
+      this.scrollToFirstError();
+      return;
+    }
+
+    this.isSaving.set(true);
+    const enregistrementData = this.prepareEnregistrementData();
+    
+    console.log('📤 Données à envoyer:', enregistrementData);
+    this.store.dispatch(enregistrementAction.createEnregistrement(enregistrementData));
+    this.resetForm();
+
+  }
+
+  private prepareEnregistrementData(): Enregistrement {
+    const formValue = this.enregistrementForm.value;
+    
+    return {
+      ...formValue,
+      dateDelivrance: this.formatDate(formValue.dateDelivrance),
+      dateNaissance: this.formatDate(formValue.dateNaissance),
+      dateVoyage: this.formatDate(formValue.dateVoyage)
+    };
+  }
+
+  private formatDate(date: any): string {
+    if (!date) return '';
+    if (date instanceof Date) return date.toISOString().split('T')[0];
+    return date;
+  }
+
+  private markAllAsTouched(): void {
+    Object.keys(this.enregistrementForm.controls).forEach(key => {
+      this.enregistrementForm.get(key)?.markAsTouched();
     });
   }
-}
 
-    private getFieldLabel(fieldName: string): string {
-        const labels: Record<string, string> = {
-            'imageRecto': 'recto',
-            'imageVerso': 'verso',
-            'photoProfil': 'de profil'
-        };
-        return labels[fieldName] || '';
+  private scrollToFirstError(): void {
+    const firstErrorField = Object.keys(this.enregistrementForm.controls)
+      .find(key => this.enregistrementForm.get(key)?.invalid);
+    
+    if (firstErrorField) {
+      const element = document.getElementById(firstErrorField);
+      element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
+  }
 
-    onVolSelectionChange(volId: number): void {
-        // const selectedVol = this.volList().find(v => v.id === volId);
+  // Reset
+  resetForm(): void {
+    this.enregistrementForm.reset({
+      typeDocument: TypeDocument.PASSEPORT,
+      etatVoyage: 'ALLER',
+      dureeSejour: 1
+    });
+    
+    this.selectedVolInfo.set(null);
+    this.clearLocalStorage();
+    
+    this.showToast('info', 'Le formulaire a été réinitialisé');
+  }
 
-        // if (!selectedVol) return;
-
-        // // Met à jour la sélection affichée
-        // this.selectedVolInfo.set(selectedVol);
-
-        // // Détermine les valeurs selon typeVol
-        // const isArrivee = selectedVol.typeVol === TypeVol.ARRIVEE;
-
-        // const aeroport = selectedVol.aeroport?.nomAeroport ?? '';
-        // const agentAeroport = selectedVol.nomAgentConnecteAeroport ?? '';
-
-        // // Si ARRIVEE => aeroport → agent
-        // // Sinon => agent → aeroport
-        // const villeDepart = isArrivee ? aeroport : agentAeroport;
-        // const villeDestination = isArrivee ? agentAeroport : aeroport;
-
-        // // Conversion dates
-        // const isoDate = selectedVol.dateDepart
-        //     ? new Date(selectedVol.dateDepart).toISOString()
-        //     : null;
-
-        // const dateVoyage = isoDate ? isoDate.split('T')[0] : '';
-        // const heureVoyage = isoDate ? isoDate.split('T')[1].substring(0, 5) : '';
-
-        // // Mise à jour du formulaire
-        // this.formData.update(data => ({
-        //     ...data,
-        //     volId,
-        //     villeDepart,
-        //     villeDestination,
-        //     dateVoyage,
-        //     heureVoyage
-        // }));
+  // LocalStorage
+  private saveToLocalStorage(): void {
+    try {
+      localStorage.setItem('enregistrement_draft', JSON.stringify(this.enregistrementForm.value));
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error);
     }
+  }
 
-    findPays(country: any): void {
-        if (country && country.name) {
-            this.formData.update(data => ({
-                ...data,
-                paysResidence: country.name
-            }));
-        }
+  private loadFromLocalStorage(): void {
+    try {
+      const draft = localStorage.getItem('enregistrement_draft');
+      if (draft) {
+        const data = JSON.parse(draft);
+        this.enregistrementForm.patchValue(data);
+        this.showToast('info', 'Brouillon restauré');
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement:', error);
     }
+  }
 
-    findNationalite(nationalite: any): void {
-        if (nationalite && nationalite.nationalite) {
-            this.formData.update(data => ({
-                ...data,
-                nationalite: nationalite.nationalite
-            }));
-        }
-    }
+  private clearLocalStorage(): void {
+    localStorage.removeItem('enregistrement_draft');
+  }
 
-    validateForm(): boolean {
-        const errors: Record<string, string> = {};
-        const data = this.formData();
+  // Toast helper
+  private showToast(severity: string, message: string): void {
+    const severityMap: Record<string, 'success' | 'info' | 'warn' | 'error'> = {
+      'success': 'success',
+      'error': 'error',
+      'warning': 'warn',
+      'warn': 'warn',
+      'info': 'info'
+    };
 
-        // Validation Document
-        if (!data.typeDocument) errors['typeDocument'] = 'Le type de document est requis';
-        if (!data.numeroDocument?.trim()) errors['numeroDocument'] = 'Le numéro de document est requis';
-        if (!data.dateDelivrance) errors['dateDelivrance'] = 'La date de délivrance est requise';
-        if (!data.lieuDelivrance?.trim()) errors['lieuDelivrance'] = 'Le lieu de délivrance est requis';
-        if (!data.imageRecto) errors['imageRecto'] = 'L\'image recto est requise';
-        if (!data.imageVerso) errors['imageVerso'] = 'L\'image verso est requise';
-        if (!data.photoProfil) errors['photoProfil'] = 'La photo de profil est requise';
+    const summaries: Record<string, string> = {
+      'success': 'Succès',
+      'error': 'Erreur',
+      'warning': 'Attention',
+      'warn': 'Attention',
+      'info': 'Information'
+    };
 
-        // Validation Informations Personnelles
-        if (!data.prenom?.trim()) errors['prenom'] = 'Le prénom est requis';
-        if (!data.nomFamille?.trim()) errors['nomFamille'] = 'Le nom de famille est requis';
-        if (!data.dateNaissance) errors['dateNaissance'] = 'La date de naissance est requise';
-        if (!data.lieuNaissance?.trim()) errors['lieuNaissance'] = 'Le lieu de naissance est requis';
-        if (!data.nationalite?.trim()) errors['nationalite'] = 'La nationalité est requise';
-        if (!data.profession?.trim()) errors['profession'] = 'La profession est requise';
-
-        // Validation Coordonnées
-        if (!data.paysResidence?.trim()) errors['paysResidence'] = 'Le pays de résidence est requis';
-        if (!data.adresseBurkina?.trim()) errors['adresseBurkina'] = 'L\'adresse au Burkina est requise';
-        if (!data.adresseEtranger?.trim()) errors['adresseEtranger'] = 'L\'adresse à l\'étranger est requise';
-
-        // Validation Email (si fourni)
-        if (data.emailContact && !this.isValidEmail(data.emailContact)) {
-            errors['emailContact'] = 'L\'email n\'est pas valide';
-        }
-
-        // Validation Voyage
-        if (!data.volId) errors['volId'] = 'Le vol est requis';
-        if (!data.motifVoyage) errors['motifVoyage'] = 'Le motif du voyage est requis';
-        if (!data.dureeSejour) errors['dureeSejour'] = 'La durée du séjour est requise';
-
-        this.formErrors.set(errors);
-        return Object.keys(errors).length === 0;
-    }
-
-    isValidEmail(email: string): boolean {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    }
-
-    submitEnregistrement(): void {
-        console.log('📝 Soumission du formulaire...');
-
-        if (!this.validateForm()) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Erreur de validation',
-                detail: 'Veuillez corriger les erreurs dans le formulaire',
-                life: 5000
-            });
-
-            // Scroll vers la première erreur
-            const firstError = Object.keys(this.formErrors())[0];
-            if (firstError) {
-                const element = document.getElementById(firstError);
-                if (element) {
-                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            }
-
-            return;
-        }
-
-        this.isSaving.set(true);
-
-        const enregistrementData = this.prepareEnregistrementData();
-        console.log('📤 Données à envoyer:', enregistrementData);
-
-        this.store.dispatch(enregistrementAction.createEnregistrement(enregistrementData));
-    }
-
-    private prepareEnregistrementData(): Enregistrement {
-        const data = this.formData();
-        return {
-            ...data,
-            dateDelivrance: this.formatDate(data.dateDelivrance),
-            dateNaissance: this.formatDate(data.dateNaissance),
-            dateVoyage: this.formatDate(data.dateVoyage)
-        };
-    }
-
-    private formatDate(date: any): string {
-        if (!date) return '';
-        if (date instanceof Date) {
-            return date.toISOString().split('T')[0];
-        }
-        return date;
-    }
-
-    resetForm(): void {
-        this.initializeFormData();
-        this.formErrors.set({});
-        this.selectedVolInfo.set(null);
-        this.selectedCountry = null;
-        this.selectedNationalite = null;
-
-        this.messageService.add({
-            severity: 'info',
-            summary: 'Formulaire réinitialisé',
-            detail: 'Le formulaire a été réinitialisé',
-            life: 2000
-        });
-    }
-
-    ngOnDestroy(): void {
-        this.destroy$.next();
-        this.destroy$.complete();
-    }
+    this.messageService.add({
+      severity: severityMap[severity] || 'info',
+      summary: summaries[severity] || 'Notification',
+      detail: message,
+      life: 5000
+    });
+  }
 }

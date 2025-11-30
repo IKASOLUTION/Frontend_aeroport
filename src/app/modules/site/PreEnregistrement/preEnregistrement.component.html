@@ -1,459 +1,286 @@
 <div class="enregistrement-container p-4">
-  <p-toast></p-toast>
-  <app-loading-spinner *ngIf="loading()"></app-loading-spinner>
+  <p-toast />
+  
+  @if (loading()) {
+    <app-loading-spinner />
+  }
 
   <!-- En-tête -->
-  <div class="text-center mb-5">
-    <div class="flex align-items-center justify-content-center mb-3">
-      <i class="pi pi-shield text-6xl text-primary"></i>
-    </div>
+  <header class="text-center mb-5">
+    <i class="pi pi-shield text-6xl text-primary mb-3 block"></i>
     <h1 class="text-4xl font-bold text-gray-800 mb-2">Formulaire de Pré-enregistrement</h1>
     <p class="text-gray-600">Complétez votre enregistrement en quelques étapes</p>
-  </div>
+  </header>
 
   <!-- Formulaire Principal -->
-  <div class="max-w-6xl mx-auto">
+  <main class="max-w-6xl mx-auto">
     <p-card styleClass="shadow-4">
-      <form>
+      <form [formGroup]="enregistrementForm" (ngSubmit)="submitEnregistrement()">
         
-        <!-- ==================== SECTION 1: Document d'Identité ==================== -->
+        <!-- Section 1: Document d'Identité -->
         <p-fieldset legend="Document d'Identité" [toggleable]="false" styleClass="mb-4">
+          
+          <!-- Type de document -->
           <div class="grid mb-4">
-              <div class="col-12 md:col-4">
+            <div class="col-12 md:col-4">
               <label for="typeDocument" class="block font-semibold mb-2">
                 <i class="pi pi-id-card mr-2"></i>Type de document *
               </label>
               <p-dropdown 
-                id="typeDocument"
-                [options]="[
-                  {label: 'Passeport', value: 'PASSEPORT'},
-                  {label: 'Carte d\'Identité', value: 'CNI'}
-                ]"
-                [(ngModel)]="formData().typeDocument"
-                (onChange)="updateFormDataField('typeDocument', $event.value)"
+                inputId="typeDocument"
+                formControlName="typeDocument"
+                [options]="typeDocuments"
                 placeholder="Sélectionnez le type"
                 optionLabel="label"
                 optionValue="value"
-                [ngModelOptions]="{standalone: true}"
-                styleClass="w-full">
-              </p-dropdown>
-              <small *ngIf="formErrors()['typeDocument']" class="p-error block mt-1">
-                {{ formErrors()['typeDocument'] }}
-              </small>
+                styleClass="w-full" />
+              
+              @if (getFieldError('typeDocument'); as error) {
+                <small class="p-error block mt-1">{{ error }}</small>
+              }
             </div>
-
-
           </div>
+
           <!-- Upload des Images -->
           <div class="grid mb-4">
             <!-- Image Recto -->
             <div class="col-12 md:col-4">
-              <label class="block font-semibold mb-2">
+              <label for="imageRecto" class="block font-semibold mb-2">
                 <i class="pi pi-images mr-2"></i>Image recto du document *
               </label>
+              
               <p-fileUpload 
                 mode="basic" 
                 chooseLabel="Choisir le fichier"
                 accept="image/*"
                 [auto]="true"
+                [maxFileSize]="5000000"
                 (onSelect)="onFileSelect($event, 'imageRecto')"
                 [showUploadButton]="false"
                 [showCancelButton]="false"
-                styleClass="w-full">
-              </p-fileUpload>
-              <div *ngIf="formData().imageRecto" class="mt-2">
-                <img [src]="formData().imageRecto" alt="Recto" class="w-full border-round" style="max-height: 150px; object-fit: cover;">
-              </div>
-              <small *ngIf="formErrors()['imageRecto']" class="p-error block mt-1">
-                {{ formErrors()['imageRecto'] }}
-              </small>
+                styleClass="w-full" />
+              
+              @if (getImagePreview('imageRecto'); as preview) {
+                <div class="mt-2">
+                  <img 
+                    [src]="preview" 
+                    alt="Image recto" 
+                    class="w-full border-round" 
+                    style="max-height: 150px; object-fit: cover;">
+                </div>
+              }
+              
+              @if (getFieldError('imageRecto'); as error) {
+                <small class="p-error block mt-1">{{ error }}</small>
+              }
             </div>
 
             <!-- Image Verso -->
             <div class="col-12 md:col-4">
-              <label class="block font-semibold mb-2">
+              <label for="imageVerso" class="block font-semibold mb-2">
                 <i class="pi pi-images mr-2"></i>Image verso du document *
               </label>
+              
               <p-fileUpload 
                 mode="basic" 
                 chooseLabel="Choisir le fichier"
                 accept="image/*"
                 [auto]="true"
+                [maxFileSize]="5000000"
                 (onSelect)="onFileSelect($event, 'imageVerso')"
                 [showUploadButton]="false"
                 [showCancelButton]="false"
-                styleClass="w-full">
-              </p-fileUpload>
-              <div *ngIf="formData().imageVerso" class="mt-2">
-                <img [src]="formData().imageVerso" alt="Verso" class="w-full border-round" style="max-height: 150px; object-fit: cover;">
-              </div>
-              <small *ngIf="formErrors()['imageVerso']" class="p-error block mt-1">
-                {{ formErrors()['imageVerso'] }}
-              </small>
+                styleClass="w-full" />
+              
+              @if (getImagePreview('imageVerso'); as preview) {
+                <div class="mt-2">
+                  <img 
+                    [src]="preview" 
+                    alt="Image verso" 
+                    class="w-full border-round" 
+                    style="max-height: 150px; object-fit: cover;">
+                </div>
+              }
+              
+              @if (getFieldError('imageVerso'); as error) {
+                <small class="p-error block mt-1">{{ error }}</small>
+              }
             </div>
 
-            <!-- Photo de Profil -->
+            <!-- Photo Profil -->
             <div class="col-12 md:col-4">
-              <label class="block font-semibold mb-2">
+              <label for="photoProfil" class="block font-semibold mb-2">
                 <i class="pi pi-user mr-2"></i>Photo de profil *
               </label>
+              
               <p-fileUpload 
                 mode="basic" 
                 chooseLabel="Choisir le fichier"
                 accept="image/*"
                 [auto]="true"
+                [maxFileSize]="5000000"
                 (onSelect)="onFileSelect($event, 'photoProfil')"
                 [showUploadButton]="false"
                 [showCancelButton]="false"
-                styleClass="w-full">
-              </p-fileUpload>
-              <div *ngIf="formData().photoProfil" class="mt-2">
-                <img [src]="formData().photoProfil" alt="Profil" class="w-full border-round" style="max-height: 150px; object-fit: cover;">
-              </div>
-              <small *ngIf="formErrors()['photoProfil']" class="p-error block mt-1">
-                {{ formErrors()['photoProfil'] }}
-              </small>
+                styleClass="w-full" />
+              
+              @if (getImagePreview('photoProfil'); as preview) {
+                <div class="mt-2">
+                  <img 
+                    [src]="preview" 
+                    alt="Photo de profil" 
+                    class="w-full border-round" 
+                    style="max-height: 150px; object-fit: cover;">
+                </div>
+              }
+              
+              @if (getFieldError('photoProfil'); as error) {
+                <small class="p-error block mt-1">{{ error }}</small>
+              }
             </div>
           </div>
 
           <!-- Informations du Document -->
           <div class="grid">
-            <!-- Type de Document -->
-          
-            <!-- Numéro de Document -->
-            <div class="col-12 md:col-3">
-              <label for="numeroDocument" class="block font-semibold mb-2">
-                <i class="pi pi-hashtag mr-2"></i>Numéro de document *
-              </label>
-              <input 
-                pInputText 
-                id="numeroDocument"
-                [(ngModel)]="formData().numeroDocument"
-                (ngModelChange)="updateFormDataField('numeroDocument', $event)"
-                [ngModelOptions]="{standalone: true}"
-                placeholder="Numéro de document"
-                class="w-full"
-                [ngClass]="{'ng-invalid ng-dirty': formErrors()['numeroDocument']}">
-              <small *ngIf="formErrors()['numeroDocument']" class="p-error block mt-1">
-                {{ formErrors()['numeroDocument'] }}
-              </small>
-            </div>
-
-            <!-- Numéro NIP -->
-            <div class="col-12 md:col-3">
-              <label for="numeroNip" class="block font-semibold mb-2">
-                <i class="pi pi-key mr-2"></i>Numéro NIP (Optionnel)
-              </label>
-              <input 
-                pInputText 
-                id="numeroNip"
-                [(ngModel)]="formData().numeroNip"
-                (ngModelChange)="updateFormDataField('numeroNip', $event)"
-                [ngModelOptions]="{standalone: true}"
-                placeholder="Numéro NIP"
-                class="w-full">
-            </div>
-
-            <!-- Date de Délivrance -->
-            <div class="col-12 md:col-3">
-              <label for="dateDelivrance" class="block font-semibold mb-2">
-                <i class="pi pi-calendar mr-2"></i>Date de délivrance *
-              </label>
-              <p-calendar 
-                id="dateDelivrance"
-                [(ngModel)]="formData().dateDelivrance"
-                (ngModelChange)="updateFormDataField('dateDelivrance', $event)"
-                [ngModelOptions]="{standalone: true}"
-                dateFormat="dd/mm/yy"
-                [showIcon]="true"
-                placeholder="Sélectionner la date"
-                styleClass="w-full"
-                inputStyleClass="w-full">
-              </p-calendar>
-              <small *ngIf="formErrors()['dateDelivrance']" class="p-error block mt-1">
-                {{ formErrors()['dateDelivrance'] }}
-              </small>
-            </div>
-
-            <!-- Lieu de Délivrance -->
-            <div class="col-12 md:col-3">
-              <label for="lieuDelivrance" class="block font-semibold mb-2">
-                <i class="pi pi-map-marker mr-2"></i>Lieu de délivrance *
-              </label>
-              <input 
-                pInputText 
-                id="lieuDelivrance"
-                [(ngModel)]="formData().lieuDelivrance"
-                (ngModelChange)="updateFormDataField('lieuDelivrance', $event)"
-                [ngModelOptions]="{standalone: true}"
-                placeholder="Lieu de délivrance"
-                class="w-full"
-                [ngClass]="{'ng-invalid ng-dirty': formErrors()['lieuDelivrance']}">
-              <small *ngIf="formErrors()['lieuDelivrance']" class="p-error block mt-1">
-                {{ formErrors()['lieuDelivrance'] }}
-              </small>
-            </div>
+            @for (field of documentFields; track field.key) {
+              <div [class]="'col-12 md:col-' + field.cols">
+                <label [for]="field.key" class="block font-semibold mb-2">
+                  <i [class]="field.icon + ' mr-2'"></i>{{ field.label }}{{ field.required ? ' *' : '' }}
+                </label>
+                
+                @switch (field.type) {
+                  @case ('text') {
+                    <input 
+                      pInputText 
+                      [id]="field.key"
+                      [formControlName]="field.key"
+                      [placeholder]="field.placeholder"
+                      class="w-full" />
+                  }
+                  @case ('date') {
+                    <p-calendar 
+                      [inputId]="field.key"
+                      [formControlName]="field.key"
+                      dateFormat="dd/mm/yy"
+                      [showIcon]="true"
+                      [placeholder]="field.placeholder"
+                      styleClass="w-full"
+                      inputStyleClass="w-full" />
+                  }
+                }
+                
+                @if (getFieldError(field.key); as error) {
+                  <small class="p-error block mt-1">{{ error }}</small>
+                }
+              </div>
+            }
           </div>
         </p-fieldset>
 
-        <!-- ==================== SECTION 2: Informations Personnelles ==================== -->
+        <!-- Section 2: Informations Personnelles -->
         <p-fieldset legend="Informations Personnelles" [toggleable]="false" styleClass="mb-4">
           <div class="grid">
-            <!-- Prénom -->
-            <div class="col-12 md:col-4">
-              <label for="prenom" class="block font-semibold mb-2">
-                <i class="pi pi-user mr-2"></i>Prénom *
-              </label>
-              <input 
-                pInputText 
-                id="prenom"
-                [(ngModel)]="formData().prenom"
-                (ngModelChange)="updateFormDataField('prenom', $event)"
-                [ngModelOptions]="{standalone: true}"
-                placeholder="Votre prénom"
-                class="w-full"
-                [ngClass]="{'ng-invalid ng-dirty': formErrors()['prenom']}">
-              <small *ngIf="formErrors()['prenom']" class="p-error block mt-1">
-                {{ formErrors()['prenom'] }}
-              </small>
-            </div>
-
-            <!-- Nom de Famille -->
-            <div class="col-12 md:col-4">
-              <label for="nomFamille" class="block font-semibold mb-2">
-                <i class="pi pi-user mr-2"></i>Nom de famille *
-              </label>
-              <input 
-                pInputText 
-                id="nomFamille"
-                [(ngModel)]="formData().nomFamille"
-                (ngModelChange)="updateFormDataField('nomFamille', $event)"
-                [ngModelOptions]="{standalone: true}"
-                placeholder="Votre nom de famille"
-                class="w-full"
-                [ngClass]="{'ng-invalid ng-dirty': formErrors()['nomFamille']}">
-              <small *ngIf="formErrors()['nomFamille']" class="p-error block mt-1">
-                {{ formErrors()['nomFamille'] }}
-              </small>
-            </div>
-
-            <!-- Profession -->
-            <div class="col-12 md:col-4">
-              <label for="profession" class="block font-semibold mb-2">
-                <i class="pi pi-briefcase mr-2"></i>Profession *
-              </label>
-              <input 
-                pInputText 
-                id="profession"
-                [(ngModel)]="formData().profession"
-                (ngModelChange)="updateFormDataField('profession', $event)"
-                [ngModelOptions]="{standalone: true}"
-                placeholder="Votre profession"
-                class="w-full"
-                [ngClass]="{'ng-invalid ng-dirty': formErrors()['profession']}">
-              <small *ngIf="formErrors()['profession']" class="p-error block mt-1">
-                {{ formErrors()['profession'] }}
-              </small>
-            </div>
-
-            <!-- Date de Naissance -->
-            <div class="col-12 md:col-4">
-              <label for="dateNaissance" class="block font-semibold mb-2">
-                <i class="pi pi-calendar mr-2"></i>Date de naissance *
-              </label>
-              <p-calendar 
-                id="dateNaissance"
-                [(ngModel)]="formData().dateNaissance"
-                (ngModelChange)="updateFormDataField('dateNaissance', $event)"
-                [ngModelOptions]="{standalone: true}"
-                dateFormat="dd/mm/yy"
-                [showIcon]="true"
-                placeholder="Sélectionner la date"
-                styleClass="w-full"
-                inputStyleClass="w-full">
-              </p-calendar>
-              <small *ngIf="formErrors()['dateNaissance']" class="p-error block mt-1">
-                {{ formErrors()['dateNaissance'] }}
-              </small>
-            </div>
-
-            <!-- Lieu de Naissance -->
-            <div class="col-12 md:col-4">
-              <label for="lieuNaissance" class="block font-semibold mb-2">
-                <i class="pi pi-map-marker mr-2"></i>Lieu de naissance *
-              </label>
-              <input 
-                pInputText 
-                id="lieuNaissance"
-                [(ngModel)]="formData().lieuNaissance"
-                (ngModelChange)="updateFormDataField('lieuNaissance', $event)"
-                [ngModelOptions]="{standalone: true}"
-                placeholder="Lieu de naissance"
-                class="w-full"
-                [ngClass]="{'ng-invalid ng-dirty': formErrors()['lieuNaissance']}">
-              <small *ngIf="formErrors()['lieuNaissance']" class="p-error block mt-1">
-                {{ formErrors()['lieuNaissance'] }}
-              </small>
-            </div>
-
-            <!-- Nationalité -->
-            <div class="col-12 md:col-4">
-              <label for="nationalite" class="block font-semibold mb-2">
-                <i class="pi pi-flag mr-2"></i>Nationalité *
-              </label>
-              <p-dropdown 
-                id="nationalite"
-                [options]="nationalites"
-                [(ngModel)]="selectedNationalite"
-                (onChange)="findNationalite($event.value)"
-                [ngModelOptions]="{standalone: true}"
-                placeholder="Sélectionnez votre nationalité"
-                optionLabel="nationalite"
-                [filter]="true"
-                filterBy="nationalite"
-                styleClass="w-full">
-              </p-dropdown>
-              <small *ngIf="formErrors()['nationalite']" class="p-error block mt-1">
-                {{ formErrors()['nationalite'] }}
-              </small>
-            </div>
+            @for (field of personalFields; track field.key) {
+              <div [class]="'col-12 md:col-' + field.cols">
+                <label [for]="field.key" class="block font-semibold mb-2">
+                  <i [class]="field.icon + ' mr-2'"></i>{{ field.label }} *
+                </label>
+                
+                @switch (field.type) {
+                  @case ('text') {
+                    <input 
+                      pInputText 
+                      [id]="field.key"
+                      [formControlName]="field.key"
+                      [placeholder]="field.placeholder"
+                      class="w-full" />
+                  }
+                  @case ('date') {
+                    <p-calendar 
+                      [inputId]="field.key"
+                      [formControlName]="field.key"
+                      dateFormat="dd/mm/yy"
+                      [showIcon]="true"
+                      [placeholder]="field.placeholder"
+                      styleClass="w-full"
+                      inputStyleClass="w-full" />
+                  }
+                  @case ('dropdown') {
+                    <p-dropdown 
+                      [inputId]="field.key"
+                      [formControlName]="field.key"
+                      [options]="nationalites()"
+                      [placeholder]="field.placeholder"
+                      optionLabel="nationalite"
+                      [filter]="true"
+                      filterBy="nationalite"
+                      styleClass="w-full" />
+                  }
+                }
+                
+                @if (getFieldError(field.key); as error) {
+                  <small class="p-error block mt-1">{{ error }}</small>
+                }
+              </div>
+            }
           </div>
         </p-fieldset>
 
-        <!-- ==================== SECTION 3: Coordonnées ==================== -->
+        <!-- Section 3: Coordonnées -->
         <p-fieldset legend="Coordonnées" [toggleable]="false" styleClass="mb-4">
           <div class="grid">
-            <!-- Pays de Résidence -->
-            <div class="col-12 md:col-4">
-              <label for="paysResidence" class="block font-semibold mb-2">
-                <i class="pi pi-globe mr-2"></i>Pays de résidence *
-              </label>
-              <p-dropdown 
-                id="paysResidence"
-                [options]="countries"
-                [(ngModel)]="selectedCountry"
-                (onChange)="findPays($event.value)"
-                [ngModelOptions]="{standalone: true}"
-                placeholder="Sélectionnez le pays"
-                optionLabel="name"
-                [filter]="true"
-                filterBy="name"
-                styleClass="w-full">
-              </p-dropdown>
-              <small *ngIf="formErrors()['paysResidence']" class="p-error block mt-1">
-                {{ formErrors()['paysResidence'] }}
-              </small>
-            </div>
-
-            <!-- Email -->
-            <div class="col-12 md:col-4">
-              <label for="emailContact" class="block font-semibold mb-2">
-                <i class="pi pi-envelope mr-2"></i>Email (Optionnel)
-              </label>
-              <input 
-                pInputText 
-                id="emailContact"
-                type="email"
-                [(ngModel)]="formData().emailContact"
-                (ngModelChange)="updateFormDataField('emailContact', $event)"
-                [ngModelOptions]="{standalone: true}"
-                placeholder="votre@email.com"
-                class="w-full"
-                [ngClass]="{'ng-invalid ng-dirty': formErrors()['emailContact']}">
-              <small *ngIf="formErrors()['emailContact']" class="p-error block mt-1">
-                {{ formErrors()['emailContact'] }}
-              </small>
-            </div>
-
-            <!-- Téléphone Burkina -->
-            <div class="col-12 md:col-4">
-              <label for="telephoneBurkina" class="block font-semibold mb-2">
-                <i class="pi pi-phone mr-2"></i>Téléphone Burkina (Optionnel)
-              </label>
-              <input 
-                pInputText 
-                id="telephoneBurkina"
-                [(ngModel)]="formData().telephoneBurkina"
-                (ngModelChange)="updateFormDataField('telephoneBurkina', $event)"
-                [ngModelOptions]="{standalone: true}"
-                placeholder="+226 XX XX XX XX"
-                class="w-full">
-            </div>
-
-            <!-- Téléphone Étranger -->
-            <div class="col-12 md:col-4">
-              <label for="telephoneEtranger" class="block font-semibold mb-2">
-                <i class="pi pi-phone mr-2"></i>Téléphone Étranger (Optionnel)
-              </label>
-              <input 
-                pInputText 
-                id="telephoneEtranger"
-                [(ngModel)]="formData().telephoneEtranger"
-                (ngModelChange)="updateFormDataField('telephoneEtranger', $event)"
-                [ngModelOptions]="{standalone: true}"
-                placeholder="Téléphone étranger"
-                class="w-full">
-            </div>
-
-            <!-- Adresse Burkina -->
-            <div class="col-12 md:col-4">
-              <label for="adresseBurkina" class="block font-semibold mb-2">
-                <i class="pi pi-home mr-2"></i>Adresse au Burkina *
-              </label>
-              <input 
-                pInputText 
-                id="adresseBurkina"
-                [(ngModel)]="formData().adresseBurkina"
-                (ngModelChange)="updateFormDataField('adresseBurkina', $event)"
-                [ngModelOptions]="{standalone: true}"
-                placeholder="Adresse au Burkina"
-                class="w-full"
-                [ngClass]="{'ng-invalid ng-dirty': formErrors()['adresseBurkina']}">
-              <small *ngIf="formErrors()['adresseBurkina']" class="p-error block mt-1">
-                {{ formErrors()['adresseBurkina'] }}
-              </small>
-            </div>
-
-            <!-- Adresse Étranger -->
-            <div class="col-12 md:col-4">
-              <label for="adresseEtranger" class="block font-semibold mb-2">
-                <i class="pi pi-home mr-2"></i>Adresse à l'étranger *
-              </label>
-              <input 
-                pInputText 
-                id="adresseEtranger"
-                [(ngModel)]="formData().adresseEtranger"
-                (ngModelChange)="updateFormDataField('adresseEtranger', $event)"
-                [ngModelOptions]="{standalone: true}"
-                placeholder="Adresse à l'étranger"
-                class="w-full"
-                [ngClass]="{'ng-invalid ng-dirty': formErrors()['adresseEtranger']}">
-              <small *ngIf="formErrors()['adresseEtranger']" class="p-error block mt-1">
-                {{ formErrors()['adresseEtranger'] }}
-              </small>
-            </div>
+            @for (field of contactFields; track field.key) {
+              <div [class]="'col-12 md:col-' + field.cols">
+                <label [for]="field.key" class="block font-semibold mb-2">
+                  <i [class]="field.icon + ' mr-2'"></i>{{ field.label }}{{ field.required ? ' *' : '' }}
+                </label>
+                
+                @if (field.type === 'dropdown') {
+                  <p-dropdown 
+                    [inputId]="field.key"
+                    [formControlName]="field.key"
+                    [options]="countries()"
+                    [placeholder]="field.placeholder"
+                    optionLabel="name"
+                    [filter]="true"
+                    filterBy="name"
+                    styleClass="w-full" />
+                } @else {
+                  <input 
+                    pInputText 
+                    [id]="field.key"
+                    [type]="field.inputType || 'text'"
+                    [formControlName]="field.key"
+                    [placeholder]="field.placeholder"
+                    class="w-full" />
+                }
+                
+                @if (getFieldError(field.key); as error) {
+                  <small class="p-error block mt-1">{{ error }}</small>
+                }
+              </div>
+            }
           </div>
         </p-fieldset>
 
-        <!-- ==================== SECTION 4: Informations de Voyage ==================== -->
+        <!-- Section 4: Informations de Voyage -->
         <p-fieldset legend="Informations de Voyage" [toggleable]="false" styleClass="mb-4">
           <div class="grid">
             <!-- Vol -->
             <div class="col-12">
-              <label for="vol" class="block font-semibold mb-2">
+              <label for="volId" class="block font-semibold mb-2">
                 <i class="pi pi-send mr-2"></i>Vol *
               </label>
               <p-dropdown 
-                id="vol"
-                [options]="volList"
-                [(ngModel)]="formData().volId"
-                (onChange)="onVolSelectionChange($event.value)"
-                [ngModelOptions]="{standalone: true}"
+                inputId="volId"
+                formControlName="volId"
+                [options]="volList()"
                 placeholder="Sélectionner un vol"
-                optionLabel="numeroVol"
+                optionLabel="numero"
                 optionValue="id"
                 [filter]="true"
-                filterBy="numeroVol"
+                filterBy="numero"
+                (onChange)="onVolSelectionChange($event.value)"
                 styleClass="w-full">
                 <ng-template let-vol pTemplate="item">
                   <div class="flex align-items-center">
@@ -462,101 +289,82 @@
                   </div>
                 </ng-template>
               </p-dropdown>
-              <small *ngIf="formErrors()['volId']" class="p-error block mt-1">
-                {{ formErrors()['volId'] }}
-              </small>
-
-              <!-- Informations du Vol Sélectionné -->
-
+              
+              @if (getFieldError('volId'); as error) {
+                <small class="p-error block mt-1">{{ error }}</small>
+              }
             </div>
 
-            <!-- Motif du Voyage -->
-            <div class="col-12 md:col-4">
-              <label for="motifVoyage" class="block font-semibold mb-2">
-                <i class="pi pi-question-circle mr-2"></i>Motif du voyage *
-              </label>
-              <p-dropdown 
-                id="motifVoyage"
-                [options]="motifs()"
-                [(ngModel)]="formData().motifVoyage"
-                (onChange)="updateFormDataField('motifVoyage', $event.value)"
-                [ngModelOptions]="{standalone: true}"
-                placeholder="Sélectionner un motif"
-                optionLabel="libelle"
-                optionValue="value"
-                styleClass="w-full">
-              </p-dropdown>
-              <small *ngIf="formErrors()['motifVoyage']" class="p-error block mt-1">
-                {{ formErrors()['motifVoyage'] }}
-              </small>
-            </div>
-
-            <!-- État du Voyage -->
-            <div class="col-12 md:col-4">
-              <label for="etatVoyage" class="block font-semibold mb-2">
-                <i class="pi pi-arrow-right-arrow-left mr-2"></i>État du voyage *
-              </label>
-              <p-dropdown 
-                id="etatVoyage"
-                [options]="[
-                  {label: 'ALLER', value: 'ALLER'},
-                  {label: 'RETOUR', value: 'RETOUR'},
-                  {label: 'ALLER-RETOUR', value: 'ALLER_RETOUR'}
-                ]"
-                [(ngModel)]="formData().etatVoyage"
-                (onChange)="updateFormDataField('etatVoyage', $event.value)"
-                [ngModelOptions]="{standalone: true}"
-                optionLabel="label"
-                optionValue="value"
-                styleClass="w-full">
-              </p-dropdown>
-            </div>
-
-            <!-- Durée du Séjour -->
-            <div class="col-12 md:col-4">
-              <label for="dureeSejour" class="block font-semibold mb-2">
-                <i class="pi pi-clock mr-2"></i>Durée du séjour (jours) *
-              </label>
-              <p-inputNumber 
-                id="dureeSejour"
-                [(ngModel)]="formData().dureeSejour"
-                (ngModelChange)="updateFormDataField('dureeSejour', $event)"
-                [ngModelOptions]="{standalone: true}"
-                placeholder="Durée en jours"
-                [min]="1"
-                [showButtons]="true"
-                styleClass="w-full"
-                inputStyleClass="w-full">
-              </p-inputNumber>
-              <small *ngIf="formErrors()['dureeSejour']" class="p-error block mt-1">
-                {{ formErrors()['dureeSejour'] }}
-              </small>
-            </div>
+            @for (field of travelFields; track field.key) {
+              <div [class]="'col-12 md:col-' + field.cols">
+                <label [for]="field.key" class="block font-semibold mb-2">
+                  <i [class]="field.icon + ' mr-2'"></i>{{ field.label }} *
+                </label>
+                
+                @switch (field.type) {
+                  @case ('dropdown') {
+                     @if (field.key === 'motifVoyage') {
+                      <p-dropdown 
+                        [inputId]="field.key"
+                        [formControlName]="field.key"
+                        [options]="field.options || []"
+                        [placeholder]="field.placeholder"
+                        optionLabel="libelle"
+                        optionValue="value"
+                        styleClass="w-full" />
+                    } @else {
+                      <p-dropdown 
+                        [inputId]="field.key"
+                        [formControlName]="field.key"
+                        [options]="field.options || []"
+                        [placeholder]="field.placeholder"
+                        optionLabel="label"
+                        optionValue="value"
+                        styleClass="w-full" />
+                    }
+                  }
+                  @case ('number') {
+                    <p-inputNumber 
+                      [inputId]="field.key"
+                      [formControlName]="field.key"
+                      [placeholder]="field.placeholder"
+                      [min]="1"
+                      [showButtons]="true"
+                      styleClass="w-full"
+                      inputStyleClass="w-full" />
+                  }
+                }
+                
+                @if (getFieldError(field.key); as error) {
+                  <small class="p-error block mt-1">{{ error }}</small>
+                }
+              </div>
+            }
           </div>
         </p-fieldset>
+       
 
-        <!-- ==================== BOUTONS D'ACTION ==================== -->
-        <div class="flex gap-3 mt-5">
-          <button 
-            pButton 
+        <!-- Boutons d'Action -->
+        <footer class="flex gap-3 mt-5">
+          <p-button 
             type="button"
             label="Annuler" 
             icon="pi pi-times"
-            class="p-button-secondary flex-1"
-            (click)="resetForm()">
-          </button>
-          <button 
-            pButton 
-            type="button"
+            severity="secondary"
+            styleClass="flex-1"
+            (onClick)="resetForm()" />
+          
+          <p-button 
+            type="submit"
             label="Soumettre l'Enregistrement" 
             icon="pi pi-check"
-            class="p-button-success flex-1"
-            (click)="submitEnregistrement()"
-        [loading]="isSaving()">
-          </button>
-        </div>
+            severity="success"
+            styleClass="flex-1"
+            [loading]="isSaving()"
+            [disabled]="enregistrementForm.invalid" />
+        </footer>
 
       </form>
     </p-card>
-  </div>
+  </main>
 </div>
