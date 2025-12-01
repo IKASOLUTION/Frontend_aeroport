@@ -105,6 +105,12 @@ export class VoyageurAttenteComponent implements OnInit, OnDestroy {
     empreinteGauche = signal<EmpreinteCapture>({ image: null, capturee: false });
     empreinteDroite = signal<EmpreinteCapture>({ image: null, capturee: false });
     empreintePouces = signal<EmpreinteCapture>({ image: null, capturee: false });
+
+
+
+
+    capturedPhotoPourBiometrie = signal<string | null>(null);
+    biometric = signal<DonneeBiometrique | null>(null);
     // Modale Caméra
     isCameraModalOpen = signal<boolean>(false);
     isSaving = signal<boolean>(false);
@@ -112,9 +118,6 @@ export class VoyageurAttenteComponent implements OnInit, OnDestroy {
     capturedPhotoBase64 = signal<string | null>(null);
     currentCameraTarget = signal<'recto' | 'verso' | 'profil' | 'biometrique' | 'empreinteGauche' | 'empreinteDroite' | 'empreintePouces' | null>(null);
 
-
-    capturedPhotoPourBiometrie = signal<string | null>(null);
-    biometric = signal<DonneeBiometrique | null>(null);
     editFormGroup!: FormGroup;
     // Filtres de recherche
     dateDebut: Date | null = null;
@@ -473,49 +476,49 @@ export class VoyageurAttenteComponent implements OnInit, OnDestroy {
     }
 
 
- saveEnregistrement(): void {
-    if (this.editFormGroup.valid) {
-        const updatedEnregistrement: Enregistrement = {
-            ...this.editFormGroup.value,
-            id: this.selectedEnregistrement?.id, // ✅ AJOUTEZ CETTE LIGNE
-            // Convertir les dates au format string si nécessaire
-            dateDelivrance: this.editFormGroup.value.dateDelivrance
-                ? new Date(this.editFormGroup.value.dateDelivrance).toISOString()
-                : undefined,
-            dateNaissance: this.editFormGroup.value.dateNaissance
-                ? new Date(this.editFormGroup.value.dateNaissance).toISOString()
-                : undefined,
-            dateVoyage: this.editFormGroup.value.dateVoyage
-                ? new Date(this.editFormGroup.value.dateVoyage).toISOString()
-                : undefined,
-            statut: StatutVoyageur.VALIDE,
-        };
-        
-        console.log("----------Voir status et ID-------", updatedEnregistrement);
+    saveEnregistrement(): void {
+        if (this.editFormGroup.valid) {
+            const updatedEnregistrement: Enregistrement = {
+                ...this.editFormGroup.value,
+                id: this.selectedEnregistrement?.id, // ✅ AJOUTEZ CETTE LIGNE
+                // Convertir les dates au format string si nécessaire
+                dateDelivrance: this.editFormGroup.value.dateDelivrance
+                    ? new Date(this.editFormGroup.value.dateDelivrance).toISOString()
+                    : undefined,
+                dateNaissance: this.editFormGroup.value.dateNaissance
+                    ? new Date(this.editFormGroup.value.dateNaissance).toISOString()
+                    : undefined,
+                dateVoyage: this.editFormGroup.value.dateVoyage
+                    ? new Date(this.editFormGroup.value.dateVoyage).toISOString()
+                    : undefined,
+                statut: StatutVoyageur.VALIDE,
+            };
 
-        // Dispatch l'action de mise à jour
-        this.store.dispatch(enregistrementAction.updateEnregistrement(updatedEnregistrement));
+            console.log("----------Voir status et ID-------", updatedEnregistrement);
 
-        this.messageService.add({
-            severity: 'success',
-            summary: 'Succès',
-            detail: 'Enregistrement mis à jour avec succès',
-            life: 3000
-        });
-        this.newEnregistrement = updatedEnregistrement;
-        this.closeEditModal();
-        this.isCaptureBiometriqueModalOpen = true;
-        this.loadEnregistrements();
+            // Dispatch l'action de mise à jour
+            this.store.dispatch(enregistrementAction.updateEnregistrement(updatedEnregistrement));
 
-    } else {
-        this.messageService.add({
-            severity: 'error',
-            summary: 'Erreur',
-            detail: 'Veuillez remplir tous les champs requis',
-            life: 3000
-        });
+            this.messageService.add({
+                severity: 'success',
+                summary: 'Succès',
+                detail: 'Enregistrement mis à jour avec succès',
+                life: 3000
+            });
+            this.newEnregistrement = updatedEnregistrement;
+            this.closeEditModal();
+            this.isCaptureBiometriqueModalOpen = true;
+            this.loadEnregistrements();
+
+        } else {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Erreur',
+                detail: 'Veuillez remplir tous les champs requis',
+                life: 3000
+            });
+        }
     }
-}
     // Gestion de la caméra pour empreintes
     async capturerEmpreinte(type: 'empreinteGauche' | 'empreinteDroite' | 'empreintePouces'): Promise<void> {
         this.currentCameraTarget.set(type);
@@ -543,7 +546,6 @@ export class VoyageurAttenteComponent implements OnInit, OnDestroy {
             this.isCameraModalOpen.set(false);
         }
     }
-
     async demarrerCamera(target: 'recto' | 'verso' | 'profil' | 'biometrique'): Promise<void> {
         this.currentCameraTarget.set(target);
         this.capturedPhotoBase64.set(null);
@@ -713,6 +715,15 @@ export class VoyageurAttenteComponent implements OnInit, OnDestroy {
         }
     }
 
+    clearTableFilters(table: any): void {
+    table.clear();
+    this.resetFilters();
+}
+
+// Si vous voulez un bouton pour réinitialiser uniquement les filtres du header
+resetHeaderFilters(table: any): void {
+    table.clear(); // Réinitialise tous les filtres du tableau PrimeNG
+}
 
     ngOnDestroy(): void {
         this.destroy$.next(true);

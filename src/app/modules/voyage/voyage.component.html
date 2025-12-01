@@ -181,6 +181,290 @@
     </ng-template>
 </p-dialog>
 
+
+<p-dialog [(visible)]="isDetailModalOpen" [style]="{width: '1000px'}" header="Détails du voyage"
+    [modal]="true" [closable]="true" [draggable]="false" [resizable]="false" class="p-fluid">
+
+    <div class="p-fluid p-4">
+        <!-- Section: Informations Générales du Voyage -->
+        <p-fieldset legend="Informations Générales du Voyage" [toggleable]="true" [collapsed]="false" styleClass="mb-4">
+            <div class="grid">
+                <div class="field col-12 md:col-4">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-tag mr-2"></i>ID Voyage:
+                    </span>
+                    <span class="ml-2 font-semibold">{{ selectedVoyage.id || 'N/A' }}</span>
+                </div>
+
+                <div class="field col-12 md:col-4">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-calendar mr-2"></i>Date du voyage:
+                    </span>
+                    <span class="ml-2">
+                        {{ selectedVoyage.dateVoyage ? (selectedVoyage.dateVoyage | date: 'dd/MM/yyyy') : 'N/A' }}
+                    </span>
+                </div>
+
+                <div class="field col-12 md:col-4">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-clock mr-2"></i>Heure du voyage:
+                    </span>
+                    <span class="ml-2">{{ selectedVoyage.heureVoyage || 'N/A' }}</span>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-map mr-2"></i>Aeroport de départ:
+                    </span>
+                    <span class="ml-2">
+                        {{ selectedVoyage.vol?.aeroport?.nomAeroport || 'N/A' }}
+                    </span>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-map-marker mr-2"></i>Aeroport d'arrivé:
+                    </span>
+                    <span class="ml-2">
+                        {{ selectedVoyage.vol?.nomAgentConnecteAeroport|| selectedVoyage.villeNomA || 'N/A' }}
+                    </span>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-info-circle mr-2"></i>Motif du voyage:
+                    </span>
+                    <span class="ml-2">{{ selectedVoyage.motifVoyage?.libelle || 'N/A' }}</span>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-hourglass mr-2"></i>Durée du séjour:
+                    </span>
+                    <span class="ml-2">
+                        {{ selectedVoyage.dureeSejour ? selectedVoyage.dureeSejour + ' jour(s)' : 'N/A' }}
+                    </span>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-ticket mr-2"></i>Statut du voyage:
+                    </span>
+                    <span class="ml-2" [ngClass]="{
+                        'text-green-600 font-semibold': selectedVoyage.statut === 'ACTIF',
+                        'text-yellow-600 font-semibold': selectedVoyage.statut === 'INACTIF',
+                    }">
+
+                        {{ selectedVoyage.statut || 'N/A' }}
+                    </span>
+                </div>
+
+                
+            </div>
+        </p-fieldset>
+
+        <!-- Section: Informations Personnelles du Voyageur -->
+        <p-fieldset legend="Informations Personnelles" [toggleable]="true" [collapsed]="false" styleClass="mb-4">
+            <div class="grid">
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-user mr-2"></i>Nom de famille:
+                    </span>
+                    <span class="ml-2">{{ selectedVoyage.nomVoyageur || 'N/A' }}</span>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-user mr-2"></i>Prénom:
+                    </span>
+                    <span class="ml-2">{{ selectedVoyage.prenomVoyageur || 'N/A' }}</span>
+                </div>
+            </div>
+        </p-fieldset>
+
+        <!-- Section: Informations sur le Vol -->
+        <p-fieldset legend="Informations du Vol" [toggleable]="true" [collapsed]="true" styleClass="mb-4" *ngIf="selectedVoyage.vol">
+            <div class="grid">
+                <div class="field col-12 md:col-4">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-plane mr-2"></i>Numéro de vol:
+                    </span>
+                    <span class="ml-2 font-mono">{{ selectedVoyage.vol?.numero || 'N/A' }}</span>
+                </div>
+
+                <div class="field col-12 md:col-4">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-building mr-2"></i>Compagnie:
+                    </span>
+                    <span class="ml-2">{{ selectedVoyage.vol?.compagnie?.nomCompagine || 'N/A' }}</span>
+                </div>
+
+             <div class="field col-12 md:col-4">
+    <span class="font-bold text-gray-700">
+        <i class="pi pi-tag mr-2"></i>Type de vol:
+    </span>
+    <span class="ml-2">
+        {{ selectedVoyage.vol?.typeVol || selectedVoyage.vol?.type || 'N/A' }}
+    </span>
+</div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-calendar-times mr-2"></i>Date de départ:
+                    </span>
+                    <span class="ml-2">
+                        {{ selectedVoyage.vol?.dateDepart ? (selectedVoyage.vol.dateDepart | date: 'dd/MM/yyyy HH:mm') : 'N/A' }}
+                    </span>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-calendar-plus mr-2"></i>Date d'arrivée:
+                    </span>
+                    <span class="ml-2">
+                        {{ selectedVoyage.vol?.dateArrivee ? (selectedVoyage.vol.dateArrivee | date: 'dd/MM/yyyy HH:mm') : 'N/A' }}
+                    </span>
+                </div>
+
+               <div class="field col-12 md:col-6">
+    <span class="font-bold text-gray-700">
+        <i class="pi pi-flag mr-2"></i>Statut du vol:
+    </span>
+    <span class="ml-2" [ngClass]="{
+        'text-green-600 font-semibold': selectedVoyage.vol?.statut === StatutVol.EFFECTUE,
+        'text-blue-600 font-semibold': selectedVoyage.vol?.statut === StatutVol.CONFIRME,
+        'text-red-600 font-semibold': selectedVoyage.vol?.statut === StatutVol.ANNULE,
+        'text-yellow-600 font-semibold': selectedVoyage.vol?.statut === StatutVol.PROGRAMME || selectedVoyage.vol?.statut === StatutVol.RETARDE,
+    }">
+        {{ selectedVoyage.vol?.statut || selectedVoyage.vol?.statutLibelle || 'N/A' }}
+    </span>
+</div>
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-calendar mr-2"></i>Date de saisie:
+                    </span>
+                    <span class="ml-2">
+                        {{ selectedVoyage.vol?.dateSaisie ? (selectedVoyage.vol.dateSaisie | date: 'dd/MM/yyyy') : 'N/A' }}
+                    </span>
+                </div>
+            </div>
+        </p-fieldset>
+
+        <!-- Section: Informations sur l'Aéroport -->
+        <p-fieldset legend="Informations de l'Aéroport" [toggleable]="true" [collapsed]="true" styleClass="mb-4" *ngIf="selectedVoyage.aeroport || selectedVoyage.aeroportForUser">
+            <div class="grid">
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-building mr-2"></i>Nom de l'aéroport:
+                    </span>
+                    <span class="ml-2">{{ selectedVoyage.aeroport?.nomAeroport || selectedVoyage.aeroportForUser?.nomAeroport || 'N/A' }}</span>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-map mr-2"></i>Ville:
+                    </span>
+                    <span class="ml-2">{{ selectedVoyage.aeroport?.ville?.nom || selectedVoyage.aeroportForUser?.ville?.nom || 'N/A' }}</span>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-flag mr-2"></i>Pays:
+                    </span>
+                    <span class="ml-2">{{ selectedVoyage.aeroport?.pays || selectedVoyage.aeroportForUser?.pays || 'N/A' }}</span>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-tag mr-2"></i>Code OACI:
+                    </span>
+                    <span class="ml-2 font-mono">{{ selectedVoyage.aeroport?.code_oaci || selectedVoyage.aeroportForUser?.code_oaci || 'N/A' }}</span>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-phone mr-2"></i>Téléphone:
+                    </span>
+                    <span class="ml-2">{{ selectedVoyage.aeroport?.telephone || selectedVoyage.aeroportForUser?.telephone || 'N/A' }}</span>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-globe mr-2"></i>Site web:
+                    </span>
+                    <span class="ml-2">
+                        <a *ngIf="selectedVoyage.aeroport?.siteWeb || selectedVoyage.aeroportForUser?.siteWeb" 
+                           [href]="selectedVoyage.aeroport?.siteWeb || selectedVoyage.aeroportForUser?.siteWeb" 
+                           target="_blank" class="text-primary hover:underline">
+                            {{ selectedVoyage.aeroport?.siteWeb || selectedVoyage.aeroportForUser?.siteWeb }}
+                        </a>
+                        <span *ngIf="!(selectedVoyage.aeroport?.siteWeb || selectedVoyage.aeroportForUser?.siteWeb)">N/A</span>
+                    </span>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-envelope mr-2"></i>Email responsable:
+                    </span>
+                    <span class="ml-2">
+                        <a *ngIf="selectedVoyage.aeroport?.mailResponsable || selectedVoyage.aeroportForUser?.mailResponsable" 
+                           [href]="'mailto:' + (selectedVoyage.aeroport?.mailResponsable || selectedVoyage.aeroportForUser?.mailResponsable)" 
+                           class="text-primary hover:underline">
+                            {{ selectedVoyage.aeroport?.mailResponsable || selectedVoyage.aeroportForUser?.mailResponsable }}
+                        </a>
+                        <span *ngIf="!(selectedVoyage.aeroport?.mailResponsable || selectedVoyage.aeroportForUser?.mailResponsable)">N/A</span>
+                    </span>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-user mr-2"></i>Responsable:
+                    </span>
+                    <span class="ml-2">
+                        {{ (selectedVoyage.aeroport?.prenomResponsable || selectedVoyage.aeroportForUser?.prenomResponsable || '') + ' ' + 
+                           (selectedVoyage.aeroport?.nomResponsable || selectedVoyage.aeroportForUser?.nomResponsable || '') || 'N/A' }}
+                    </span>
+                </div>
+
+                <div class="field col-12 md:col-12">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-home mr-2"></i>Adresse:
+                    </span>
+                    <span class="ml-2">{{ selectedVoyage.aeroport?.adresse || selectedVoyage.aeroportForUser?.adresse || 'N/A' }}</span>
+                </div>
+            </div>
+        </p-fieldset>
+
+        <!-- Section: Informations Administratives -->
+        <p-fieldset legend="Informations Administratives" [toggleable]="true" [collapsed]="true" styleClass="mb-4">
+            <div class="grid">
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-user-secret mr-2"></i>Agent connecté:
+                    </span>
+                    <span class="ml-2">{{ selectedVoyage.nomAgentConnecteAeroport || selectedVoyage.vol?.nomAgentConnecteAeroport || 'N/A' }}</span>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-database mr-2"></i>ID Aéroport:
+                    </span>
+                    <span class="ml-2">{{ selectedVoyage.aeroportId || selectedVoyage.aeroportForUserId || 'N/A' }}</span>
+                </div>
+            </div>
+        </p-fieldset>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-between w-full">
+           
+            <button pButton pRipple label="Fermer" icon="pi pi-times" 
+                    class="p-button-danger" (click)="closeDetailModal()">
+            </button>
+        </div>
+    </ng-template>
+
+</p-dialog>
 <!-- Toast pour les notifications -->
 <p-toast [style]="{marginTop: '80px'}" position="top-center"></p-toast>
 
