@@ -125,7 +125,7 @@ export class LandingComponent implements OnInit {
                 description: 'Remplissez vos informations en quelques minutes et évitez les files d\'attente à l\'aéroport.',
                 buttonText: 'Commencer maintenant',
                 buttonClass: 'p-button-success',
-                route: '/pre-enregistrement'
+                route: '/site-aeroport/preEnregistrement'
             },
             {
                 icon: 'pi pi-search',

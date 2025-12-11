@@ -40,6 +40,7 @@ import { Aeroport } from 'src/app/store/aeroport/model';
 import { FieldsetModule } from 'primeng/fieldset';
 import { TagModule } from 'primeng/tag';
 import { Voyage } from 'src/app/store/voyage/model';
+import { Enregistrement } from 'src/app/store/enregistrement/model';
 
 @Component({
     selector: 'app-vol',
@@ -81,6 +82,8 @@ export class VoyageComponent implements OnInit, OnDestroy {
     
     // Listes de données
     voyages: Voyage[] = [];
+     StatutVol = StatutVol;
+       TypeVol = TypeVol;
   
     // Objet sélectionné
     voyage: Voyage = {};
@@ -88,7 +91,9 @@ export class VoyageComponent implements OnInit, OnDestroy {
     
     // Configuration du tableau
     cols: any[] = [];
+    isDetailModalOpen = false;
     
+
     // Options pour les dropdowns
     typesVol = [
         { label: 'Arrivée', value: TypeVol.ARRIVEE },
@@ -132,7 +137,6 @@ export class VoyageComponent implements OnInit, OnDestroy {
    
     dateDebut: Date | null = null;
     dateFin: Date | null = null;
-    isDetailModalOpen = false;
     label = "Aéroport arrivé";
 
     constructor(
@@ -241,6 +245,7 @@ export class VoyageComponent implements OnInit, OnDestroy {
             
             return `${prenomFormate} ${nom}`.trim();
 }
+
 
     foundAeroport() {
         if(this.volFormGroup.get('typeVol')?.value == TypeVol.ARRIVEE){

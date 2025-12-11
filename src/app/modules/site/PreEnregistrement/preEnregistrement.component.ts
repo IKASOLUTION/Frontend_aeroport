@@ -5,7 +5,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { MessageService } from 'primeng/api';
-import { filter, debounceTime } from 'rxjs/operators';
+import { filter, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 // Store Actions & Selectors
 import * as enregistrementAction from '../../../store/enregistrement/action';
@@ -139,7 +139,7 @@ export class PreEnregistrementComponent implements OnInit {
   readonly personalFields: FormFieldConfig[] = [
     { key: 'prenom', label: 'Prénom', icon: 'pi pi-user', placeholder: 'Votre prénom', type: 'text', cols: 4, required: true },
     { key: 'nomFamille', label: 'Nom de famille', icon: 'pi pi-user', placeholder: 'Votre nom de famille', type: 'text', cols: 4, required: true },
-    { key: 'profession', label: 'Profession', icon: 'pi pi-briefcase', placeholder: 'Votre profession', type: 'text', cols: 4, required: true },
+    { key: 'profession', label: 'Profession', icon: 'pi pi-briefcase', placeholder: 'Votre profession', type: 'text', cols: 4, required: false },
     { key: 'dateNaissance', label: 'Date de naissance', icon: 'pi pi-calendar', placeholder: 'Sélectionner la date', type: 'date', cols: 4, required: true },
     { key: 'lieuNaissance', label: 'Lieu de naissance', icon: 'pi pi-map-marker', placeholder: 'Lieu de naissance', type: 'text', cols: 4, required: true },
     { key: 'nationalite', label: 'Nationalité', icon: 'pi pi-flag', placeholder: 'Sélectionnez votre nationalité', type: 'dropdown', cols: 4, required: true }
@@ -195,7 +195,7 @@ export class PreEnregistrementComponent implements OnInit {
   private initializeForm(): void {
     this.enregistrementForm = this.fb.group({
       // Document d'Identité
-      typeDocument: [TypeDocument.PASSEPORT, Validators.required],
+      typeDocument: [TypeDocument.CNI, Validators.required],
       numeroDocument: ['', Validators.required],
       numeroNip: [''],
       dateDelivrance: [null, Validators.required],
@@ -207,7 +207,7 @@ export class PreEnregistrementComponent implements OnInit {
       // Informations Personnelles
       prenom: ['', Validators.required],
       nomFamille: ['', Validators.required],
-      profession: ['', Validators.required],
+      profession: [''],
       dateNaissance: [null, Validators.required],
       lieuNaissance: ['', Validators.required],
       nationalite: [null, Validators.required],
@@ -233,6 +233,13 @@ export class PreEnregistrementComponent implements OnInit {
       heureVoyage: ['']
     });
 
+    // Écouter les changements de type de document pour gérer le NIP
+    this.enregistrementForm.get('typeDocument')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.updateNipValidation();
+      });
+
     // Auto-save sur changement (debounced)
     this.enregistrementForm.valueChanges
       .pipe(
@@ -245,6 +252,33 @@ export class PreEnregistrementComponent implements OnInit {
 
     // Charger depuis localStorage si disponible
     this.loadFromLocalStorage();
+  }
+
+  /**
+   * Vérifie si le champ NIP doit être affiché
+   */
+  shouldShowNipField(): boolean {
+    const typeDoc = this.enregistrementForm.get('typeDocument')?.value;
+    return typeDoc === TypeDocument.CNI;
+  }
+
+  /**
+   * Met à jour la validation du NIP selon le type de document
+   */
+  private updateNipValidation(): void {
+    const typeDoc = this.enregistrementForm.get('typeDocument')?.value;
+    const nipControl = this.enregistrementForm.get('numeroNip');
+    
+    if (typeDoc === TypeDocument.PASSEPORT) {
+      // Désactiver complètement pour Passeport
+      nipControl?.clearValidators();
+      nipControl?.setValue('');
+    } else {
+      // NIP optionnel pour CNI
+      nipControl?.clearValidators();
+    }
+    
+    nipControl?.updateValueAndValidity();
   }
 
   private async loadInitialData(): Promise<void> {
@@ -308,10 +342,6 @@ export class PreEnregistrementComponent implements OnInit {
           detail: 'Votre pré-enregistrement a été créé avec succès !',
           life: 5000
         });
-
-        /* setTimeout(() => {
-          this.router.navigateByUrl('/confirmation');
-        }, 2000); */
       });
   }
 
@@ -377,10 +407,11 @@ export class PreEnregistrementComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          console.log('✅ Réponse Regula:', response);
+          console.log('✅ Réponse complète Regula:', response);
+          console.log('✅ Type de réponse:', typeof response);
           
-          const documentInfo = this.regulaService.extractDocumentInfo(response);
-          this.fillFormWithDocumentInfo(documentInfo);
+          // La réponse devrait être l'objet DocumentData directement
+          this.fillFormWithDocumentInfo(response);
           
           this.showToast('success', 'Les informations ont été extraites automatiquement');
         },
@@ -391,28 +422,78 @@ export class PreEnregistrementComponent implements OnInit {
       });
   }
 
+  /**
+   * Remplit le formulaire avec les données extraites du document
+   */
   private fillFormWithDocumentInfo(documentInfo: any): void {
-    if (!documentInfo) return;
+    if (!documentInfo) {
+      console.warn('⚠️ Aucune info document reçue');
+      return;
+    }
 
-    const updates: Partial<Enregistrement> = {};
+    console.log('📝 Remplissage du formulaire avec:', documentInfo);
+
+    const updates: any = {};
     const currentValues = this.enregistrementForm.value;
+    const currentTypeDocument = currentValues.typeDocument;
 
-    // Mapping des champs avec type safety
-    const fieldMapping: (keyof Enregistrement)[] = [
-      'nomFamille', 'prenom', 'dateNaissance', 'lieuNaissance', 
-      'nationalite', 'numeroDocument', 'dateDelivrance', 'lieuDelivrance'
-    ];
+    // Mapping direct depuis le backend Java (DocumentData)
+    const fieldMappings: { [key: string]: any } = {
+      'nomFamille': documentInfo.lastName || documentInfo.nomFamille,
+      'prenom': documentInfo.firstName || documentInfo.prenom,
+      'dateNaissance': this.parseDate(documentInfo.dateOfBirth || documentInfo.dateNaissance),
+      'lieuNaissance': documentInfo.lieuNaissance || documentInfo.placeOfBirth,
+      'numeroDocument': documentInfo.documentNumber || documentInfo.numeroDocument,
+      'numeroNip': documentInfo.nip || documentInfo.numeroNip,
+      'dateDelivrance': this.parseDate(documentInfo.issueDate || documentInfo.dateDelivrance),
+      'lieuDelivrance': documentInfo.issueState || documentInfo.lieuDelivrance,
+      'profession': documentInfo.profession || documentInfo.profession
+    };
 
-    fieldMapping.forEach(field => {
-      if (!currentValues[field] && documentInfo[field]) {
-        (updates as any)[field] = documentInfo[field];
+    // Gestion spéciale de la nationalité
+    // Si CNI → Burkinabè, si Passeport → nationalité du document
+    if (currentTypeDocument === TypeDocument.CNI) {
+      // Pour une CNI burkinabè, forcer la nationalité Burkinabè
+      const burkinabeNat = this.findNationalite('Burkinabè');
+      if (burkinabeNat && !currentValues.nationalite) {
+        fieldMappings['nationalite'] = burkinabeNat;
+      }
+    } else if (currentTypeDocument === TypeDocument.PASSEPORT) {
+      // Pour un passeport, utiliser la nationalité du document
+      const nationalityFromDoc = documentInfo.nationality || 
+                                 documentInfo.nationalite || 
+                                 documentInfo.issueState;
+      if (nationalityFromDoc) {
+        const foundNat = this.findNationalite(nationalityFromDoc);
+        if (foundNat && !currentValues.nationalite) {
+          fieldMappings['nationalite'] = foundNat;
+        }
+      }
+    }
+
+    // Ne remplir que les champs vides
+    Object.keys(fieldMappings).forEach(key => {
+      const value = fieldMappings[key];
+      
+      // Pour les dates, vérifier qu'elles sont valides
+      if ((key === 'dateNaissance' || key === 'dateDelivrance') && value instanceof Date && isNaN(value.getTime())) {
+        console.warn(`⚠️ Date invalide pour ${key}:`, value);
+        return;
+      }
+      
+      if (value !== null && value !== undefined && !currentValues[key]) {
+        updates[key] = value;
       }
     });
 
+    // Gérer le NIP uniquement si c'est une CNI
+    if (!this.shouldShowNipField() && updates.numeroNip) {
+      delete updates.numeroNip;
+    }
+
     if (Object.keys(updates).length > 0) {
+      console.log('✅ Mise à jour du formulaire avec:', updates);
       this.enregistrementForm.patchValue(updates);
-      
-      console.log('📝 Formulaire mis à jour avec:', updates);
       
       this.messageService.add({
         severity: 'success',
@@ -421,8 +502,112 @@ export class PreEnregistrementComponent implements OnInit {
         life: 4000
       });
     } else {
+      console.log('ℹ️ Aucun nouveau champ à remplir');
       this.showToast('info', 'Le document ne contient pas de nouvelles informations à ajouter');
     }
+  }
+
+  /**
+   * Parse une date string en objet Date pour p-calendar
+   * Gère les formats: YYYY-MM-DD, DD/MM/YYYY, ISO 8601
+   */
+  private parseDate(dateString: string | null | undefined): Date | null {
+    if (!dateString) {
+      console.warn('⚠️ Date vide ou undefined');
+      return null;
+    }
+
+    try {
+      // Nettoyer la chaîne
+      const cleanedDate = dateString.trim();
+      
+      // Format YYYY-MM-DD (format du backend)
+      if (/^\d{4}-\d{2}-\d{2}$/.test(cleanedDate)) {
+        const [year, month, day] = cleanedDate.split('-').map(Number);
+        const date = new Date(year, month - 1, day); // month - 1 car les mois sont 0-indexed
+        
+        if (isNaN(date.getTime())) {
+          console.warn('⚠️ Date invalide après parsing:', cleanedDate);
+          return null;
+        }
+        
+        console.log('✅ Date parsée (YYYY-MM-DD):', cleanedDate, '->', date);
+        return date;
+      }
+      
+      // Format DD/MM/YYYY
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(cleanedDate)) {
+        const [day, month, year] = cleanedDate.split('/').map(Number);
+        const date = new Date(year, month - 1, day);
+        
+        if (isNaN(date.getTime())) {
+          console.warn('⚠️ Date invalide après parsing:', cleanedDate);
+          return null;
+        }
+        
+        console.log('✅ Date parsée (DD/MM/YYYY):', cleanedDate, '->', date);
+        return date;
+      }
+      
+      // Tentative avec le constructeur Date standard (ISO 8601)
+      const date = new Date(cleanedDate);
+      
+      if (isNaN(date.getTime())) {
+        console.warn('⚠️ Date invalide:', cleanedDate);
+        return null;
+      }
+      
+      console.log('✅ Date parsée (ISO):', cleanedDate, '->', date);
+      return date;
+    } catch (error) {
+      console.error('❌ Erreur parsing date:', dateString, error);
+      return null;
+    }
+  }
+
+  /**
+   * Trouve la nationalité dans la liste des nationalités
+   * Gère plusieurs variantes: "Burkinabè", "Burkina Faso", "burkinabe", etc.
+   */
+  private findNationalite(nationalityString: string | null | undefined): any {
+    if (!nationalityString) {
+      console.warn('⚠️ Nationalité vide');
+      return null;
+    }
+
+    const normalizedSearch = nationalityString.toLowerCase().trim();
+    
+    // Recherche avec plusieurs critères
+    const found = this.nationalites().find(nat => {
+      const natLower = (nat.nationalite || '').toLowerCase();
+      const nameLower = (nat.name || '').toLowerCase();
+      
+      // Correspondance exacte
+      if (natLower === normalizedSearch || nameLower === normalizedSearch) {
+        return true;
+      }
+      
+      // Correspondance partielle
+      if (natLower.includes(normalizedSearch) || nameLower.includes(normalizedSearch)) {
+        return true;
+      }
+      
+      // Cas spéciaux pour le Burkina Faso
+      if (normalizedSearch.includes('burkina') || normalizedSearch.includes('burkinabè')) {
+        return natLower.includes('burkina') || nameLower.includes('burkina');
+      }
+      
+      return false;
+    });
+
+    if (found) {
+      console.log('✅ Nationalité trouvée:', nationalityString, '->', found);
+    } else {
+      console.warn('⚠️ Nationalité non trouvée:', nationalityString);
+      console.log('📋 Nationalités disponibles:', this.nationalites().map(n => n.nationalite || n.name));
+    }
+    
+    return found || null;
   }
 
   // Vol selection avec auto-fill
@@ -492,7 +677,6 @@ export class PreEnregistrementComponent implements OnInit {
     console.log('📤 Données à envoyer:', enregistrementData);
     this.store.dispatch(enregistrementAction.createEnregistrement(enregistrementData));
     this.resetForm();
-
   }
 
   private prepareEnregistrementData(): Enregistrement {
@@ -506,10 +690,28 @@ export class PreEnregistrementComponent implements OnInit {
     };
   }
 
+  /**
+   * Formate une date pour l'envoi au backend (YYYY-MM-DD)
+   */
   private formatDate(date: any): string {
     if (!date) return '';
-    if (date instanceof Date) return date.toISOString().split('T')[0];
-    return date;
+    
+    if (date instanceof Date) {
+      // Éviter les problèmes de fuseau horaire
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+    
+    if (typeof date === 'string') {
+      // Si c'est déjà une chaîne au format YYYY-MM-DD
+      if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        return date;
+      }
+    }
+    
+    return '';
   }
 
   private markAllAsTouched(): void {
@@ -545,7 +747,17 @@ export class PreEnregistrementComponent implements OnInit {
   // LocalStorage
   private saveToLocalStorage(): void {
     try {
-      localStorage.setItem('enregistrement_draft', JSON.stringify(this.enregistrementForm.value));
+      const formValue = this.enregistrementForm.value;
+      const formDataWithoutImages: any = {};
+      
+      Object.keys(formValue).forEach(key => {
+        if (!['imageRecto', 'imageVerso', 'photoProfil'].includes(key)) {
+          formDataWithoutImages[key] = formValue[key];
+        }
+      });
+      
+      localStorage.setItem('enregistrement_draft', JSON.stringify(formDataWithoutImages));
+      console.log('💾 Données sauvegardées dans localStorage');
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
     }
@@ -556,11 +768,22 @@ export class PreEnregistrementComponent implements OnInit {
       const draft = localStorage.getItem('enregistrement_draft');
       if (draft) {
         const data = JSON.parse(draft);
-        this.enregistrementForm.patchValue(data);
-        this.showToast('info', 'Brouillon restauré');
+        console.log('📂 Données chargées depuis localStorage:', data);
+        
+        this.enregistrementForm.patchValue(data, { emitEvent: false });
+        
+        Object.keys(data).forEach(key => {
+          const control = this.enregistrementForm.get(key);
+          if (control) {
+            control.markAsDirty();
+            control.markAsTouched();
+          }
+        });
+        
+        this.showToast('info', 'Brouillon restauré avec succès');
       }
     } catch (error) {
-      console.error('Erreur lors du chargement:', error);
+      console.error('❌ Erreur lors du chargement depuis localStorage:', error);
     }
   }
 
