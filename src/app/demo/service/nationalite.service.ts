@@ -14,4 +14,11 @@ export class NationaliteService {
 			.then(res => res.data as any[])
 			.then(data => data);
 	}
+
+	getNationalite() {
+		return this.http.get<any>('assets/demo/data/nationalites.json')
+			.toPromise()
+			.then(res => res.data as any[])
+			.then(data => data);
+	}
 }
