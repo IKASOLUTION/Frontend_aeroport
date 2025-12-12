@@ -76,13 +76,13 @@
                             {{ voyage?.vol?.aeroport?.nomAeroport }}
                         </span>
                         <span *ngIf="voyage?.vol?.typeVol != 'ARRIVEE'">
-                            {{ voyage?.vol?.nomAgentConnecteAeroport }}
+                            {{ voyage?.nomAgentConnecteAeroport }}
                         </span>
                         
                         <i class="fa-solid fa-arrow-right pi pi-arrow-right mr-2 mx-1 text-gray-400"></i>
                         
                         <span *ngIf="voyage?.vol?.typeVol == 'ARRIVEE'">
-                            {{ voyage?.vol?.nomAgentConnecteAeroport }}
+                            {{ voyage?.nomAgentConnecteAeroport }}
                         </span>
                         <span *ngIf="voyage?.vol?.typeVol != 'ARRIVEE'">
                             {{ voyage?.vol?.aeroport?.nomAeroport }}
