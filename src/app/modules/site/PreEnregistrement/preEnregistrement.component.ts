@@ -422,96 +422,62 @@ export class PreEnregistrementComponent implements OnInit {
       });
   }
 
+  
+
   /**
    * Remplit le formulaire avec les données extraites du document
    */
   private fillFormWithDocumentInfo(documentInfo: any): void {
-    if (!documentInfo) {
-      console.warn('⚠️ Aucune info document reçue');
-      return;
-    }
+  if (!documentInfo) {
+    console.warn('⚠️ Aucune info document reçue');
+    return;
+  }
 
-    console.log('📝 Remplissage du formulaire avec:', documentInfo);
+  console.log('📝 Remplissage du formulaire avec:', documentInfo);
 
-    const updates: any = {};
-    const currentValues = this.enregistrementForm.value;
-    const currentTypeDocument = currentValues.typeDocument;
+ 
+  const currentTypeDocument = this.enregistrementForm.value.typeDocument;
 
-    // Mapping direct depuis le backend Java (DocumentData)
-    const fieldMappings: { [key: string]: any } = {
-      'nomFamille': documentInfo.lastName || documentInfo.nomFamille,
-      'prenom': documentInfo.firstName || documentInfo.prenom,
-      'dateNaissance': this.parseDate(documentInfo.dateOfBirth || documentInfo.dateNaissance),
-      'lieuNaissance': documentInfo.lieuNaissance || documentInfo.placeOfBirth,
-      'numeroDocument': documentInfo.documentNumber || documentInfo.numeroDocument,
-      'numeroNip': documentInfo.nip || documentInfo.numeroNip,
-      'dateDelivrance': this.parseDate(documentInfo.issueDate || documentInfo.dateDelivrance),
-      'lieuDelivrance': documentInfo.issueState || documentInfo.lieuDelivrance,
-      'profession': documentInfo.profession || documentInfo.profession
-    };
+  // --- 🛠 Mapping des données Regula → Formulaire ---
+  const fieldMappings: { [key: string]: any } = {
+    nomFamille: documentInfo.lastName || documentInfo.nomFamille,
+    prenom: documentInfo.firstName || documentInfo.prenom,
+    dateNaissance: this.parseDate(documentInfo.dateOfBirth || documentInfo.dateNaissance),
+    lieuNaissance: documentInfo.lieuNaissance || documentInfo.placeOfBirth,
+    numeroDocument: documentInfo.documentNumber || documentInfo.numeroDocument,
+    numeroNip: documentInfo.nip || documentInfo.numeroNip,
+    dateDelivrance: this.parseDate(documentInfo.dateIssue || documentInfo.dateDelivrance),
+    lieuDelivrance: documentInfo.issueState || documentInfo.lieuDelivrance,
+    profession: documentInfo.profession
+  };
 
-    // Gestion spéciale de la nationalité
-    // Si CNI → Burkinabè, si Passeport → nationalité du document
-    if (currentTypeDocument === TypeDocument.CNI) {
-      // Pour une CNI burkinabè, forcer la nationalité Burkinabè
-      const burkinabeNat = this.findNationalite('Burkinabè');
-      if (burkinabeNat && !currentValues.nationalite) {
-        fieldMappings['nationalite'] = burkinabeNat;
-      }
-    } else if (currentTypeDocument === TypeDocument.PASSEPORT) {
-      // Pour un passeport, utiliser la nationalité du document
-      const nationalityFromDoc = documentInfo.nationality || 
-                                 documentInfo.nationalite || 
-                                 documentInfo.issueState;
-      if (nationalityFromDoc) {
-        const foundNat = this.findNationalite(nationalityFromDoc);
-        if (foundNat && !currentValues.nationalite) {
-          fieldMappings['nationalite'] = foundNat;
-        }
-      }
-    }
-
-    // Ne remplir que les champs vides
-    Object.keys(fieldMappings).forEach(key => {
-      const value = fieldMappings[key];
-      
-      // Pour les dates, vérifier qu'elles sont valides
-      if ((key === 'dateNaissance' || key === 'dateDelivrance') && value instanceof Date && isNaN(value.getTime())) {
-        console.warn(`⚠️ Date invalide pour ${key}:`, value);
-        return;
-      }
-      
-      if (value !== null && value !== undefined && !currentValues[key]) {
-        updates[key] = value;
-      }
-    });
-
-    // Gérer le NIP uniquement si c'est une CNI
-    if (!this.shouldShowNipField() && updates.numeroNip) {
-      delete updates.numeroNip;
-    }
-
-    if (Object.keys(updates).length > 0) {
-      console.log('✅ Mise à jour du formulaire avec:', updates);
-      this.enregistrementForm.patchValue(updates);
-      
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Champs remplis automatiquement',
-        detail: `${Object.keys(updates).length} champs ont été pré-remplis`,
-        life: 4000
-      });
-    } else {
-      console.log('ℹ️ Aucun nouveau champ à remplir');
-      this.showToast('info', 'Le document ne contient pas de nouvelles informations à ajouter');
+  // --- 🛠 Gestion des nationalités ---
+  if (currentTypeDocument === TypeDocument.CNI) {
+    const nat = this.findNationalite('Burkinabè');
+    if (nat && !this.enregistrementForm.value.nationalite) {
+      fieldMappings['nationalite'] = nat;
     }
   }
+
+  if (currentTypeDocument === TypeDocument.PASSEPORT) {
+    const natDoc = documentInfo.nationality || documentInfo.nationalite || documentInfo.issueState;
+    const nat = natDoc ? this.findNationalite(natDoc) : null;
+    if (nat && !this.enregistrementForm.value.nationalite) {
+      fieldMappings['nationalite'] = nat;
+    }
+  }
+  this.enregistrementForm.patchValue(fieldMappings);
+
+ 
+}
+
 
   /**
    * Parse une date string en objet Date pour p-calendar
    * Gère les formats: YYYY-MM-DD, DD/MM/YYYY, ISO 8601
    */
   private parseDate(dateString: string | null | undefined): Date | null {
+    console.log('🗓️ Parsing date:', dateString);
     if (!dateString) {
       console.warn('⚠️ Date vide ou undefined');
       return null;
