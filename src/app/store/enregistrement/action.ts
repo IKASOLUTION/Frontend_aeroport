@@ -26,6 +26,22 @@ export const loadVoyageurAttenteByPeriode = createAction(
     props<{ searchDto: SearchDto }>()
 );
 
+export const listeVols = createAction(
+    '[Enregistrement] Load voyageur  By numeroDocument',
+    props<{ numeroDocument: String }>()
+);
+
+export const listeVolsSuccess = createAction(
+    '[Enregistrement] Load voyageur attente Success',
+    props<{ enregistrements: Enregistrement[] }>()
+);
+
+// Failure action
+export const listeVolsFailure = createAction(
+    '[Enregistrement] Load voyageur attente Failure',
+    props<{ error: string }>()
+);
+
 
 
 

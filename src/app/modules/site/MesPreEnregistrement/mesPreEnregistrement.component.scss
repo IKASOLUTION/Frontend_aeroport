@@ -1,0 +1,771 @@
+// mesPreEnregistrement.component.scss - VERSION FRONT OFFICE AVEC THÈME BF
+
+// Variables - Thème Burkina Faso
+$primary-color: #10b981;  // Vert
+$secondary-color: #059669; // Vert foncé
+$accent-color: #fcd34d;    // Jaune (drapeau BF)
+$danger-color: #ef4444;
+$warning-color: #f59e0b;
+$info-color: #3b82f6;
+$text-dark: #1f2937;
+$text-light: #6b7280;
+$border-color: #e5e7eb;
+$bg-light: #f9fafb;
+$bg-dark: #000000;
+$white: #ffffff;
+
+.public-enregistrement-page {
+    background: $bg-dark;
+    min-height: 100vh;
+    padding-bottom: 4rem;
+    position: relative;
+
+    // Background avec armoiries en filigrane
+    &::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url('/assets/demo/images/armoirieBF.png');
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: 600px;
+        opacity: 0.03;
+        pointer-events: none;
+        z-index: 0;
+    }
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+// Page Header - Style BF
+.page-header {
+    background: linear-gradient(110.43deg, $secondary-color 0.04%, $primary-color 100.11%);
+    color: $white;
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+
+    // Effet décoratif
+    &::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 40%;
+        height: 200%;
+        background: rgba(252, 211, 77, 0.1);
+        border-radius: 50%;
+        filter: blur(80px);
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        animation: fadeInUp 0.6s;
+        position: relative;
+        z-index: 1;
+        
+        span {
+            color: $accent-color;
+        }
+    }
+
+    .page-subtitle {
+        font-size: 1.2rem;
+        opacity: 0.95;
+        animation: fadeInUp 0.6s 0.2s backwards;
+        position: relative;
+        z-index: 1;
+    }
+}
+
+// Search Section
+.search-section {
+    margin-bottom: 2rem;
+}
+
+.search-card {
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.1);
+    animation: fadeInUp 0.6s 0.3s backwards;
+    border: 1px solid rgba(16, 185, 129, 0.1);
+
+    .search-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+
+        i {
+            font-size: 1.5rem;
+            color: $primary-color;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: $text-dark;
+            margin: 0;
+        }
+    }
+
+    .search-controls {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+
+        .search-input-group {
+            flex: 1;
+            display: flex;
+            gap: 0.5rem;
+            min-width: 300px;
+
+            .search-input {
+                flex: 1;
+                padding: 0.875rem 1.25rem;
+                border: 2px solid $border-color;
+                border-radius: 12px;
+                font-size: 1rem;
+                transition: all 0.3s;
+
+                &:focus {
+                    outline: none;
+                    border-color: $primary-color;
+                    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+                }
+
+                &::placeholder {
+                    color: $text-light;
+                }
+            }
+
+            .btn-search {
+                padding: 0.875rem 2rem;
+                background: linear-gradient(110.43deg, $secondary-color 0.04%, $primary-color 100.11%);
+                color: $white;
+                border: none;
+                border-radius: 12px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+
+                &:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+                }
+            }
+        }
+
+        .btn-filter {
+            padding: 0.875rem 1.5rem;
+            background: $white;
+            color: $text-dark;
+            border: 2px solid $primary-color;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+
+            .filter-count {
+                background: $danger-color;
+                color: $white;
+                border-radius: 50%;
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.75rem;
+                position: absolute;
+                top: -8px;
+                right: -8px;
+            }
+
+            &:hover {
+                background: $primary-color;
+                color: $white;
+            }
+        }
+    }
+
+    .active-filters {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        align-items: center;
+
+        .filter-tag {
+            background: linear-gradient(110.43deg, $secondary-color 0.04%, $primary-color 100.11%);
+            color: $white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-clear-filters {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            color: $danger-color;
+            border: 1px solid $danger-color;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+
+            &:hover {
+                background: $danger-color;
+                color: $white;
+            }
+        }
+    }
+}
+
+// Results Section
+.results-section {
+    .loading-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.1);
+
+        i {
+            font-size: 3rem;
+            color: $primary-color;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: $text-light;
+        }
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.1);
+
+        i {
+            font-size: 4rem;
+            color: $text-light;
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            color: $text-dark;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            color: $text-light;
+            margin-bottom: 2rem;
+        }
+
+        .btn-primary {
+            padding: 0.875rem 2rem;
+            background: linear-gradient(110.43deg, $secondary-color 0.04%, $primary-color 100.11%);
+            color: $white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+
+            &:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+            }
+        }
+    }
+}
+
+// Flight Cards
+.results-grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.flight-card {
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.1);
+    transition: all 0.3s;
+    animation: fadeInUp 0.6s;
+    border: 1px solid rgba(16, 185, 129, 0.1);
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(16, 185, 129, 0.2);
+        border-color: $primary-color;
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid $border-color;
+
+        .passenger-info {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+
+            .avatar {
+                width: 60px;
+                height: 60px;
+                background: linear-gradient(110.43deg, $secondary-color 0.04%, $primary-color 100.11%);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: $white;
+                font-size: 1.5rem;
+            }
+
+            .passenger-details {
+                h3 {
+                    font-size: 1.25rem;
+                    color: $text-dark;
+                    margin: 0 0 0.5rem 0;
+                }
+
+                .document-info {
+                    color: $text-light;
+                    font-size: 0.875rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                }
+            }
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.875rem;
+
+            &.status-valide {
+                background: #d1fae5;
+                color: $primary-color;
+            }
+
+            &.status-en_attente {
+                background: #fef3c7;
+                color: $warning-color;
+            }
+
+            &.status-annule, &.status-rejete {
+                background: #fee2e2;
+                color: $danger-color;
+            }
+        }
+    }
+
+    .flight-route {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+
+        .route-point {
+            flex: 1;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+
+            .location-icon {
+                width: 40px;
+                height: 40px;
+                background: linear-gradient(110.43deg, rgba(5, 150, 105, 0.1) 0.04%, rgba(16, 185, 129, 0.1) 100.11%);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: $primary-color;
+            }
+
+            .location-details {
+                display: flex;
+                flex-direction: column;
+
+                .location-label {
+                    font-size: 0.75rem;
+                    color: $text-light;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                }
+
+                .location-name {
+                    font-size: 1rem;
+                    color: $text-dark;
+                    font-weight: 600;
+                }
+            }
+        }
+
+        .route-line {
+            color: $primary-color;
+            font-size: 1.5rem;
+        }
+    }
+
+    .flight-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: linear-gradient(110.43deg, rgba(5, 150, 105, 0.05) 0.04%, rgba(16, 185, 129, 0.05) 100.11%);
+        border-radius: 12px;
+
+        .detail-item {
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+
+            i {
+                color: $primary-color;
+                font-size: 1.25rem;
+                margin-top: 0.25rem;
+            }
+
+            > div {
+                display: flex;
+                flex-direction: column;
+
+                .detail-label {
+                    font-size: 0.75rem;
+                    color: $text-light;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                }
+
+                .detail-value {
+                    font-size: 0.95rem;
+                    color: $text-dark;
+                    font-weight: 600;
+                }
+            }
+        }
+    }
+
+    .card-footer {
+        .btn-details {
+            width: 100%;
+            padding: 0.875rem;
+            background: linear-gradient(110.43deg, $secondary-color 0.04%, $primary-color 100.11%);
+            color: $white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+
+            &:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+            }
+        }
+    }
+}
+
+// Pagination
+.pagination-container {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+
+    ::ng-deep .p-paginator {
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 12px;
+        border: 1px solid rgba(16, 185, 129, 0.1);
+
+        .p-paginator-pages .p-paginator-page.p-highlight {
+            background: linear-gradient(110.43deg, $secondary-color 0.04%, $primary-color 100.11%);
+            border-color: $primary-color;
+        }
+    }
+}
+
+// Dialogs
+.filter-dialog, .detail-dialog {
+    .filter-group {
+        margin-bottom: 1.5rem;
+
+        label {
+            display: block;
+            color: $text-dark;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .small-label {
+            font-size: 0.875rem;
+            color: $text-light;
+            font-weight: 500;
+        }
+
+        .date-range {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+
+            i {
+                color: $primary-color;
+            }
+        }
+    }
+
+    .dialog-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+
+        .p-button-primary {
+            background: linear-gradient(110.43deg, $secondary-color 0.04%, $primary-color 100.11%);
+            border: none;
+
+            &:hover {
+                box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+            }
+        }
+    }
+}
+
+.detail-dialog {
+    .detail-content {
+        .detail-section {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid $border-color;
+
+            &:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+                padding-bottom: 0;
+            }
+
+            h3 {
+                color: $text-dark;
+                font-size: 1.25rem;
+                margin-bottom: 1.5rem;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+
+                i {
+                    color: $primary-color;
+                }
+            }
+
+            .info-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 1.5rem;
+
+                .info-item {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.5rem;
+
+                    .label {
+                        font-size: 0.875rem;
+                        color: $text-light;
+                        font-weight: 500;
+                    }
+
+                    .value {
+                        font-size: 1rem;
+                        color: $text-dark;
+                        font-weight: 600;
+                    }
+                }
+            }
+
+            .history-list {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+
+                .history-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                    padding: 1rem;
+                    background: linear-gradient(110.43deg, rgba(5, 150, 105, 0.05) 0.04%, rgba(16, 185, 129, 0.05) 100.11%);
+                    border-radius: 12px;
+
+                    .history-date {
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                        color: $text-light;
+                        font-size: 0.875rem;
+                        min-width: 120px;
+                    }
+
+                    .history-route {
+                        flex: 1;
+                        color: $text-dark;
+                        font-weight: 600;
+
+                        i {
+                            margin: 0 0.5rem;
+                            color: $primary-color;
+                        }
+                    }
+
+                    .history-status {
+                        .status-badge {
+                            padding: 0.4rem 0.8rem;
+                            border-radius: 20px;
+                            font-weight: 600;
+                            font-size: 0.75rem;
+
+                            &.status-valide {
+                                background: #d1fae5;
+                                color: $primary-color;
+                            }
+
+                            &.status-en_attente {
+                                background: #fef3c7;
+                                color: $warning-color;
+                            }
+
+                            &.status-annule, &.status-rejete {
+                                background: #fee2e2;
+                                color: $danger-color;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Animations
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// Responsive
+@media (max-width: 768px) {
+    .page-header {
+        padding: 2rem 0;
+
+        .page-title {
+            font-size: 1.75rem;
+        }
+
+        .page-subtitle {
+            font-size: 1rem;
+        }
+    }
+
+    .search-card {
+        padding: 1.5rem;
+
+        .search-controls {
+            flex-direction: column;
+
+            .search-input-group {
+                min-width: 100%;
+                flex-direction: column;
+
+                .btn-search {
+                    width: 100%;
+                    justify-content: center;
+                }
+            }
+
+            .btn-filter {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    }
+
+    .flight-card {
+        .card-header {
+            flex-direction: column;
+            gap: 1rem;
+
+            .passenger-info {
+                width: 100%;
+            }
+
+            .status-badge {
+                align-self: flex-start;
+            }
+        }
+
+        .flight-route {
+            flex-direction: column;
+            gap: 1rem;
+
+            .route-line {
+                transform: rotate(90deg);
+            }
+        }
+
+        .flight-details {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .detail-dialog .detail-content .detail-section .info-grid {
+        grid-template-columns: 1fr;
+    }
+}

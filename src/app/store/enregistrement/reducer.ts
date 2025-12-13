@@ -93,6 +93,27 @@ const featureReducer = createReducer<EnregistrementState>(
           loading: false,
           error: null
       })),
+
+       on(featureActions.listeVols, (state) => ({
+        ...state,
+        loading: true,
+        error: null
+    })),
+    
+    // En cas de succès
+    on(featureActions.listeVolsSuccess, (state, { enregistrements }) => ({
+        ...state,
+        enregistrements: enregistrements,
+        loading: false,
+        error: null
+    })),
+    
+    // En cas d'échec
+    on(featureActions.listeVolsFailure, (state, { error }) => ({
+        ...state,
+        loading: false,
+        error: error
+    })),
 );
 
 export function Enregistrementreducer(state: EnregistrementState | undefined, action: Action): EnregistrementState {

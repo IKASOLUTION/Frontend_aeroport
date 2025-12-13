@@ -1,116 +1,174 @@
 <div class="grid">
     <div class="col-12 md:col-12">
         <p-table #dt styleClass="p-datatable-gridlines p-datatable-sm p-datatable" [value]="voyages" [columns]="cols"
-            [rows]="5" [paginator]="true" [rowsPerPageOptions]="[5, 10, 20, 30]" [showCurrentPageReport]="true"
-            [globalFilterFields]="['vol.numeroVol', 'dateVoyage', 'aeroport.nomAeroport','StatutVoyage']"
-            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
-            [(selection)]="selectedVoyage" selectionMode="single" [rowHover]="true" dataKey="id" [loading]="loading">
+    [rows]="5" [paginator]="true" [rowsPerPageOptions]="[5, 10, 20, 30]" [showCurrentPageReport]="true"
+    [globalFilterFields]="['vol.numeroVol', 'dateVoyage', 'aeroport.nomAeroport','StatutVoyage']"
+    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+    [(selection)]="selectedVoyage" selectionMode="single" [rowHover]="true" dataKey="id" [loading]="loading">
 
-            <ng-template pTemplate="caption">
-                <div class="flex justify-content-between flex-column sm:flex-row">
-                    <div class="flex gap-2">
-                       
-                        <button pButton label="Filtrer par période" class="p-button-info mb-2" icon="pi pi-filter"
-                            (click)="openFilterDialog()">
-                        </button>
-                        <button pButton label="Réinitialiser" class="p-button-secondary mb-2" icon="pi pi-refresh"
-                            (click)="resetFilters()">
-                        </button>
-                    </div>
-                    <div class="flex flex-column align-items-end">
-                        <span class="p-input-icon-left mb-2">
-                            <i class="pi pi-search"></i>
-                            <input pInputText type="text" #filter (input)="onGlobalFilter(dt, $event)"
-                                placeholder="Rechercher" class="w-full" />
-                        </span>
-                        <small class="text-500" *ngIf="dateDebut && dateFin">
-                            Période: {{dateDebut | date:'dd/MM/yyyy'}} - {{dateFin | date:'dd/MM/yyyy'}}
-                            <span *ngIf="selectedStatuts.length > 0"> | Statuts: {{selectedStatuts.length}}
-                                sélectionné(s)</span>
-                        </small>
-                    </div>
+    <ng-template pTemplate="caption">
+        <div class="flex justify-content-between flex-column sm:flex-row">
+            <div class="flex gap-2">
+                <button pButton label="Filtrer par période" class="p-button-info mb-2" icon="pi pi-filter"
+                    (click)="openFilterDialog()">
+                </button>
+                <button pButton label="Réinitialiser" class="p-button-secondary mb-2" icon="pi pi-refresh"
+                    (click)="resetFilters()">
+                </button>
+            </div>
+            <div class="flex flex-column align-items-end">
+                <span class="p-input-icon-left mb-2">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" #filter (input)="onGlobalFilter(dt, $event)"
+                        placeholder="Rechercher" class="w-full" />
+                </span>
+                <small class="text-500" *ngIf="dateDebut && dateFin">
+                    Période: {{dateDebut | date:'dd/MM/yyyy'}} - {{dateFin | date:'dd/MM/yyyy'}}
+                    <span *ngIf="selectedStatuts.length > 0"> | Statuts: {{selectedStatuts.length}}
+                        sélectionné(s)</span>
+                </small>
+            </div>
+        </div>
+    </ng-template>
+
+   <ng-template pTemplate="header">
+    <!-- PREMIÈRE LIGNE : Titres des colonnes -->
+    <tr>
+        <th style="font-weight: bold;">N° Vol / Type</th>
+        <th style="font-weight: bold;">Passager</th>
+        <th style="font-weight: bold;">Itinéraire</th> <!-- Supprimé width: 35% -->
+        <th style="font-weight: bold;">Motif</th>
+        <th style="font-weight: bold;">Durée</th>
+        <th style="font-weight: bold;">Statut</th>
+        <th style="font-weight: bold;" class="text-center">Actions</th>
+    </tr>
+    
+    <!-- DEUXIÈME LIGNE : Champs de recherche par colonne -->
+    <tr>
+        <th>
+            <span class="p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" 
+                       (input)="dt.filter($any($event.target).value, 'vol.numero', 'contains')"
+                       placeholder="Rechercher"
+                       class="w-full" 
+                       style="width: 100%;" />
+            </span>
+        </th>
+        <th>
+            <span class="p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" 
+                       (input)="dt.filter($any($event.target).value, 'nomVoyageur', 'contains')"
+                       placeholder="Rechercher"
+                       class="w-full" 
+                       style="width: 100%;" />
+            </span>
+        </th>
+        <th>
+            <span class="p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" 
+                       (input)="dt.filter($any($event.target).value, 'vol.aeroport.nomAeroport', 'contains')"
+                       placeholder="Rechercher"
+                       class="w-full" 
+                       style="width: 100%;" />
+            </span>
+        </th>
+        <th>
+            <span class="p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" 
+                       (input)="dt.filter($any($event.target).value, 'motifVoyage', 'contains')"
+                       placeholder="Rechercher"
+                       class="w-full" 
+                       style="width: 100%;" />
+            </span>
+        </th>
+        <th>
+            <span class="p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" 
+                       (input)="dt.filter($any($event.target).value, 'dureeSejour', 'contains')"
+                       placeholder="Rechercher"
+                       class="w-full" 
+                       style="width: 100%;" />
+            </span>
+        </th>
+        <th>
+            <span class="p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" 
+                       (input)="dt.filter($any($event.target).value, 'statut', 'contains')"
+                       placeholder="Rechercher"
+                       class="w-full" 
+                       style="width: 100%;" />
+            </span>
+        </th>
+        <th></th> <!-- Colonne actions sans filtre -->
+    </tr>
+</ng-template> <!-- Colonne actions sans filtre -->
+       
+
+    <ng-template pTemplate="body" let-voyage>
+        <tr>
+            <td class="table-separator">
+                <div class="text-sm font-medium text-gray-900">{{ voyage?.vol?.numero }}</div>
+            </td>
+
+            <!-- Colonne Passager -->
+            <td class="table-separator">
+                <div class="flex align-items-center gap-2">
+                    <i class="pi pi-user text-primary"></i>
+                    <span class="font-medium">{{ getPassagerFormate(voyage) }}</span>
                 </div>
-            </ng-template>
+            </td>
 
-            <ng-template pTemplate="header">
-                <tr>
-                    <th style="font-weight: bold;">N° Vol / Type
-                        <p-columnFilter type="text" display="menu" field="vol.numeroVol"></p-columnFilter>
-                    </th>
-                    <th style="font-weight: bold;">Passager
-                        <p-columnFilter type="text" display="menu" field="nomVoyageur"></p-columnFilter>
-                    </th>
-                    <th style="width: 35%; font-weight: bold;">Itinéraire
-                        <p-columnFilter type="text" display="menu" field="villeNomA"></p-columnFilter>
-                    </th>
-                    <th style="font-weight: bold;">Motif
-                        <p-columnFilter type="text" display="menu" field="motifVoyage"></p-columnFilter>
-                    </th>
-                    <th style="font-weight: bold;">Durée
-                        <p-columnFilter type="text" display="menu" field="dureeSejour"></p-columnFilter>
-                    </th>
-                    <th style="font-weight: bold;">Statut
-                        <p-columnFilter type="text" display="menu" field="statut"></p-columnFilter>
-                    </th>
+            <td class="table-separator px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <span *ngIf="voyage?.vol?.typeVol == 'ARRIVEE'">
+                    {{ voyage?.vol?.aeroport?.nomAeroport }}
+                </span>
+                <span *ngIf="voyage?.vol?.typeVol != 'ARRIVEE'">
+                    {{ voyage?.nomAgentConnecteAeroport }}
+                </span>
 
-                    <th style="font-weight: bold;" class="text-center">Actions</th>
-                </tr>
-            </ng-template>
+                <i class="fa-solid fa-arrow-right pi pi-arrow-right mr-2 mx-1 text-gray-400"></i>
 
-            <ng-template pTemplate="body" let-voyage>
-                <tr>
-                    <td class="table-separator">
-                        <div class="text-sm font-medium text-gray-900">{{ voyage?.vol?.numero }}</div>
-                    </td>
-                    
-                    <!-- Colonne Passager -->
-                    <td class="table-separator">
-                        <div class="flex align-items-center gap-2">
-                            <i class="pi pi-user text-primary"></i>
-                            <span class="font-medium">{{ getPassagerFormate(voyage) }}</span>
-                        </div>
-                    </td>
-                   
-                    <td class="table-separator px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <span *ngIf="voyage?.vol?.typeVol == 'ARRIVEE'">
-                            {{ voyage?.vol?.aeroport?.nomAeroport }}
-                        </span>
-                        <span *ngIf="voyage?.vol?.typeVol != 'ARRIVEE'">
-                            {{ voyage?.nomAgentConnecteAeroport }}
-                        </span>
-                        
-                        <i class="fa-solid fa-arrow-right pi pi-arrow-right mr-2 mx-1 text-gray-400"></i>
-                        
-                        <span *ngIf="voyage?.vol?.typeVol == 'ARRIVEE'">
-                            {{ voyage?.nomAgentConnecteAeroport }}
-                        </span>
-                        <span *ngIf="voyage?.vol?.typeVol != 'ARRIVEE'">
-                            {{ voyage?.vol?.aeroport?.nomAeroport }}
-                        </span>
-                    </td>
-                    <td class="table-separator">{{voyage?.motifVoyage}}</td>
-                    <td class="table-separator">{{voyage?.dureeSejour}} jours</td>
-                    <td class="table-separator">
-                        <span [class]="'badge ' + getStatutClass(voyage?.vol?.statut)">
-                            {{voyage?.statut || 'N/A'}}
-                        </span>
-                    </td>
-                    <td class="text-center">
-                        <button pButton icon="pi pi-eye" class="p-button-rounded p-button-primary mr-2"
-                            pTooltip="Voir détail" tooltipPosition="top" (click)="openDetailModal(voyage)">
-                        </button>
-                    </td>
-                </tr>
-            </ng-template>
+                <span *ngIf="voyage?.vol?.typeVol == 'ARRIVEE'">
+                    {{ voyage?.nomAgentConnecteAeroport }}
+                </span>
+                <span *ngIf="voyage?.vol?.typeVol != 'ARRIVEE'">
+                    {{ voyage?.vol?.aeroport?.nomAeroport }}
+                </span>
+            </td>
+            <td class="table-separator">{{voyage?.motifVoyage}}</td>
+            <td class="table-separator">{{voyage?.dureeSejour}} jours</td>
+            <td class="table-separator">
+                <span [class]="'badge ' + getStatutClass(voyage?.vol?.statut)">
+                    {{voyage?.statut || 'N/A'}}
+                </span>
+            </td>
+            <td class="text-center">
+                <button pButton icon="pi pi-eye" class="p-button-rounded p-button-primary mr-2"
+                    pTooltip="Voir détail" tooltipPosition="top" (click)="openDetailModal(voyage)">
+                </button>
 
-            <ng-template pTemplate="emptymessage">
-                <tr>
-                    <td colspan="10" style="text-align: center; font-size: 1.2em; color: red; font-weight: bold;">
-                        <span class="text-danger">Aucun vol trouvé !</span>
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table>
+                <button pButton icon="pi pi-print" class="p-button-rounded p-button-success mr-2"
+                    pTooltip="Imprimer fiche de voyage" tooltipPosition="top"
+                    (click)="imprimerFicheVoyage(voyage)">
+                </button>
+            </td>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td colspan="7" style="text-align: center; font-size: 1.2em; color: red; font-weight: bold;">
+                <span class="text-danger">Aucun vol trouvé !</span>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
     </div>
 </div>
 
@@ -153,9 +211,10 @@
                     <label for="statutVoyages" class="block mb-2 font-semibold">
                         Statuts des vols
                     </label>
-                    <p-multiSelect id="statutVoyages" formControlName="statutVoyages" appendTo="body" [options]="statutsVoyage"
-                        optionLabel="label" optionValue="value" placeholder="Sélectionner les statuts" [filter]="true"
-                        filterPlaceHolder="Rechercher..." [showClear]="true" display="chip">
+                    <p-multiSelect id="statutVoyages" formControlName="statutVoyages" appendTo="body"
+                        [options]="statutsVoyage" optionLabel="label" optionValue="value"
+                        placeholder="Sélectionner les statuts" [filter]="true" filterPlaceHolder="Rechercher..."
+                        [showClear]="true" display="chip">
                     </p-multiSelect>
 
                     <small class="text-gray-500">
@@ -182,8 +241,8 @@
 </p-dialog>
 
 
-<p-dialog [(visible)]="isDetailModalOpen" [style]="{width: '1000px'}" header="Détails du voyage"
-    [modal]="true" [closable]="true" [draggable]="false" [resizable]="false" class="p-fluid">
+<p-dialog [(visible)]="isDetailModalOpen" [style]="{width: '1000px'}" header="Détails du voyage" [modal]="true"
+    [closable]="true" [draggable]="false" [resizable]="false" class="p-fluid">
 
     <div class="p-fluid p-4">
         <!-- Section: Informations Générales du Voyage -->
@@ -195,6 +254,7 @@
                     </span>
                     <span class="ml-2 font-semibold">{{ selectedVoyage.id || 'N/A' }}</span>
                 </div>
+
 
                 <div class="field col-12 md:col-4">
                     <span class="font-bold text-gray-700">
@@ -212,12 +272,19 @@
                     <span class="ml-2">{{ selectedVoyage.heureVoyage || 'N/A' }}</span>
                 </div>
 
+
+
+
+
+
                 <div class="field col-12 md:col-6">
                     <span class="font-bold text-gray-700">
                         <i class="pi pi-map mr-2"></i>Aeroport de départ:
                     </span>
                     <span class="ml-2">
                         {{ selectedVoyage.vol?.aeroport?.nomAeroport || 'N/A' }}
+
+
                     </span>
                 </div>
 
@@ -259,7 +326,7 @@
                     </span>
                 </div>
 
-                
+
             </div>
         </p-fieldset>
 
@@ -283,7 +350,8 @@
         </p-fieldset>
 
         <!-- Section: Informations sur le Vol -->
-        <p-fieldset legend="Informations du Vol" [toggleable]="true" [collapsed]="true" styleClass="mb-4" *ngIf="selectedVoyage.vol">
+        <p-fieldset legend="Informations du Vol" [toggleable]="true" [collapsed]="true" styleClass="mb-4"
+            *ngIf="selectedVoyage.vol">
             <div class="grid">
                 <div class="field col-12 md:col-4">
                     <span class="font-bold text-gray-700">
@@ -299,21 +367,22 @@
                     <span class="ml-2">{{ selectedVoyage.vol?.compagnie?.nomCompagine || 'N/A' }}</span>
                 </div>
 
-             <div class="field col-12 md:col-4">
-    <span class="font-bold text-gray-700">
-        <i class="pi pi-tag mr-2"></i>Type de vol:
-    </span>
-    <span class="ml-2">
-        {{ selectedVoyage.vol?.typeVol || selectedVoyage.vol?.type || 'N/A' }}
-    </span>
-</div>
+                <div class="field col-12 md:col-4">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-tag mr-2"></i>Type de vol:
+                    </span>
+                    <span class="ml-2">
+                        {{ selectedVoyage.vol?.typeVol || selectedVoyage.vol?.type || 'N/A' }}
+                    </span>
+                </div>
 
                 <div class="field col-12 md:col-6">
                     <span class="font-bold text-gray-700">
                         <i class="pi pi-calendar-times mr-2"></i>Date de départ:
                     </span>
                     <span class="ml-2">
-                        {{ selectedVoyage.vol?.dateDepart ? (selectedVoyage.vol.dateDepart | date: 'dd/MM/yyyy HH:mm') : 'N/A' }}
+                        {{ selectedVoyage.vol?.dateDepart ? (selectedVoyage.vol.dateDepart | date: 'dd/MM/yyyy HH:mm') :
+                        'N/A' }}
                     </span>
                 </div>
 
@@ -322,70 +391,78 @@
                         <i class="pi pi-calendar-plus mr-2"></i>Date d'arrivée:
                     </span>
                     <span class="ml-2">
-                        {{ selectedVoyage.vol?.dateArrivee ? (selectedVoyage.vol.dateArrivee | date: 'dd/MM/yyyy HH:mm') : 'N/A' }}
+                        {{ selectedVoyage.vol?.dateArrivee ? (selectedVoyage.vol.dateArrivee | date: 'dd/MM/yyyy HH:mm')
+                        : 'N/A' }}
                     </span>
                 </div>
 
-               <div class="field col-12 md:col-6">
-    <span class="font-bold text-gray-700">
-        <i class="pi pi-flag mr-2"></i>Statut du vol:
-    </span>
-    <span class="ml-2" [ngClass]="{
+                <div class="field col-12 md:col-6">
+                    <span class="font-bold text-gray-700">
+                        <i class="pi pi-flag mr-2"></i>Statut du vol:
+                    </span>
+                    <span class="ml-2" [ngClass]="{
         'text-green-600 font-semibold': selectedVoyage.vol?.statut === StatutVol.EFFECTUE,
         'text-blue-600 font-semibold': selectedVoyage.vol?.statut === StatutVol.CONFIRME,
         'text-red-600 font-semibold': selectedVoyage.vol?.statut === StatutVol.ANNULE,
         'text-yellow-600 font-semibold': selectedVoyage.vol?.statut === StatutVol.PROGRAMME || selectedVoyage.vol?.statut === StatutVol.RETARDE,
     }">
-        {{ selectedVoyage.vol?.statut || selectedVoyage.vol?.statutLibelle || 'N/A' }}
-    </span>
-</div>
+                        {{ selectedVoyage.vol?.statut || selectedVoyage.vol?.statutLibelle || 'N/A' }}
+                    </span>
+                </div>
                 <div class="field col-12 md:col-6">
                     <span class="font-bold text-gray-700">
                         <i class="pi pi-calendar mr-2"></i>Date de saisie:
                     </span>
                     <span class="ml-2">
-                        {{ selectedVoyage.vol?.dateSaisie ? (selectedVoyage.vol.dateSaisie | date: 'dd/MM/yyyy') : 'N/A' }}
+                        {{ selectedVoyage.vol?.dateSaisie ? (selectedVoyage.vol.dateSaisie | date: 'dd/MM/yyyy') : 'N/A'
+                        }}
                     </span>
                 </div>
             </div>
         </p-fieldset>
 
         <!-- Section: Informations sur l'Aéroport -->
-        <p-fieldset legend="Informations de l'Aéroport" [toggleable]="true" [collapsed]="true" styleClass="mb-4" *ngIf="selectedVoyage.aeroport || selectedVoyage.aeroportForUser">
+        <p-fieldset legend="Informations de l'Aéroport" [toggleable]="true" [collapsed]="true" styleClass="mb-4"
+            *ngIf="selectedVoyage.aeroport || selectedVoyage.aeroportForUser">
             <div class="grid">
                 <div class="field col-12 md:col-6">
                     <span class="font-bold text-gray-700">
                         <i class="pi pi-building mr-2"></i>Nom de l'aéroport:
                     </span>
-                    <span class="ml-2">{{ selectedVoyage.aeroport?.nomAeroport || selectedVoyage.aeroportForUser?.nomAeroport || 'N/A' }}</span>
+                    <span class="ml-2">{{ selectedVoyage.aeroport?.nomAeroport ||
+                        selectedVoyage.aeroportForUser?.nomAeroport || 'N/A' }}</span>
                 </div>
 
                 <div class="field col-12 md:col-6">
                     <span class="font-bold text-gray-700">
                         <i class="pi pi-map mr-2"></i>Ville:
                     </span>
-                    <span class="ml-2">{{ selectedVoyage.aeroport?.ville?.nom || selectedVoyage.aeroportForUser?.ville?.nom || 'N/A' }}</span>
+                    <span class="ml-2">{{ selectedVoyage.aeroport?.ville?.nom ||
+                        selectedVoyage.aeroportForUser?.ville?.nom || 'N/A' }}</span>
                 </div>
 
                 <div class="field col-12 md:col-6">
                     <span class="font-bold text-gray-700">
                         <i class="pi pi-flag mr-2"></i>Pays:
                     </span>
-                    <span class="ml-2">{{ selectedVoyage.aeroport?.pays || selectedVoyage.aeroportForUser?.pays || 'N/A' }}</span>
+                    <span class="ml-2">{{ selectedVoyage.aeroport?.pays || selectedVoyage.aeroportForUser?.pays || 'N/A'
+                        }}</span>
                 </div>
 
                 <div class="field col-12 md:col-6">
                     <span class="font-bold text-gray-700">
                         <i class="pi pi-tag mr-2"></i>Code OACI:
                     </span>
-                    <span class="ml-2 font-mono">{{ selectedVoyage.aeroport?.code_oaci || selectedVoyage.aeroportForUser?.code_oaci || 'N/A' }}</span>
+                    <span class="ml-2 font-mono">{{ selectedVoyage.aeroport?.code_oaci ||
+                        selectedVoyage.aeroportForUser?.code_oaci || 'N/A' }}</span>
                 </div>
 
                 <div class="field col-12 md:col-6">
                     <span class="font-bold text-gray-700">
                         <i class="pi pi-phone mr-2"></i>Téléphone:
                     </span>
-                    <span class="ml-2">{{ selectedVoyage.aeroport?.telephone || selectedVoyage.aeroportForUser?.telephone || 'N/A' }}</span>
+                    <span class="ml-2">{{ selectedVoyage.aeroport?.telephone ||
+                        selectedVoyage.aeroportForUser?.telephone || 'N/A' }}</span>
                 </div>
 
                 <div class="field col-12 md:col-6">
@@ -393,12 +470,13 @@
                         <i class="pi pi-globe mr-2"></i>Site web:
                     </span>
                     <span class="ml-2">
-                        <a *ngIf="selectedVoyage.aeroport?.siteWeb || selectedVoyage.aeroportForUser?.siteWeb" 
-                           [href]="selectedVoyage.aeroport?.siteWeb || selectedVoyage.aeroportForUser?.siteWeb" 
-                           target="_blank" class="text-primary hover:underline">
+                        <a *ngIf="selectedVoyage.aeroport?.siteWeb || selectedVoyage.aeroportForUser?.siteWeb"
+                            [href]="selectedVoyage.aeroport?.siteWeb || selectedVoyage.aeroportForUser?.siteWeb"
+                            target="_blank" class="text-primary hover:underline">
                             {{ selectedVoyage.aeroport?.siteWeb || selectedVoyage.aeroportForUser?.siteWeb }}
                         </a>
-                        <span *ngIf="!(selectedVoyage.aeroport?.siteWeb || selectedVoyage.aeroportForUser?.siteWeb)">N/A</span>
+                        <span
+                            *ngIf="!(selectedVoyage.aeroport?.siteWeb || selectedVoyage.aeroportForUser?.siteWeb)">N/A</span>
                     </span>
                 </div>
 
@@ -407,12 +485,14 @@
                         <i class="pi pi-envelope mr-2"></i>Email responsable:
                     </span>
                     <span class="ml-2">
-                        <a *ngIf="selectedVoyage.aeroport?.mailResponsable || selectedVoyage.aeroportForUser?.mailResponsable" 
-                           [href]="'mailto:' + (selectedVoyage.aeroport?.mailResponsable || selectedVoyage.aeroportForUser?.mailResponsable)" 
-                           class="text-primary hover:underline">
-                            {{ selectedVoyage.aeroport?.mailResponsable || selectedVoyage.aeroportForUser?.mailResponsable }}
+                        <a *ngIf="selectedVoyage.aeroport?.mailResponsable || selectedVoyage.aeroportForUser?.mailResponsable"
+                            [href]="'mailto:' + (selectedVoyage.aeroport?.mailResponsable || selectedVoyage.aeroportForUser?.mailResponsable)"
+                            class="text-primary hover:underline">
+                            {{ selectedVoyage.aeroport?.mailResponsable ||
+                            selectedVoyage.aeroportForUser?.mailResponsable }}
                         </a>
-                        <span *ngIf="!(selectedVoyage.aeroport?.mailResponsable || selectedVoyage.aeroportForUser?.mailResponsable)">N/A</span>
+                        <span
+                            *ngIf="!(selectedVoyage.aeroport?.mailResponsable || selectedVoyage.aeroportForUser?.mailResponsable)">N/A</span>
                     </span>
                 </div>
 
@@ -421,8 +501,10 @@
                         <i class="pi pi-user mr-2"></i>Responsable:
                     </span>
                     <span class="ml-2">
-                        {{ (selectedVoyage.aeroport?.prenomResponsable || selectedVoyage.aeroportForUser?.prenomResponsable || '') + ' ' + 
-                           (selectedVoyage.aeroport?.nomResponsable || selectedVoyage.aeroportForUser?.nomResponsable || '') || 'N/A' }}
+                        {{ (selectedVoyage.aeroport?.prenomResponsable ||
+                        selectedVoyage.aeroportForUser?.prenomResponsable || '') + ' ' +
+                        (selectedVoyage.aeroport?.nomResponsable || selectedVoyage.aeroportForUser?.nomResponsable ||
+                        '') || 'N/A' }}
                     </span>
                 </div>
 
@@ -430,7 +512,8 @@
                     <span class="font-bold text-gray-700">
                         <i class="pi pi-home mr-2"></i>Adresse:
                     </span>
-                    <span class="ml-2">{{ selectedVoyage.aeroport?.adresse || selectedVoyage.aeroportForUser?.adresse || 'N/A' }}</span>
+                    <span class="ml-2">{{ selectedVoyage.aeroport?.adresse || selectedVoyage.aeroportForUser?.adresse ||
+                        'N/A' }}</span>
                 </div>
             </div>
         </p-fieldset>
@@ -442,14 +525,16 @@
                     <span class="font-bold text-gray-700">
                         <i class="pi pi-user-secret mr-2"></i>Agent connecté:
                     </span>
-                    <span class="ml-2">{{ selectedVoyage.nomAgentConnecteAeroport || selectedVoyage.vol?.nomAgentConnecteAeroport || 'N/A' }}</span>
+                    <span class="ml-2">{{ selectedVoyage.nomAgentConnecteAeroport ||
+                        selectedVoyage.vol?.nomAgentConnecteAeroport || 'N/A' }}</span>
                 </div>
 
                 <div class="field col-12 md:col-6">
                     <span class="font-bold text-gray-700">
                         <i class="pi pi-database mr-2"></i>ID Aéroport:
                     </span>
-                    <span class="ml-2">{{ selectedVoyage.aeroportId || selectedVoyage.aeroportForUserId || 'N/A' }}</span>
+                    <span class="ml-2">{{ selectedVoyage.aeroportId || selectedVoyage.aeroportForUserId || 'N/A'
+                        }}</span>
                 </div>
             </div>
         </p-fieldset>
@@ -457,9 +542,9 @@
 
     <ng-template pTemplate="footer">
         <div class="flex justify-content-between w-full">
-           
-            <button pButton pRipple label="Fermer" icon="pi pi-times" 
-                    class="p-button-danger" (click)="closeDetailModal()">
+
+            <button pButton pRipple label="Fermer" icon="pi pi-times" class="p-button-danger"
+                (click)="closeDetailModal()">
             </button>
         </div>
     </ng-template>

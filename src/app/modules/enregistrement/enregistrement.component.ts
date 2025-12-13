@@ -34,6 +34,7 @@ import { CountryService } from 'src/app/demo/service/country.service';
 import { NationaliteService } from 'src/app/demo/service/nationalite.service';
 import { Router } from '@angular/router';
 import { RegulaDocumentReaderService } from 'src/app/service-util/auth/regularForensic.service';
+import { StatutVoyageur } from 'src/app/store/motifVoyage/model';
 
 interface Passager {
   id: number;
@@ -667,6 +668,7 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
       return;
     }
     const enregistrementData = this.prepareEnregistrementData();
+    console.log('Données à soumettre suite:', enregistrementData);
     this.store.dispatch(enregistrementAction.createEnregistrement(enregistrementData));
 
     this.store.pipe(
@@ -692,7 +694,8 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
       ...data,
       dateDelivrance: this.formatDate(data.dateDelivrance),
       dateNaissance: this.formatDate(data.dateNaissance),
-      dateVoyage: this.formatDate(data.dateVoyage)
+      dateVoyage: this.formatDate(data.dateVoyage),
+      statut: StatutVoyageur.VALIDE.toString(),
     };
   }
 

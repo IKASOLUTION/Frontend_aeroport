@@ -41,6 +41,7 @@ import { FieldsetModule } from 'primeng/fieldset';
 import { TagModule } from 'primeng/tag';
 import { Voyage } from 'src/app/store/voyage/model';
 import { Enregistrement } from 'src/app/store/enregistrement/model';
+import { co } from '@fullcalendar/core/internal-common';
 
 @Component({
     selector: 'app-vol',
@@ -258,6 +259,7 @@ export class VoyageComponent implements OnInit, OnDestroy {
   openDetailModal(voyage: Voyage) {
     this.selectedVoyage= voyage;
     this.isDetailModalOpen = true;
+    console.log('Voyage sélectionné pour le détail:', this.selectedVoyage);
   }
   
   // Fermer le modal de détail
@@ -479,4 +481,351 @@ removeAccents(str: string): string {
         this.destroy$.next(true);
         this.destroy$.unsubscribe();
     }
+
+  imprimerFicheVoyage(voyage: Voyage) {
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
+    if (printWindow) {
+        printWindow.document.write(this.generateFicheHTML(voyage));
+        printWindow.document.close();
+        setTimeout(() => {
+            printWindow.print();
+        }, 250);
+    }
+}
+
+private generateFicheHTML(voyage: any): string {
+    const dateNaissance = voyage.dateNaissance ? new Date(voyage.dateNaissance) : null;
+    const jour = dateNaissance?.getDate() || '';
+    const mois = dateNaissance?.getMonth() ? dateNaissance.getMonth() + 1 : '';
+    const annee = dateNaissance?.getFullYear() || '';
+    
+    const motifAffaire = voyage.motifVoyage === 'AFFAIRE' ? 'checked' : '';
+    const motifFamille = voyage.motifVoyage === 'FAMILLE' ? 'checked' : '';
+    const motifEtude = voyage.motifVoyage === 'ETUDE' ? 'checked' : '';
+    const motifAutre = !['AFFAIRE', 'FAMILLE', 'ETUDE'].includes(voyage.motifVoyage) ? 'checked' : '';
+    
+    return `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Carte Internationale d'Embarquement/Débarquement</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: #f0f0f0;
+            padding: 20px;
+        }
+        
+        .carte {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            margin: 0 auto;
+            padding: 15mm;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 3px solid #000;
+            padding-bottom: 10px;
+        }
+        
+        .flag {
+            height: 40px;
+            display: flex;
+            margin: 0 auto 10px;
+            width: 100%;
+        }
+        
+        .flag-red {
+            background: #EF2B2D;
+            height: 100%;
+            flex: 1;
+            position: relative;
+        }
+        
+        .flag-green {
+            background: #009E49;
+            height: 100%;
+            flex: 1;
+        }
+        
+        .star {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #FCD116;
+            font-size: 24px;
+        }
+        
+        .titre {
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        
+        .titre-en {
+            font-size: 11px;
+            font-style: italic;
+        }
+        
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.05;
+            font-size: 150px;
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .ligne {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: baseline;
+            font-size: 11px;
+        }
+        
+        .label {
+            font-weight: bold;
+            min-width: 180px;
+        }
+        
+        .label-en {
+            font-style: italic;
+            font-size: 9px;
+            display: block;
+            font-weight: normal;
+        }
+        
+        .dots {
+            border-bottom: 1px dotted #000;
+            flex: 1;
+            min-height: 18px;
+            padding-left: 5px;
+        }
+        
+        .date-naissance {
+            display: inline-flex;
+            gap: 20px;
+        }
+        
+        .date-box {
+            border-bottom: 1px dotted #000;
+            min-width: 60px;
+            text-align: center;
+            padding: 0 5px;
+        }
+        
+        .motif-section {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #ccc;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            gap: 30px;
+            margin-top: 5px;
+            flex-wrap: wrap;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .checkbox {
+            width: 15px;
+            height: 15px;
+            border: 2px solid #000;
+            display: inline-block;
+        }
+        
+        .checkbox.checked::after {
+            content: '✓';
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .carte {
+                box-shadow: none;
+                margin: 0;
+                padding: 10mm;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="carte">
+        <div class="watermark">BURKINA FASO</div>
+        
+        <div class="content">
+            <div class="header">
+                <div class="flag">
+                    <div class="flag-red">
+                        <span class="star">★</span>
+                    </div>
+                    <div class="flag-green"></div>
+                </div>
+                <div class="titre">
+                    CARTE INTERNATIONALE D'EMBARQUEMENT / DÉBARQUEMENT
+                </div>
+                <div class="titre-en">
+                    INTERNATIONAL EMBARCATION / DISEMBARKATION CARD
+                </div>
+            </div>
+            
+            <div class="ligne">
+                <span class="label">DATE :</span>
+                <span class="dots">${voyage.dateVoyage || ''}</span>
+                <span class="label" style="margin-left: 20px;">VOL N° / FLIGHT N° :</span>
+                <span class="dots">${voyage.vol.numero || ''}</span>
+            </div>
+            
+            <div class="ligne">
+                <span class="label">
+                    Nom :<span class="label-en">Name (en caractère d'imprimerie / please print)</span>
+                </span>
+                <span class="dots">${voyage.nomVoyageur || ''}</span>
+            </div>
+            
+            <div class="ligne">
+                <span class="label">Prénoms :<span class="label-en">Given names</span></span>
+                <span class="dots">${voyage.prenomVoyageur|| ''}</span>
+            </div>
+            
+            <div class="ligne">
+                <span class="label">Nom de jeune fille :<span class="label-en">Maiden name</span></span>
+                <span class="dots"></span>
+            </div>
+            
+            <div class="ligne">
+                <span class="label">Date de naissance :<span class="label-en">Date of birth</span></span>
+                <div class="date-naissance">
+                    <span class="date-box">${jour}</span> Jour/Day
+                    <span class="date-box">${mois}</span> Mois/Month
+                    <span class="date-box">${annee}</span> Année/Year
+                </div>
+            </div>
+            
+            <div class="ligne">
+                <span class="label">Lieu de naissance :<span class="label-en">Place of birth</span></span>
+                <span class="dots">${voyage.lieuNaissance || ''}</span>
+            </div>
+            
+            <div class="ligne">
+                <span class="label">Nationalité :<span class="label-en">Nationality</span></span>
+                <span class="dots">${voyage.nationalite || ''}</span>
+            </div>
+            
+            <div class="ligne">
+                <span class="label">Profession :</span>
+                <span class="dots">${voyage.profession || ''}</span>
+            </div>
+            
+            <div class="ligne">
+                <span class="label">Fonction :<span class="label-en">Function</span></span>
+                <span class="dots"></span>
+            </div>
+            
+            <div class="ligne">
+                <span class="label">Adresse à l'étranger :<span class="label-en">Adress abroad</span></span>
+                <span class="dots">${voyage.adresseEtranger || ''}</span>
+                <span style="margin-left: 10px;">Tél :</span>
+                <span class="dots" style="min-width: 100px;">${voyage.telephoneEtranger || ''}</span>
+            </div>
+            
+            <div class="ligne">
+                <span class="label">Adresse au Burkina Faso :<span class="label-en">Adress in Burkina Faso</span></span>
+                <span class="dots">${voyage.adresseBurkina || ''}</span>
+                <span style="margin-left: 10px;">Tél :</span>
+                <span class="dots" style="min-width: 100px;">${voyage.telephoneBurkina || ''}</span>
+            </div>
+            
+            <div class="ligne">
+                <span class="label">Pays de résidence :<span class="label-en">Country of permanent residence</span></span>
+                <span class="dots">${voyage.paysResidence || ''}</span>
+            </div>
+            
+            <div class="ligne">
+                <span class="label">Venant de :<span class="label-en">Coming from</span></span>
+                <span class="dots">${voyage.aeroportDepart || ''}</span>
+            </div>
+            
+            <div class="ligne">
+                <span class="label">Allant à :<span class="label-en">Going to</span></span>
+                <span class="dots">${voyage.aeroportDestination || ''}</span>
+            </div>
+            
+            <div class="ligne">
+                <span class="label">Passeport N° :<span class="label-en">Passport N°</span></span>
+                <span class="dots">${voyage.numeroDocument || ''}</span>
+            </div>
+            
+            <div class="ligne">
+                <span class="label">Date et lieu de délivrance :<span class="label-en">Date and place of issue</span></span>
+                <span class="dots">${voyage.dateDelivrance || ''} - ${voyage.lieuDelivrance || ''}</span>
+            </div>
+            
+            <div class="motif-section">
+                <div class="ligne">
+                    <span class="label" style="font-size: 12px;">Motif du voyage / Purpose of travel :</span>
+                </div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <span class="checkbox ${motifAffaire}"></span>
+                        <span>Conférence / Affaires<br><i style="font-size: 9px;">Conference / Business</i></span>
+                    </div>
+                    <div class="checkbox-item">
+                        <span class="checkbox ${motifFamille}"></span>
+                        <span>Vacances / Famille<br><i style="font-size: 9px;">Holidays / Family</i></span>
+                    </div>
+                    <div class="checkbox-item">
+                        <span class="checkbox ${motifEtude}"></span>
+                        <span>Études<br><i style="font-size: 9px;">Studies</i></span>
+                    </div>
+                    <div class="checkbox-item">
+                        <span class="checkbox ${motifAutre}"></span>
+                        <span>Autre / Other (À préciser)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="ligne" style="margin-top: 15px;">
+                <span class="label">Durée du séjour :<span class="label-en">Length of the staying</span></span>
+                <span class="dots">${voyage.dureeSejour || ''} jour(s)</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>`;
+}
+
+
 }

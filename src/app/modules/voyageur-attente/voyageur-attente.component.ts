@@ -275,8 +275,60 @@ export class VoyageurAttenteComponent implements OnInit, OnDestroy {
     }
 
     // Ouvrir le modal de détail
+    // openDetailModal(enregistrement: Enregistrement): void {
+    //     this.selectedEnregistrement = enregistrement;
+    //     this.isDetailModalOpen = true;
+    // }
+
     openDetailModal(enregistrement: Enregistrement): void {
         this.selectedEnregistrement = enregistrement;
+        
+        // Convertir les dates string en objets Date si nécessaire
+        const dateDelivrance = enregistrement.dateDelivrance 
+            ? new Date(enregistrement.dateDelivrance) 
+            : null;
+        const dateNaissance = enregistrement.dateNaissance 
+            ? new Date(enregistrement.dateNaissance) 
+            : null;
+        const dateVoyage = enregistrement.dateVoyage 
+            ? new Date(enregistrement.dateVoyage) 
+            : null;
+        
+        // Remplir le formulaire avec les données
+        this.editFormGroup.patchValue({
+            // Informations Document
+            typeDocument: enregistrement.typeDocument,
+            numeroDocument: enregistrement.numeroDocument,
+            numeroNip: enregistrement.numeroNip,
+            dateDelivrance: dateDelivrance,
+            lieuDelivrance: enregistrement.lieuDelivrance,
+            
+            // Informations Personnelles
+            nomFamille: enregistrement.nomFamille,
+            prenom: enregistrement.prenom,
+            dateNaissance: dateNaissance,
+            lieuNaissance: enregistrement.lieuNaissance,
+            nationalite: enregistrement.nationalite,
+            profession: enregistrement.profession,
+            
+            // Coordonnées
+            paysResidence: enregistrement.paysResidence,
+            emailContact: enregistrement.emailContact,
+            telephoneBurkina: enregistrement.telephoneBurkina,
+            telephoneEtranger: enregistrement.telephoneEtranger,
+            adresseBurkina: enregistrement.adresseBurkina,
+            adresseEtranger: enregistrement.adresseEtranger,
+            
+            // Informations de Voyage
+            aeroportDepart: enregistrement.aeroportDepart,
+            aeroportDestination: enregistrement.aeroportDestination,
+            dateVoyage: dateVoyage,
+            heureVoyage: enregistrement.heureVoyage,
+            dureeSejour: enregistrement.dureeSejour
+        });
+        
+        console.log('📋 Formulaire rempli avec:', this.editFormGroup.value);
+        
         this.isDetailModalOpen = true;
     }
 

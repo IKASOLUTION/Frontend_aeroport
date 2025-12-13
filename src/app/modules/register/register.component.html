@@ -440,6 +440,70 @@
             </div>
         </p-fieldset>
 
+        <!-- Ajoute cette section AVANT le ng-template footer -->
+
+<!-- Section: Liste des Vols -->
+<p-fieldset legend="Historique des Vols" [toggleable]="false" styleClass="mb-3">
+    <p-table 
+        [value]="listeVols()"  
+        [paginator]="true" 
+        [rows]="5"
+        [tableStyle]="{'min-width': '50rem'}"
+        [rowsPerPageOptions]="[5, 10, 20]"
+        responsiveLayout="scroll">
+        
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Date</th>
+                <th>Heure</th>
+                <th>Départ</th>
+                <th>Destination</th>
+                <th>Motif</th>
+                <th>État</th>
+                <th>Durée (jours)</th>
+                <th>Statut</th>
+            </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="body" let-vol>
+            <tr>
+                <td>{{ vol.dateVoyage | date: 'dd/MM/yyyy' }}</td>
+                <td>{{ vol.heureVoyage | date: 'HH:mm' }}</td>
+                <td>{{ vol.aeroportDepart }}</td>
+                <td>{{ vol.aeroportDestination }}</td>
+                <td>
+                    <p-tag 
+                        [value]="vol.motifVoyage" 
+                        [severity]="getMotifSeverity(vol.motifVoyage)">
+                    </p-tag>
+                </td>
+                <td>
+                    <p-tag 
+                        [value]="vol.etatVoyage"
+                        [severity]="vol.etatVoyage === 'ALLER' ? 'info' : 'success'">
+                    </p-tag>
+                </td>
+                <td>{{ vol.dureeSejour }}</td>
+                <td>
+                    <p-tag 
+                        [value]="vol.statut"
+                        [severity]="getStatutSeverity(vol.statut)">
+                    </p-tag>
+                </td>
+            </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="8" class="text-center">
+                    <i class="pi pi-info-circle mr-2"></i>
+                    Aucun vol trouvé pour ce voyageur
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</p-fieldset>
+
     </div>
 
     <ng-template pTemplate="footer">

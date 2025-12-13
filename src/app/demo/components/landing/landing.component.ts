@@ -49,6 +49,7 @@ interface FAQ {
 
 @Component({
     templateUrl: './landing.component.html',
+    
     styles: [
         `
             ::placeholder {

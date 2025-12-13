@@ -1,13 +1,14 @@
+// mesPreEnregistrement.component.ts - VERSION FRONT OFFICE
+
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
-import { TableModule } from 'primeng/table';
+import { Table, TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
-import { ToolbarModule } from 'primeng/toolbar';
 import { DropdownModule } from 'primeng/dropdown';
 import { PaginatorModule } from 'primeng/paginator';
 import { DialogModule } from 'primeng/dialog';
@@ -16,26 +17,26 @@ import { CalendarModule } from 'primeng/calendar';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { select, Store } from '@ngrx/store';
 import { AppState } from 'src/app/store/app.state';
-import * as enregistrementAction from '../../store/enregistrement/action';
-import * as enregistrementSelector from '../../store/enregistrement/selector';
-import * as motifVoyageAction from '../../store/motifVoyage/action';
-import * as motifVoyageSelector from '../../store/motifVoyage/selector';
-import { LoadingSpinnerComponent } from '../loading-spinner.component';
-import { Enregistrement, TypeDocument } from 'src/app/store/enregistrement/model';
-import { FieldsetModule } from 'primeng/fieldset';
+import * as enregistrementAction from '../../../store/enregistrement/action';
+import * as enregistrementSelector from '../../../store/enregistrement/selector';
+import * as motifVoyageAction from '../../../store/motifVoyage/action';
+import * as motifVoyageSelector from '../../../store/motifVoyage/selector';
+import { LoadingSpinnerComponent } from '../../loading-spinner.component';
+import { Enregistrement } from 'src/app/store/enregistrement/model';
 import { TagModule } from 'primeng/tag';
-import { SearchDto, TypeVol } from 'src/app/store/vol/model';
+import { SearchDto } from 'src/app/store/vol/model';
 import { Aeroport } from 'src/app/store/aeroport/model';
-import * as aeroportAction from '../../store/aeroport/action';
-import * as aeroportSelector from '../../store/aeroport/selector';
+import * as aeroportAction from '../../../store/aeroport/action';
+import * as aeroportSelector from '../../../store/aeroport/selector';
 import { Router, RouterModule } from '@angular/router';
 import { MotifVoyage, StatutVoyageur } from 'src/app/store/motifVoyage/model';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { EnregistrementService } from 'src/app/store/enregistrement/service';
-import { co } from '@fullcalendar/core/internal-common';
+import { NavbarComponent } from '../navbar/navbar.component';
+
 
 @Component({
-    selector: 'app-register',
+    selector: 'app-public-register',
     standalone: true,
     imports: [
         CommonModule,
@@ -44,7 +45,6 @@ import { co } from '@fullcalendar/core/internal-common';
         ButtonModule,
         RippleModule,
         TooltipModule,
-        ToolbarModule,
         ToastModule,
         InputTextModule,
         ReactiveFormsModule,
@@ -53,16 +53,18 @@ import { co } from '@fullcalendar/core/internal-common';
         CalendarModule,
         PaginatorModule,
         DialogModule,
-        FieldsetModule,
         RouterModule,
         MultiSelectModule,
+        NavbarComponent,
         TagModule
     ],
     providers: [MessageService],
-    templateUrl: './register.component.html',
-    styleUrl: './register.component.scss'
+    templateUrl: './mesPreEnregistrement.component.html',
+    styleUrl: './mesPreEnregistrement.component.scss'
 })
-export class RegisterComponent implements OnInit, OnDestroy {
+export class MesPreEnregistrementComponent implements OnInit, OnDestroy {
+    @ViewChild('dt') dt!: Table;
+
     destroy$ = new Subject<boolean>();
 
     // Listes de données
@@ -97,10 +99,13 @@ export class RegisterComponent implements OnInit, OnDestroy {
     dateFin: Date | null = null;
     isDetailModalOpen = false;
     selectedStatuts: StatutVoyageur[] = [];
-    type = TypeVol.ARRIVEE;
+     isEditing: boolean = false;
+    originalEnregistrement: Enregistrement = {};
+    
+    
     statutsVol = [
         { label: 'Validé', value: StatutVoyageur.VALIDE },
-        { label: 'En_attente', value: StatutVoyageur.EN_ATTENTE },
+        { label: 'En attente', value: StatutVoyageur.EN_ATTENTE },
         { label: 'Annulé', value: StatutVoyageur.ANNULE },
         { label: 'Rejeté', value: StatutVoyageur.REJETE }
     ];
@@ -114,30 +119,18 @@ export class RegisterComponent implements OnInit, OnDestroy {
     ) { }
 
     ngOnInit(): void {
-        // Définir les colonnes du tableau
-        this.cols = [
-            { field: 'nomFamille', header: 'Nom' },
-            { field: 'prenom', header: 'Prénom' },
-            { field: 'typeDocument', header: 'Type document' },
-            { field: 'numeroDocument', header: 'N° document' },
-            { field: 'nationalite', header: 'Nationalité' },
-            { field: 'villeDepart', header: 'Ville départ' },
-            { field: 'villeDestination', header: 'Destination' },
-            { field: 'dateVoyage', header: 'Date vol' },
-            { field: 'motifVoyage', header: 'Motif' }
-        ];
-
         this.createFormSearch();
         this.createFormFilter();
 
-        // Initialiser les dates (7 derniers jours par défaut)
+        // Initialiser les dates (30 derniers jours par défaut)
         this.dateDebut = new Date();
-        this.dateDebut.setDate(this.dateDebut.getDate() - 7);
+        this.dateDebut.setDate(this.dateDebut.getDate() - 30);
         this.dateFin = new Date();
 
         // Charger les données
         this.loadEnregistrements();
         this.subscribeToStoreUpdates();
+        
         // Charger les aéroports
         this.aeroportList$ = this.store.pipe(select(aeroportSelector.aeroportList));
         this.store.dispatch(aeroportAction.loadAeroport());
@@ -146,14 +139,13 @@ export class RegisterComponent implements OnInit, OnDestroy {
             .subscribe(value => {
                 if (value) {
                     this.aeroports = [...value];
-                    console.log('=== Aéroports assignés ===', this.aeroports);
                 }
             });
 
-
+        // Charger les motifs de voyage
         this.store.dispatch(motifVoyageAction.loadMotifVoyage());
-
-        this.store.pipe(select(motifVoyageSelector.motifVoyageList)).pipe(takeUntil(this.destroy$))
+        this.store.pipe(select(motifVoyageSelector.motifVoyageList))
+            .pipe(takeUntil(this.destroy$))
             .subscribe(value => {
                 if (value) {
                     this.motifVoyages = value || [];
@@ -194,13 +186,8 @@ export class RegisterComponent implements OnInit, OnDestroy {
             sortBy: 'dateVoyage,desc'
         };
 
-        console.log('=== SearchDto envoyé ===', searchDto);
         this.store.dispatch(enregistrementAction.loadEnregistrementsByPeriode({ searchDto }));
     }
-
-
-
-
 
     private subscribeToStoreUpdates(): void {
         // Écouter la liste des enregistrements
@@ -211,7 +198,6 @@ export class RegisterComponent implements OnInit, OnDestroy {
             this.loading.set(false);
             if (value) {
                 this.enregistrementList.set(value);
-                console.log('=== Enregistrements reçus ===', value);
             }
         });
 
@@ -238,50 +224,53 @@ export class RegisterComponent implements OnInit, OnDestroy {
         this.isDetailModalOpen = true;
 
         if (!this.selectedEnregistrement.numeroDocument) {
-            console.warn('Le numéro de document est manquant pour cet enregistrement.', this.selectedEnregistrement);
+            console.warn('Le numéro de document est manquant');
             return;
-        } else {
-             this.enregistrementService.ListVols(this.selectedEnregistrement.numeroDocument).subscribe({
-                next: (response) => {
-                    console.log('=== Réponse des enregistrements par numéro de document ===', response);
-                    this.listeVols.set(response);
-                     console.log('=== Réponse des enregistrements par numéro de document 1===',  this.listeVols());
-                },
-                error: (error) => {
-                    console.error('Erreur lors de la récupération des enregistrements par numéro de document:', error);
-                }
-            }); 
         }
 
-        
-
+        // Charger l'historique des vols
+        this.enregistrementService.ListVols(this.selectedEnregistrement.numeroDocument).subscribe({
+            next: (response) => {
+                this.listeVols.set(response);
+            },
+            error: (error) => {
+                console.error('Erreur lors de la récupération de l\'historique:', error);
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erreur',
+                    detail: 'Impossible de charger l\'historique des vols',
+                    life: 3000
+                });
+            }
+        });
     }
 
-
     getMotifSeverity(motif: string): string {
-    const severityMap: { [key: string]: string } = {
-        'FAMILLE': 'info',
-        'TOURISME': 'success',
-        'AFFAIRE': 'warning',
-        'ETUDE': 'primary'
-    };
-    return severityMap[motif] || 'secondary';
-}
+        const severityMap: { [key: string]: string } = {
+            'FAMILLE': 'info',
+            'TOURISME': 'success',
+            'AFFAIRE': 'warning',
+            'ETUDE': 'primary'
+        };
+        return severityMap[motif] || 'secondary';
+    }
 
-getStatutSeverity(statut: string): string {
-    const severityMap: { [key: string]: string } = {
-        'EN_ATTENTE': 'warning',
-        'VALIDE': 'success',
-        'REJETE': 'danger',
-        'EN_COURS': 'info'
-    };
-    return severityMap[statut] || 'secondary';
-}
+    getStatutSeverity(statut: string): string {
+        const severityMap: { [key: string]: string } = {
+            'EN_ATTENTE': 'warning',
+            'VALIDE': 'success',
+            'REJETE': 'danger',
+            'ANNULE': 'danger',
+            'EN_COURS': 'info'
+        };
+        return severityMap[statut] || 'secondary';
+    }
 
     // Fermer le modal de détail
     closeDetailModal(): void {
         this.isDetailModalOpen = false;
         this.selectedEnregistrement = {};
+        this.listeVols.set([]);
     }
 
     closeFilterDialog(): void {
@@ -300,7 +289,7 @@ getStatutSeverity(statut: string): string {
             dateDebut: [this.dateDebut],
             dateFin: [this.dateFin],
             aeroport: [null],
-            statutVoyages: [null]
+            statutVoyages: [[]]
         });
     }
 
@@ -311,25 +300,10 @@ getStatutSeverity(statut: string): string {
         this.loadEnregistrements();
     }
 
-    onGlobalFilter(table: any, event: Event): void {
+    onGlobalFilter(table: any, event: Event | { target: HTMLInputElement }): void {
         const input = (event.target as HTMLInputElement).value;
         table.filterGlobal(input, 'contains');
     }
-
-    /* getMotifVoyageSeverity(motif: MotifVoyage | undefined): string {
-        switch (motif) {
-            case MotifVoyage.TOURISME:
-                return 'info';
-            case MotifVoyage.AFFAIRES:
-                return 'warning';
-            case MotifVoyage.FAMILLE:
-                return 'success';
-            case MotifVoyage.ETUDES:
-                return 'primary';
-            default:
-                return 'secondary';
-        }
-    } */
 
     openFilterDialog(): void {
         this.filterFormGroup.patchValue({
@@ -346,21 +320,29 @@ getStatutSeverity(statut: string): string {
         this.dateDebut = formValue.dateDebut;
         this.dateFin = formValue.dateFin;
         this.aeroportSelected = formValue.aeroport;
-        this.selectedStatuts = formValue.statutVoyages;
+        this.selectedStatuts = formValue.statutVoyages || [];
 
         this.page = 0;
         this.first = 0;
 
         this.filterDialog = false;
         this.loadEnregistrements();
+
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Filtres appliqués',
+            detail: 'Vos filtres ont été appliqués avec succès',
+            life: 3000
+        });
     }
 
     resetFilters(): void {
         this.dateDebut = new Date();
-        this.dateDebut.setDate(this.dateDebut.getDate() - 7);
+        this.dateDebut.setDate(this.dateDebut.getDate() - 30);
         this.dateFin = new Date();
         this.aeroportSelected = null;
         this.motifVoyageSelected = null;
+        this.selectedStatuts = [];
 
         this.filterFormGroup.patchValue({
             dateDebut: this.dateDebut,
@@ -373,10 +355,13 @@ getStatutSeverity(statut: string): string {
         this.first = 0;
 
         this.loadEnregistrements();
-    }
 
-    cancelFilter(): void {
-        this.filterDialog = false;
+        this.messageService.add({
+            severity: 'info',
+            summary: 'Filtres réinitialisés',
+            detail: 'Les filtres ont été réinitialisés',
+            life: 3000
+        });
     }
 
     ngOnDestroy(): void {

@@ -34,6 +34,7 @@
                 placeholder="Sélectionnez le type"
                 optionLabel="label"
                 optionValue="value"
+                (onChange)="onTypeDocumentChange($event.value)"
                 styleClass="w-full" />
               
               @if (getFieldError('typeDocument'); as error) {
@@ -143,37 +144,40 @@
 
           <!-- Informations du Document -->
           <div class="grid">
-            @for (field of documentFields; track field.key) {
-              <div [class]="'col-12 md:col-' + field.cols">
-                <label [for]="field.key" class="block font-semibold mb-2">
-                  <i [class]="field.icon + ' mr-2'"></i>{{ field.label }}{{ field.required ? ' *' : '' }}
-                </label>
-                
-                @switch (field.type) {
-                  @case ('text') {
-                    <input 
-                      pInputText 
-                      [id]="field.key"
-                      [formControlName]="field.key"
-                      [placeholder]="field.placeholder"
-                      class="w-full" />
+            @for (field of getDocumentFields(); track field.key) {
+              <!-- Masquer le champ NIP pour les passeports -->
+              @if (!(field.key === 'numeroNip' && !shouldShowNipField())) {
+                <div [class]="'col-12 md:col-' + field.cols">
+                  <label [for]="field.key" class="block font-semibold mb-2">
+                    <i [class]="field.icon + ' mr-2'"></i>{{ field.label }}{{ field.required ? ' *' : '' }}
+                  </label>
+                  
+                  @switch (field.type) {
+                    @case ('text') {
+                      <input 
+                        pInputText 
+                        [id]="field.key"
+                        [formControlName]="field.key"
+                        [placeholder]="field.placeholder"
+                        class="w-full" />
+                    }
+                    @case ('date') {
+                      <p-calendar 
+                        [inputId]="field.key"
+                        [formControlName]="field.key"
+                        dateFormat="dd/mm/yy"
+                        [showIcon]="true"
+                        [placeholder]="field.placeholder"
+                        styleClass="w-full"
+                        inputStyleClass="w-full" />
+                    }
                   }
-                  @case ('date') {
-                    <p-calendar 
-                      [inputId]="field.key"
-                      [formControlName]="field.key"
-                      dateFormat="dd/mm/yy"
-                      [showIcon]="true"
-                      [placeholder]="field.placeholder"
-                      styleClass="w-full"
-                      inputStyleClass="w-full" />
+                  
+                  @if (getFieldError(field.key); as error) {
+                    <small class="p-error block mt-1">{{ error }}</small>
                   }
-                }
-                
-                @if (getFieldError(field.key); as error) {
-                  <small class="p-error block mt-1">{{ error }}</small>
-                }
-              </div>
+                </div>
+              }
             }
           </div>
         </p-fieldset>
@@ -181,7 +185,7 @@
         <!-- Section 2: Informations Personnelles -->
         <p-fieldset legend="Informations Personnelles" [toggleable]="false" styleClass="mb-4">
           <div class="grid">
-            @for (field of personalFields; track field.key) {
+            @for (field of getPersonalFields(); track field.key) {
               <div [class]="'col-12 md:col-' + field.cols">
                 <label [for]="field.key" class="block font-semibold mb-2">
                   <i [class]="field.icon + ' mr-2'"></i>{{ field.label }} *
@@ -194,7 +198,9 @@
                       [id]="field.key"
                       [formControlName]="field.key"
                       [placeholder]="field.placeholder"
-                      class="w-full" />
+                      [readonly]="field.key === 'nationalite' && isCniDocument()"
+                      class="w-full" 
+                      [ngClass]="{'p-disabled': field.key === 'nationalite' && isCniDocument()}" />
                   }
                   @case ('date') {
                     <p-calendar 
@@ -205,17 +211,6 @@
                       [placeholder]="field.placeholder"
                       styleClass="w-full"
                       inputStyleClass="w-full" />
-                  }
-                  @case ('dropdown') {
-                    <p-dropdown 
-                      [inputId]="field.key"
-                      [formControlName]="field.key"
-                      [options]="nationalites()"
-                      [placeholder]="field.placeholder"
-                      optionLabel="nationalite"
-                      [filter]="true"
-                      filterBy="nationalite"
-                      styleClass="w-full" />
                   }
                 }
                 
