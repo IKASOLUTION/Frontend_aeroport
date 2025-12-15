@@ -1,44 +1,37 @@
-<!-- mesPreEnregistrement.component.html - VERSION FRONT OFFICE -->
-  
-<div class="public-enregistrement-page">
-     <app-navbar></app-navbar>
-    <!-- Header Section -->
+<!-- mesPreEnregistrement.component.html - VERSION FRONT OFFICE MODERNE -->
+
+<div class="public-enregistrement-page p-4">
+    <!-- ✅ Navbar en premier -->
+    <app-navbar></app-navbar>
+
+    <!-- ✅ Header juste après le navbar -->
     <div class="page-header">
         <div class="container">
-            <h1 class="page-title">Mes Pré-enregistrements</h1>
-            <p class="page-subtitle">Consultez et gérez vos réservations de vols</p>
+            <h1 class="page-title">Mes Enregistrements</h1>
+            <p class="page-subtitle">Consultez et gérez vos réservations de vols en toute simplicité</p>
         </div>
     </div>
 
-    <!-- Search Section -->
+    <!-- Section de recherche -->
     <div class="search-section">
         <div class="container">
             <div class="search-card">
                 <div class="search-header">
                     <i class="pi pi-search"></i>
-                    <h2>Rechercher un vol</h2>
+                    <h2>Rechercher mes vols</h2>
                 </div>
 
                 <div class="search-controls">
-                    <!-- <div class="search-input-group">
-                        <input type="text" #searchInput
-                            placeholder="Rechercher par nom, numéro de document, destination..." class="search-input"
-                            (keyup.enter)="dt.filterGlobal(searchInput.value, 'contains')">
-                        <button class="btn-search" (click)="dt.filterGlobal(searchInput.value, 'contains')">
-                            <i class="pi pi-search"></i>
-                            Rechercher
-                        </button>
-                    </div> -->
-
                     <button class="btn-filter" (click)="openFilterDialog()">
                         <i class="pi pi-filter"></i>
-                        Filtres
+                        Filtrer mes réservations
                         <span class="filter-count" *ngIf="selectedStatuts.length > 0">
                             {{selectedStatuts.length}}
                         </span>
                     </button>
                 </div>
 
+                <!-- Filtres actifs -->
                 <div class="active-filters" *ngIf="dateDebut && dateFin">
                     <span class="filter-tag">
                         <i class="pi pi-calendar"></i>
@@ -53,32 +46,33 @@
         </div>
     </div>
 
-    <!-- Results Section -->
+    <!-- Section des résultats -->
     <div class="results-section">
         <div class="container">
-            <!-- Loading State -->
+            <!-- État de chargement -->
             <div class="loading-state" *ngIf="loading()">
                 <i class="pi pi-spin pi-spinner"></i>
                 <p>Chargement de vos réservations...</p>
             </div>
 
-            <!-- Empty State -->
+            <!-- État vide -->
             <div class="empty-state" *ngIf="!loading() && enregistrementList().length === 0">
                 <i class="pi pi-inbox"></i>
                 <h3>Aucun enregistrement trouvé</h3>
-                <p>Essayez de modifier vos critères de recherche</p>
+                <p>Modifiez vos critères de recherche pour afficher vos réservations</p>
                 <button class="btn-primary" (click)="resetFilters()">
+                    <i class="pi pi-refresh"></i>
                     Réinitialiser les filtres
                 </button>
             </div>
 
-            <!-- Results Grid -->
+            <!-- Grille de résultats -->
             <div class="results-grid" *ngIf="!loading() && enregistrementList().length > 0">
                 <p-table #dt [value]="enregistrementList()"
                     [globalFilterFields]="['nomFamille', 'prenom', 'numeroDocument', 'nationalite', 'aeroportDepart', 'aeroportDestination']">
                     <ng-template pTemplate="body" let-enregistrement>
                         <div class="flight-card">
-                            <!-- Card Header -->
+                            <!-- En-tête de la carte -->
                             <div class="card-header">
                                 <div class="passenger-info">
                                     <div class="avatar">
@@ -97,7 +91,7 @@
                                 </div>
                             </div>
 
-                            <!-- Flight Route -->
+                            <!-- Itinéraire du vol -->
                             <div class="flight-route">
                                 <div class="route-point">
                                     <div class="location-icon">
@@ -124,14 +118,13 @@
                                 </div>
                             </div>
 
-                            <!-- Flight Details -->
+                            <!-- Détails du vol -->
                             <div class="flight-details">
                                 <div class="detail-item">
                                     <i class="pi pi-calendar"></i>
                                     <div>
                                         <span class="detail-label">Date</span>
-                                        <span class="detail-value">{{enregistrement.dateVoyage |
-                                            date:'dd/MM/yyyy'}}</span>
+                                        <span class="detail-value">{{enregistrement.dateVoyage | date:'dd/MM/yyyy'}}</span>
                                     </div>
                                 </div>
                                 <div class="detail-item">
@@ -150,11 +143,11 @@
                                 </div>
                             </div>
 
-                            <!-- Card Footer -->
+                            <!-- Pied de carte -->
                             <div class="card-footer">
                                 <button class="btn-details" (click)="selectEnregistrement(enregistrement)">
                                     <i class="pi pi-eye"></i>
-                                    Voir les détails
+                                    Voir les détails complets
                                 </button>
                             </div>
                         </div>
@@ -164,41 +157,72 @@
 
             <!-- Pagination -->
             <div class="pagination-container" *ngIf="!loading() && enregistrementList().length > 0">
-                <p-paginator [rows]="rows" [totalRecords]="totalItems" [rowsPerPageOptions]="[10, 20, 30]"
-                    (onPageChange)="onPageChange($event)" [first]="first">
+                <p-paginator 
+                    [rows]="rows" 
+                    [totalRecords]="totalItems" 
+                    [rowsPerPageOptions]="[10, 20, 30]"
+                    (onPageChange)="onPageChange($event)" 
+                    [first]="first">
                 </p-paginator>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Filter Dialog -->
-<p-dialog [(visible)]="filterDialog" [modal]="true" [draggable]="false" [style]="{width: '500px', maxWidth: '95vw'}"
-    header="Filtrer mes réservations" styleClass="filter-dialog">
+<!-- Dialogue de filtres -->
+<p-dialog 
+    [(visible)]="filterDialog" 
+    [modal]="true" 
+    [draggable]="false" 
+    [style]="{width: '550px', maxWidth: '95vw'}"
+    header="Filtrer mes réservations" 
+    styleClass="filter-dialog">
 
     <form [formGroup]="filterFormGroup">
+        <!-- Période du voyage -->
         <div class="filter-group">
-            <label>Période du voyage</label>
+            <label>
+                <i class="pi pi-calendar"></i>
+                Période du voyage
+            </label>
             <div class="date-range">
                 <div class="date-input">
                     <label class="small-label">Date de début</label>
-                    <p-calendar formControlName="dateDebut" dateFormat="dd/mm/yy" [showIcon]="true" placeholder="Début"
+                    <p-calendar 
+                        formControlName="dateDebut" 
+                        dateFormat="dd/mm/yy" 
+                        [showIcon]="true" 
+                        placeholder="Sélectionner"
                         [maxDate]="filterFormGroup.get('dateFin')?.value">
                     </p-calendar>
                 </div>
                 <div class="date-input">
                     <label class="small-label">Date de fin</label>
-                    <p-calendar formControlName="dateFin" dateFormat="dd/mm/yy" [showIcon]="true" placeholder="Fin"
+                    <p-calendar 
+                        formControlName="dateFin" 
+                        dateFormat="dd/mm/yy" 
+                        [showIcon]="true" 
+                        placeholder="Sélectionner"
                         [minDate]="filterFormGroup.get('dateDebut')?.value">
                     </p-calendar>
                 </div>
             </div>
         </div>
 
+        <!-- Aéroport -->
         <div class="filter-group">
-            <label>Aéroport</label>
-            <p-dropdown formControlName="aeroport" [options]="aeroports" optionLabel="nomAeroport"
-                placeholder="Sélectionnez un aéroport" [showClear]="true" [filter]="true" filterBy="nomAeroport"
+            <label>
+                <i class="pi pi-send"></i>
+                Aéroport
+            </label>
+            <p-dropdown 
+                formControlName="aeroport" 
+                [options]="aeroports" 
+                optionLabel="nomAeroport"
+                placeholder="Tous les aéroports" 
+                [showClear]="true" 
+                [filter]="true" 
+                filterBy="nomAeroport"
                 appendTo="body">
                 <ng-template let-aeroport pTemplate="item">
                     <div class="dropdown-item">
@@ -209,10 +233,20 @@
             </p-dropdown>
         </div>
 
+        <!-- Statut -->
         <div class="filter-group">
-            <label>Statut</label>
-            <p-multiSelect formControlName="statutVoyages" [options]="statutsVol" optionLabel="label"
-                optionValue="value" placeholder="Sélectionnez le statut" [showClear]="true" display="chip"
+            <label>
+                <i class="pi pi-info-circle"></i>
+                Statut de la réservation
+            </label>
+            <p-multiSelect 
+                formControlName="statutVoyages" 
+                [options]="statutsVol" 
+                optionLabel="label"
+                optionValue="value" 
+                placeholder="Tous les statuts" 
+                [showClear]="true" 
+                display="chip"
                 appendTo="body">
             </p-multiSelect>
         </div>
@@ -222,20 +256,28 @@
         <div class="dialog-footer">
             <button pButton label="Réinitialiser" class="p-button-text" (click)="resetFilters()">
             </button>
-            <button pButton label="Appliquer" class="p-button-primary" (click)="applyFilters()">
+            <button pButton label="Appliquer les filtres" icon="pi pi-check" class="p-button-primary" (click)="applyFilters()">
             </button>
         </div>
     </ng-template>
 </p-dialog>
 
-<!-- Detail Dialog -->
-<p-dialog [(visible)]="isDetailModalOpen" [modal]="true" [draggable]="false"
-    [style]="{width: '900px', maxWidth: '95vw'}" header="Détails de votre réservation" styleClass="detail-dialog">
+<!-- Dialogue de détails -->
+<p-dialog 
+    [(visible)]="isDetailModalOpen" 
+    [modal]="true" 
+    [draggable]="false"
+    [style]="{width: '950px', maxWidth: '95vw'}" 
+    header="Détails de votre réservation" 
+    styleClass="detail-dialog">
 
     <div class="detail-content">
-        <!-- Passenger Info -->
+        <!-- Informations passager -->
         <div class="detail-section">
-            <h3><i class="pi pi-user"></i> Informations Passager</h3>
+            <h3>
+                <i class="pi pi-user"></i>
+                Informations Passager
+            </h3>
             <div class="info-grid">
                 <div class="info-item">
                     <span class="label">Nom complet</span>
@@ -251,14 +293,17 @@
                 </div>
                 <div class="info-item">
                     <span class="label">Profession</span>
-                    <span class="value">{{selectedEnregistrement.profession || 'N/A'}}</span>
+                    <span class="value">{{selectedEnregistrement.profession || 'Non renseignée'}}</span>
                 </div>
             </div>
         </div>
 
-        <!-- Document Info -->
+        <!-- Document d'identité -->
         <div class="detail-section">
-            <h3><i class="pi pi-id-card"></i> Document d'identité</h3>
+            <h3>
+                <i class="pi pi-id-card"></i>
+                Document d'identité
+            </h3>
             <div class="info-grid">
                 <div class="info-item">
                     <span class="label">Type de document</span>
@@ -279,12 +324,15 @@
             </div>
         </div>
 
-        <!-- Flight Info -->
+        <!-- Informations du vol -->
         <div class="detail-section">
-            <h3><i class="pi pi-send"></i> Informations du Vol</h3>
+            <h3>
+                <i class="pi pi-send"></i>
+                Informations du Vol
+            </h3>
             <div class="info-grid">
                 <div class="info-item">
-                    <span class="label">Départ</span>
+                    <span class="label">Aéroport de départ</span>
                     <span class="value">{{selectedEnregistrement.aeroportDepart}}</span>
                 </div>
                 <div class="info-item">
@@ -296,7 +344,7 @@
                     <span class="value">{{selectedEnregistrement.dateVoyage | date:'dd/MM/yyyy'}}</span>
                 </div>
                 <div class="info-item">
-                    <span class="label">Heure</span>
+                    <span class="label">Heure de départ</span>
                     <span class="value">{{selectedEnregistrement.heureVoyage}}</span>
                 </div>
                 <div class="info-item">
@@ -304,15 +352,18 @@
                     <span class="value">{{selectedEnregistrement.dureeSejour}} jour(s)</span>
                 </div>
                 <div class="info-item">
-                    <span class="label">État du voyage</span>
+                    <span class="label">Type de voyage</span>
                     <span class="value">{{selectedEnregistrement.etatVoyage}}</span>
                 </div>
             </div>
         </div>
 
-        <!-- Flight History -->
+        <!-- Historique des vols -->
         <div class="detail-section" *ngIf="listeVols().length > 0">
-            <h3><i class="pi pi-history"></i> Historique des vols ({{listeVols().length}})</h3>
+            <h3>
+                <i class="pi pi-history"></i>
+                Historique de vos vols ({{listeVols().length}})
+            </h3>
             <div class="history-list">
                 <div class="history-item" *ngFor="let vol of listeVols()">
                     <div class="history-date">
@@ -333,10 +384,15 @@
     </div>
 
     <ng-template pTemplate="footer">
-        <button pButton label="Fermer" class="p-button-text" (click)="closeDetailModal()">
-        </button>
+        <div class="dialog-footer">
+            <button pButton label="Fermer" icon="pi pi-times" class="p-button-text" (click)="closeDetailModal()">
+            </button>
+        </div>
     </ng-template>
 </p-dialog>
 
+<!-- Notifications -->
 <p-toast position="top-right"></p-toast>
+
+<!-- Spinner de chargement -->
 <app-loading-spinner></app-loading-spinner>

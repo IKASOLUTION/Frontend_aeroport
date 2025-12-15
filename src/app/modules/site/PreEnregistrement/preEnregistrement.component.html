@@ -1,366 +1,543 @@
-<div class="enregistrement-container p-4">
-   <app-navbar></app-navbar>
-  <p-toast />
+<!-- preEnregistrement.component.html - VERSION FINALE AVEC STEPPER -->
+
+<div class="enregistrement-moderne">
+  <app-navbar></app-navbar>
+  <p-toast position="top-right" />
   
   @if (loading()) {
     <app-loading-spinner />
   }
 
-  <!-- En-tête -->
-  <header class="text-center mb-5">
-    <i class="pi pi-shield text-6xl text-primary mb-3 block"></i>
-    <h1 class="text-4xl font-bold text-gray-800 mb-2">Formulaire de Pré-enregistrement</h1>
-    <p class="text-gray-600">Complétez votre enregistrement en quelques étapes</p>
-  </header>
+  <!-- 🎨 Hero Section -->
+  <section class="hero-section">
+    <div class="container-moderne">
+      <div class="hero-content">
+        <div class="icon-badge">
+          <i class="pi pi-shield"></i>
+        </div>
+        <h1 class="hero-title">Pré-enregistrement de Vol</h1>
+        <p class="hero-subtitle">Complétez votre enregistrement en 4 étapes simples</p>
+        <div class="hero-benefits">
+          <div class="benefit">
+            <i class="pi pi-check-circle"></i>
+            <span>Rapide et sécurisé</span>
+          </div>
+          <div class="benefit">
+            <i class="pi pi-clock"></i>
+            <span>Gain de temps</span>
+          </div>
+          <div class="benefit">
+            <i class="pi pi-save"></i>
+            <span>Brouillon automatique</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  <!-- Formulaire Principal -->
-  <main class="max-w-6xl mx-auto">
-    <p-card styleClass="shadow-4">
-      <form [formGroup]="enregistrementForm" (ngSubmit)="submitEnregistrement()">
-        
-        <!-- Section 1: Document d'Identité -->
-        <p-fieldset legend="Document d'Identité" [toggleable]="false"  styleClass="mb-4">
+  <!-- 📋 Formulaire avec Stepper -->
+  <section class="form-section">
+    <div class="container-moderne">
+      
+      <!-- Stepper de progression -->
+      <div class="stepper-wrapper">
+        <div class="stepper">
+          <div class="step" [class.active]="currentStep() === 1" [class.completed]="currentStep() > 1">
+            <div class="step-circle">
+              @if (currentStep() > 1) {
+                <i class="pi pi-check"></i>
+              } @else {
+                <span>1</span>
+              }
+            </div>
+            <div class="step-label">
+              <span class="step-title">Document</span>
+              <span class="step-desc">Identité</span>
+            </div>
+          </div>
+
+          <div class="step-line" [class.completed]="currentStep() > 1"></div>
+
+          <div class="step" [class.active]="currentStep() === 2" [class.completed]="currentStep() > 2">
+            <div class="step-circle">
+              @if (currentStep() > 2) {
+                <i class="pi pi-check"></i>
+              } @else {
+                <span>2</span>
+              }
+            </div>
+            <div class="step-label">
+              <span class="step-title">Personnel</span>
+              <span class="step-desc">Vos infos</span>
+            </div>
+          </div>
+
+          <div class="step-line" [class.completed]="currentStep() > 2"></div>
+
+          <div class="step" [class.active]="currentStep() === 3" [class.completed]="currentStep() > 3">
+            <div class="step-circle">
+              @if (currentStep() > 3) {
+                <i class="pi pi-check"></i>
+              } @else {
+                <span>3</span>
+              }
+            </div>
+            <div class="step-label">
+              <span class="step-title">Contact</span>
+              <span class="step-desc">Coordonnées</span>
+            </div>
+          </div>
+
+          <div class="step-line" [class.completed]="currentStep() > 3"></div>
+
+          <div class="step" [class.active]="currentStep() === 4" [class.completed]="currentStep() > 4">
+            <div class="step-circle">
+              @if (currentStep() > 4) {
+                <i class="pi pi-check"></i>
+              } @else {
+                <span>4</span>
+              }
+            </div>
+            <div class="step-label">
+              <span class="step-title">Voyage</span>
+              <span class="step-desc">Vol & détails</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carte du formulaire -->
+      <p-card styleClass="form-card-modern">
+        <form [formGroup]="enregistrementForm">
           
-          <!-- Type de document -->
-          <div class="grid mb-4">
-            <div class="col-12 md:col-4">
-              <label for="typeDocument" class="block font-semibold mb-2">
-                <i class="pi pi-id-card mr-2"></i>Type de document *
-              </label>
-              <p-dropdown 
-                inputId="typeDocument"
-                formControlName="typeDocument"
-                [options]="typeDocuments"
-                placeholder="Sélectionnez le type"
-                optionLabel="label"
-                optionValue="value"
-                (onChange)="onTypeDocumentChange($event.value)"
-                styleClass="w-full" />
-              
-              @if (getFieldError('typeDocument'); as error) {
-                <small class="p-error block mt-1">{{ error }}</small>
-              }
-            </div>
-          </div>
-
-          <!-- Upload des Images -->
-          <div class="grid mb-4">
-            <!-- Image Recto -->
-            <div class="col-12 md:col-4">
-              <label for="imageRecto" class="block font-semibold mb-2">
-                <i class="pi pi-images mr-2"></i>Image recto du document *
-              </label>
-              
-              <p-fileUpload 
-                mode="basic" 
-                chooseLabel="Choisir le fichier"
-                accept="image/*"
-                [auto]="true"
-                [maxFileSize]="5000000"
-                (onSelect)="onFileSelect($event, 'imageRecto')"
-                [showUploadButton]="false"
-                [showCancelButton]="false"
-                styleClass="w-full" />
-              
-              @if (getImagePreview('imageRecto'); as preview) {
-                <div class="mt-2">
-                  <img 
-                    [src]="preview" 
-                    alt="Image recto" 
-                    class="w-full border-round" 
-                    style="max-height: 150px; object-fit: cover;">
+          <!-- ✈️ ÉTAPE 1: DOCUMENT D'IDENTITÉ -->
+          @if (currentStep() === 1) {
+            <div class="step-content-wrapper">
+              <div class="step-header-modern">
+                <div class="step-icon-modern">
+                  <i class="pi pi-id-card"></i>
                 </div>
-              }
-              
-              @if (getFieldError('imageRecto'); as error) {
-                <small class="p-error block mt-1">{{ error }}</small>
-              }
-            </div>
-
-            <!-- Image Verso -->
-            <div class="col-12 md:col-4">
-              <label for="imageVerso" class="block font-semibold mb-2">
-                <i class="pi pi-images mr-2"></i>Image verso du document *
-              </label>
-              
-              <p-fileUpload 
-                mode="basic" 
-                chooseLabel="Choisir le fichier"
-                accept="image/*"
-                [auto]="true"
-                [maxFileSize]="5000000"
-                (onSelect)="onFileSelect($event, 'imageVerso')"
-                [showUploadButton]="false"
-                [showCancelButton]="false"
-                styleClass="w-full" />
-              
-              @if (getImagePreview('imageVerso'); as preview) {
-                <div class="mt-2">
-                  <img 
-                    [src]="preview" 
-                    alt="Image verso" 
-                    class="w-full border-round" 
-                    style="max-height: 150px; object-fit: cover;">
+                <div>
+                  <h2>Document d'Identité</h2>
+                  <p>Téléchargez votre pièce d'identité pour commencer</p>
                 </div>
-              }
-              
-              @if (getFieldError('imageVerso'); as error) {
-                <small class="p-error block mt-1">{{ error }}</small>
-              }
-            </div>
+              </div>
 
-            <!-- Photo Profil -->
-            <div class="col-12 md:col-4">
-              <label for="photoProfil" class="block font-semibold mb-2">
-                <i class="pi pi-user mr-2"></i>Photo de profil *
-              </label>
-              
-              <p-fileUpload 
-                mode="basic" 
-                chooseLabel="Choisir le fichier"
-                accept="image/*"
-                [auto]="true"
-                [maxFileSize]="5000000"
-                (onSelect)="onFileSelect($event, 'photoProfil')"
-                [showUploadButton]="false"
-                [showCancelButton]="false"
-                styleClass="w-full" />
-              
-              @if (getImagePreview('photoProfil'); as preview) {
-                <div class="mt-2">
-                  <img 
-                    [src]="preview" 
-                    alt="Photo de profil" 
-                    class="w-full border-round" 
-                    style="max-height: 150px; object-fit: cover;">
+              <!-- Type de document -->
+              <div class="grid mb-4">
+                <div class="col-12 md:col-6">
+                  <label for="typeDocument" class="block font-semibold mb-2 label-modern">
+                    <i class="pi pi-id-card mr-2"></i>Type de document
+                    <span class="required-star">*</span>
+                  </label>
+                  <p-dropdown 
+                    inputId="typeDocument"
+                    formControlName="typeDocument"
+                    [options]="typeDocuments"
+                    placeholder="Choisissez votre document"
+                    optionLabel="label"
+                    optionValue="value"
+                    (onChange)="onTypeDocumentChange($event.value)"
+                    styleClass="w-full" />
+                  
+                  @if (getFieldError('typeDocument'); as error) {
+                    <small class="error-message-modern">
+                      <i class="pi pi-exclamation-circle"></i>{{ error }}
+                    </small>
+                  }
                 </div>
-              }
-              
-              @if (getFieldError('photoProfil'); as error) {
-                <small class="p-error block mt-1">{{ error }}</small>
-              }
-            </div>
-          </div>
+              </div>
 
-          <!-- Informations du Document -->
-          <div class="grid">
-            @for (field of getDocumentFields(); track field.key) {
-              <!-- Masquer le champ NIP pour les passeports -->
-              @if (!(field.key === 'numeroNip' && !shouldShowNipField())) {
-                <div [class]="'col-12 md:col-' + field.cols">
-                  <label [for]="field.key" class="block font-semibold mb-2">
-                    <i [class]="field.icon + ' mr-2'"></i>{{ field.label }}{{ field.required ? ' *' : '' }}
+              <!-- Upload des Images -->
+              <div class="grid mb-4">
+                <!-- Image Recto -->
+                <div class="col-12 md:col-4">
+                  <label class="block font-semibold mb-2 label-modern">
+                    <i class="pi pi-images mr-2"></i>Image recto
+                    <span class="required-star">*</span>
                   </label>
                   
-                  @switch (field.type) {
-                    @case ('text') {
+                  <p-fileUpload 
+                    mode="basic" 
+                    chooseLabel="Choisir l'image"
+                    accept="image/*"
+                    [auto]="true"
+                    [maxFileSize]="5000000"
+                    (onSelect)="onFileSelect($event, 'imageRecto')"
+                    [showUploadButton]="false"
+                    [showCancelButton]="false"
+                    styleClass="w-full upload-modern" />
+                  
+                  @if (getImagePreview('imageRecto'); as preview) {
+                    <div class="image-preview-modern mt-2">
+                      <img [src]="preview" alt="Image recto">
+                      <div class="image-check">
+                        <i class="pi pi-check-circle"></i>
+                      </div>
+                    </div>
+                  }
+                  
+                  @if (getFieldError('imageRecto'); as error) {
+                    <small class="error-message-modern">{{ error }}</small>
+                  }
+                </div>
+
+                <!-- Image Verso -->
+                <div class="col-12 md:col-4">
+                  <label class="block font-semibold mb-2 label-modern">
+                    <i class="pi pi-images mr-2"></i>Image verso
+                    <span class="required-star">*</span>
+                  </label>
+                  
+                  <p-fileUpload 
+                    mode="basic" 
+                    chooseLabel="Choisir l'image"
+                    accept="image/*"
+                    [auto]="true"
+                    [maxFileSize]="5000000"
+                    (onSelect)="onFileSelect($event, 'imageVerso')"
+                    [showUploadButton]="false"
+                    [showCancelButton]="false"
+                    styleClass="w-full upload-modern" />
+                  
+                  @if (getImagePreview('imageVerso'); as preview) {
+                    <div class="image-preview-modern mt-2">
+                      <img [src]="preview" alt="Image verso">
+                      <div class="image-check">
+                        <i class="pi pi-check-circle"></i>
+                      </div>
+                    </div>
+                  }
+                  
+                  @if (getFieldError('imageVerso'); as error) {
+                    <small class="error-message-modern">{{ error }}</small>
+                  }
+                </div>
+
+                <!-- Photo Profil -->
+                <div class="col-12 md:col-4">
+                  <label class="block font-semibold mb-2 label-modern">
+                    <i class="pi pi-user mr-2"></i>Photo de profil
+                    <span class="required-star">*</span>
+                  </label>
+                  
+                  <p-fileUpload 
+                    mode="basic" 
+                    chooseLabel="Choisir la photo"
+                    accept="image/*"
+                    [auto]="true"
+                    [maxFileSize]="5000000"
+                    (onSelect)="onFileSelect($event, 'photoProfil')"
+                    [showUploadButton]="false"
+                    [showCancelButton]="false"
+                    styleClass="w-full upload-modern" />
+                  
+                  @if (getImagePreview('photoProfil'); as preview) {
+                    <div class="image-preview-modern mt-2">
+                      <img [src]="preview" alt="Photo de profil">
+                      <div class="image-check">
+                        <i class="pi pi-check-circle"></i>
+                      </div>
+                    </div>
+                  }
+                  
+                  @if (getFieldError('photoProfil'); as error) {
+                    <small class="error-message-modern">{{ error }}</small>
+                  }
+                </div>
+              </div>
+
+              <!-- Informations du Document -->
+              <div class="grid">
+                @for (field of getDocumentFields(); track field.key) {
+                  @if (!(field.key === 'numeroNip' && !shouldShowNipField())) {
+                    <div [class]="'col-12 md:col-' + field.cols">
+                      <label [for]="field.key" class="block font-semibold mb-2 label-modern">
+                        <i [class]="field.icon + ' mr-2'"></i>{{ field.label }}
+                        @if (field.required) {
+                          <span class="required-star">*</span>
+                        }
+                      </label>
+                      
+                      @switch (field.type) {
+                        @case ('text') {
+                          <input 
+                            pInputText 
+                            [id]="field.key"
+                            [formControlName]="field.key"
+                            [placeholder]="field.placeholder"
+                            class="w-full" />
+                        }
+                        @case ('date') {
+                          <p-calendar 
+                            [inputId]="field.key"
+                            [formControlName]="field.key"
+                            dateFormat="dd/mm/yy"
+                            [showIcon]="true"
+                            [placeholder]="field.placeholder"
+                            styleClass="w-full"
+                            inputStyleClass="w-full" />
+                        }
+                      }
+                      
+                      @if (getFieldError(field.key); as error) {
+                        <small class="error-message-modern">
+                          <i class="pi pi-exclamation-circle"></i>{{ error }}
+                        </small>
+                      }
+                    </div>
+                  }
+                }
+              </div>
+            </div>
+          }
+
+          <!-- 👤 ÉTAPE 2: INFORMATIONS PERSONNELLES -->
+          @if (currentStep() === 2) {
+            <div class="step-content-wrapper">
+              <div class="step-header-modern">
+                <div class="step-icon-modern">
+                  <i class="pi pi-user"></i>
+                </div>
+                <div>
+                  <h2>Informations Personnelles</h2>
+                  <p>Vos données personnelles</p>
+                </div>
+              </div>
+
+              <div class="grid">
+                @for (field of getPersonalFields(); track field.key) {
+                  <div [class]="'col-12 md:col-' + field.cols">
+                    <label [for]="field.key" class="block font-semibold mb-2 label-modern">
+                      <i [class]="field.icon + ' mr-2'"></i>{{ field.label }}
+                      <span class="required-star">*</span>
+                    </label>
+                    
+                    @switch (field.type) {
+                      @case ('text') {
+                        <input 
+                          pInputText 
+                          [id]="field.key"
+                          [formControlName]="field.key"
+                          [placeholder]="field.placeholder"
+                          [readonly]="field.key === 'nationalite' && isCniDocument()"
+                          class="w-full" 
+                          [ngClass]="{'p-disabled': field.key === 'nationalite' && isCniDocument()}" />
+                      }
+                      @case ('date') {
+                        <p-calendar 
+                          [inputId]="field.key"
+                          [formControlName]="field.key"
+                          dateFormat="dd/mm/yy"
+                          [showIcon]="true"
+                          [placeholder]="field.placeholder"
+                          styleClass="w-full"
+                          inputStyleClass="w-full" />
+                      }
+                    }
+                    
+                    @if (getFieldError(field.key); as error) {
+                      <small class="error-message-modern">
+                        <i class="pi pi-exclamation-circle"></i>{{ error }}
+                      </small>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- 📞 ÉTAPE 3: COORDONNÉES -->
+          @if (currentStep() === 3) {
+            <div class="step-content-wrapper">
+              <div class="step-header-modern">
+                <div class="step-icon-modern">
+                  <i class="pi pi-phone"></i>
+                </div>
+                <div>
+                  <h2>Coordonnées de Contact</h2>
+                  <p>Comment vous joindre ?</p>
+                </div>
+              </div>
+
+              <div class="grid">
+                @for (field of contactFields; track field.key) {
+                  <div [class]="'col-12 md:col-' + field.cols">
+                    <label [for]="field.key" class="block font-semibold mb-2 label-modern">
+                      <i [class]="field.icon + ' mr-2'"></i>{{ field.label }}
+                      @if (field.required) {
+                        <span class="required-star">*</span>
+                      }
+                    </label>
+                    
+                    @if (field.type === 'dropdown') {
+                      <p-dropdown 
+                        [inputId]="field.key"
+                        [formControlName]="field.key"
+                        [options]="countries()"
+                        [placeholder]="field.placeholder"
+                        optionLabel="name"
+                        [filter]="true"
+                        filterBy="name"
+                        styleClass="w-full" />
+                    } @else {
                       <input 
                         pInputText 
                         [id]="field.key"
+                        [type]="field.inputType || 'text'"
                         [formControlName]="field.key"
                         [placeholder]="field.placeholder"
                         class="w-full" />
                     }
-                    @case ('date') {
-                      <p-calendar 
-                        [inputId]="field.key"
-                        [formControlName]="field.key"
-                        dateFormat="dd/mm/yy"
-                        [showIcon]="true"
-                        [placeholder]="field.placeholder"
-                        styleClass="w-full"
-                        inputStyleClass="w-full" />
+                    
+                    @if (getFieldError(field.key); as error) {
+                      <small class="error-message-modern">
+                        <i class="pi pi-exclamation-circle"></i>{{ error }}
+                      </small>
                     }
-                  }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- ✈️ ÉTAPE 4: INFORMATIONS DE VOYAGE -->
+          @if (currentStep() === 4) {
+            <div class="step-content-wrapper">
+              <div class="step-header-modern">
+                <div class="step-icon-modern">
+                  <i class="pi pi-send"></i>
+                </div>
+                <div>
+                  <h2>Informations de Voyage</h2>
+                  <p>Détails de votre vol</p>
+                </div>
+              </div>
+
+              <div class="grid">
+                <!-- Vol -->
+                <div class="col-12">
+                  <label for="volId" class="block font-semibold mb-2 label-modern">
+                    <i class="pi pi-send mr-2"></i>Vol
+                    <span class="required-star">*</span>
+                  </label>
+                  <p-dropdown 
+                    inputId="volId"
+                    formControlName="volId"
+                    [options]="volList()"
+                    placeholder="Sélectionner un vol"
+                    optionLabel="numero"
+                    optionValue="id"
+                    [filter]="true"
+                    filterBy="numero"
+                    (onChange)="onVolSelectionChange($event.value)"
+                    styleClass="w-full">
+                    <ng-template let-vol pTemplate="item">
+                      <div class="flex align-items-center">
+                        <i class="pi pi-plane mr-2"></i>
+                        <span>{{ vol.numero }} - {{ vol.compagnie.nomCompagine }}</span>
+                      </div>
+                    </ng-template>
+                  </p-dropdown>
                   
-                  @if (getFieldError(field.key); as error) {
-                    <small class="p-error block mt-1">{{ error }}</small>
+                  @if (getFieldError('volId'); as error) {
+                    <small class="error-message-modern">
+                      <i class="pi pi-exclamation-circle"></i>{{ error }}
+                    </small>
                   }
                 </div>
-              }
-            }
-          </div>
-        </p-fieldset>
 
-        <!-- Section 2: Informations Personnelles -->
-        <p-fieldset legend="Informations Personnelles" [toggleable]="false" styleClass="mb-4">
-          <div class="grid">
-            @for (field of getPersonalFields(); track field.key) {
-              <div [class]="'col-12 md:col-' + field.cols">
-                <label [for]="field.key" class="block font-semibold mb-2">
-                  <i [class]="field.icon + ' mr-2'"></i>{{ field.label }} *
-                </label>
-                
-                @switch (field.type) {
-                  @case ('text') {
-                    <input 
-                      pInputText 
-                      [id]="field.key"
-                      [formControlName]="field.key"
-                      [placeholder]="field.placeholder"
-                      [readonly]="field.key === 'nationalite' && isCniDocument()"
-                      class="w-full" 
-                      [ngClass]="{'p-disabled': field.key === 'nationalite' && isCniDocument()}" />
-                  }
-                  @case ('date') {
-                    <p-calendar 
-                      [inputId]="field.key"
-                      [formControlName]="field.key"
-                      dateFormat="dd/mm/yy"
-                      [showIcon]="true"
-                      [placeholder]="field.placeholder"
-                      styleClass="w-full"
-                      inputStyleClass="w-full" />
-                  }
-                }
-                
-                @if (getFieldError(field.key); as error) {
-                  <small class="p-error block mt-1">{{ error }}</small>
-                }
-              </div>
-            }
-          </div>
-        </p-fieldset>
-
-        <!-- Section 3: Coordonnées -->
-        <p-fieldset legend="Coordonnées" [toggleable]="false" styleClass="mb-4">
-          <div class="grid">
-            @for (field of contactFields; track field.key) {
-              <div [class]="'col-12 md:col-' + field.cols">
-                <label [for]="field.key" class="block font-semibold mb-2">
-                  <i [class]="field.icon + ' mr-2'"></i>{{ field.label }}{{ field.required ? ' *' : '' }}
-                </label>
-                
-                @if (field.type === 'dropdown') {
-                  <p-dropdown 
-                    [inputId]="field.key"
-                    [formControlName]="field.key"
-                    [options]="countries()"
-                    [placeholder]="field.placeholder"
-                    optionLabel="name"
-                    [filter]="true"
-                    filterBy="name"
-                    styleClass="w-full" />
-                } @else {
-                  <input 
-                    pInputText 
-                    [id]="field.key"
-                    [type]="field.inputType || 'text'"
-                    [formControlName]="field.key"
-                    [placeholder]="field.placeholder"
-                    class="w-full" />
-                }
-                
-                @if (getFieldError(field.key); as error) {
-                  <small class="p-error block mt-1">{{ error }}</small>
-                }
-              </div>
-            }
-          </div>
-        </p-fieldset>
-
-        <!-- Section 4: Informations de Voyage -->
-        <p-fieldset legend="Informations de Voyage" [toggleable]="false" styleClass="mb-4">
-          <div class="grid">
-            <!-- Vol -->
-            <div class="col-12">
-              <label for="volId" class="block font-semibold mb-2">
-                <i class="pi pi-send mr-2"></i>Vol *
-              </label>
-              <p-dropdown 
-                inputId="volId"
-                formControlName="volId"
-                [options]="volList()"
-                placeholder="Sélectionner un vol"
-                optionLabel="numero"
-                optionValue="id"
-                [filter]="true"
-                filterBy="numero"
-                (onChange)="onVolSelectionChange($event.value)"
-                styleClass="w-full">
-                <ng-template let-vol pTemplate="item">
-                  <div class="flex align-items-center">
-                    <i class="pi pi-plane mr-2"></i>
-                    <span>{{ vol.numero }} - {{ vol.compagnie.nomCompagine }}</span>
-                  </div>
-                </ng-template>
-              </p-dropdown>
-              
-              @if (getFieldError('volId'); as error) {
-                <small class="p-error block mt-1">{{ error }}</small>
-              }
-            </div>
-
-            @for (field of travelFields; track field.key) {
-              <div [class]="'col-12 md:col-' + field.cols">
-                <label [for]="field.key" class="block font-semibold mb-2">
-                  <i [class]="field.icon + ' mr-2'"></i>{{ field.label }} *
-                </label>
-                
-                @switch (field.type) {
-                  @case ('dropdown') {
-                     @if (field.key === 'motifVoyage') {
-                      <p-dropdown 
-                        [inputId]="field.key"
-                        [formControlName]="field.key"
-                        [options]="field.options || []"
-                        [placeholder]="field.placeholder"
-                        optionLabel="libelle"
-                        optionValue="value"
-                        styleClass="w-full" />
-                    } @else {
-                      <p-dropdown 
-                        [inputId]="field.key"
-                        [formControlName]="field.key"
-                        [options]="field.options || []"
-                        [placeholder]="field.placeholder"
-                        optionLabel="label"
-                        optionValue="value"
-                        styleClass="w-full" />
+                @for (field of travelFields; track field.key) {
+                  <div [class]="'col-12 md:col-' + field.cols">
+                    <label [for]="field.key" class="block font-semibold mb-2 label-modern">
+                      <i [class]="field.icon + ' mr-2'"></i>{{ field.label }}
+                      <span class="required-star">*</span>
+                    </label>
+                    
+                    @switch (field.type) {
+                      @case ('dropdown') {
+                        @if (field.key === 'motifVoyage') {
+                          <p-dropdown 
+                            [inputId]="field.key"
+                            [formControlName]="field.key"
+                            [options]="field.options || []"
+                            [placeholder]="field.placeholder"
+                            optionLabel="libelle"
+                            optionValue="value"
+                            styleClass="w-full" />
+                        } @else {
+                          <p-dropdown 
+                            [inputId]="field.key"
+                            [formControlName]="field.key"
+                            [options]="field.options || []"
+                            [placeholder]="field.placeholder"
+                            optionLabel="label"
+                            optionValue="value"
+                            styleClass="w-full" />
+                        }
+                      }
+                      @case ('number') {
+                        <p-inputNumber 
+                          [inputId]="field.key"
+                          [formControlName]="field.key"
+                          [placeholder]="field.placeholder"
+                          [min]="1"
+                          [showButtons]="true"
+                          styleClass="w-full"
+                          inputStyleClass="w-full" />
+                      }
                     }
-                  }
-                  @case ('number') {
-                    <p-inputNumber 
-                      [inputId]="field.key"
-                      [formControlName]="field.key"
-                      [placeholder]="field.placeholder"
-                      [min]="1"
-                      [showButtons]="true"
-                      styleClass="w-full"
-                      inputStyleClass="w-full" />
-                  }
-                }
-                
-                @if (getFieldError(field.key); as error) {
-                  <small class="p-error block mt-1">{{ error }}</small>
+                    
+                    @if (getFieldError(field.key); as error) {
+                      <small class="error-message-modern">
+                        <i class="pi pi-exclamation-circle"></i>{{ error }}
+                      </small>
+                    }
+                  </div>
                 }
               </div>
+            </div>
+          }
+
+          <!-- 🎯 Boutons de navigation -->
+          <footer class="form-actions-modern">
+            @if (currentStep() > 1) {
+              <p-button 
+                type="button"
+                label="Précédent" 
+                icon="pi pi-arrow-left"
+                severity="secondary"
+                styleClass="flex-1"
+                (onClick)="previousStep()" />
             }
-          </div>
-        </p-fieldset>
-       
 
-        <!-- Boutons d'Action -->
-        <footer class="flex gap-3 mt-5">
-          <p-button 
-            type="button"
-            label="Annuler" 
-            icon="pi pi-times"
-            severity="secondary"
-            styleClass="flex-1"
-            (onClick)="resetForm()" />
-          
-          <p-button 
-            type="submit"
-            label="Soumettre l'Enregistrement" 
-            icon="pi pi-check"
-            severity="success"
-            styleClass="flex-1"
-            [loading]="isSaving()"
-            [disabled]="enregistrementForm.invalid" />
-        </footer>
+            <div class="spacer"></div>
 
-      </form>
-    </p-card>
-  </main>
+            @if (currentStep() < 4) {
+              <p-button 
+                type="button"
+                label="Suivant" 
+                icon="pi pi-arrow-right"
+                iconPos="right"
+                severity="primary"
+                styleClass="flex-1"
+                (onClick)="nextStep()" />
+            } @else {
+              <p-button 
+                type="submit"
+                label="Valider mon enregistrement" 
+                icon="pi pi-check"
+                severity="success"
+                styleClass="flex-1"
+                [loading]="isSaving()"
+                [disabled]="enregistrementForm.invalid"
+                (onClick)="submitEnregistrement()" />
+            }
+          </footer>
+
+        </form>
+      </p-card>
+
+    </div>
+  </section>
 </div>

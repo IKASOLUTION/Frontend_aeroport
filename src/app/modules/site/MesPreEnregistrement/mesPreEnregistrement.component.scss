@@ -1,9 +1,9 @@
-// mesPreEnregistrement.component.scss - VERSION FRONT OFFICE AVEC THÈME BF
+// mesPreEnregistrement.component.scss - VERSION FRONT OFFICE MODERNE
 
 // Variables - Thème Burkina Faso
-$primary-color: #10b981;  // Vert
-$secondary-color: #059669; // Vert foncé
-$accent-color: #fcd34d;    // Jaune (drapeau BF)
+$primary-color: #10b981;
+$secondary-color: #059669;
+$accent-color: #fcd34d;
 $danger-color: #ef4444;
 $warning-color: #f59e0b;
 $info-color: #3b82f6;
@@ -11,16 +11,15 @@ $text-dark: #1f2937;
 $text-light: #6b7280;
 $border-color: #e5e7eb;
 $bg-light: #f9fafb;
-$bg-dark: #000000;
 $white: #ffffff;
 
+// 🎨 CONTAINER PRINCIPAL
 .public-enregistrement-page {
-    background: $bg-dark;
     min-height: 100vh;
-    padding-bottom: 4rem;
+    background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
     position: relative;
 
-    // Background avec armoiries en filigrane
+    // Motif de fond subtil
     &::before {
         content: '';
         position: fixed;
@@ -28,80 +27,77 @@ $white: #ffffff;
         left: 0;
         right: 0;
         bottom: 0;
-        background-image: url('/assets/demo/images/armoirieBF.png');
-        background-position: center;
-        background-repeat: no-repeat;
-        background-size: 600px;
-        opacity: 0.03;
+        background-image: 
+            radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.03) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(252, 211, 77, 0.03) 0%, transparent 50%);
         pointer-events: none;
         z-index: 0;
     }
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 1280px;
     margin: 0 auto;
-    padding: 0 1rem;
+    padding: 0 1.5rem;
     position: relative;
     z-index: 1;
 }
 
-// Page Header - Style BF
+// 🏆 HEADER INTÉGRÉ SOUS NAVBAR
 .page-header {
-    background: linear-gradient(110.43deg, $secondary-color 0.04%, $primary-color 100.11%);
-    color: $white;
-    padding: 3rem 0;
-    margin-bottom: 2rem;
+    // ✅ Espacement pour être sous le navbar
+    margin-top: 0;
+    padding: 3rem 0 2rem;
     position: relative;
-    overflow: hidden;
+    z-index: 1;
 
-    // Effet décoratif
-    &::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -10%;
-        width: 40%;
-        height: 200%;
-        background: rgba(252, 211, 77, 0.1);
-        border-radius: 50%;
-        filter: blur(80px);
+    .container {
+        text-align: center;
     }
 
     .page-title {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        animation: fadeInUp 0.6s;
-        position: relative;
-        z-index: 1;
-        
-        span {
-            color: $accent-color;
-        }
+        font-size: 2.75rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, $secondary-color 0%, $primary-color 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.75rem;
+        animation: fadeInDown 0.6s ease-out;
+        letter-spacing: -0.02em;
     }
 
     .page-subtitle {
-        font-size: 1.2rem;
-        opacity: 0.95;
-        animation: fadeInUp 0.6s 0.2s backwards;
-        position: relative;
-        z-index: 1;
+        font-size: 1.125rem;
+        color: $text-light;
+        font-weight: 500;
+        animation: fadeInUp 0.6s 0.1s backwards;
+        max-width: 600px;
+        margin: 0 auto;
     }
 }
 
-// Search Section
+// 🔍 SECTION RECHERCHE MODERNE
 .search-section {
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
 }
 
 .search-card {
-    background: rgba(255, 255, 255, 0.98);
-    border-radius: 16px;
+    background: $white;
+    border-radius: 20px;
     padding: 2rem;
-    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.1);
-    animation: fadeInUp 0.6s 0.3s backwards;
+    box-shadow: 
+        0 1px 3px rgba(0, 0, 0, 0.05),
+        0 10px 40px rgba(16, 185, 129, 0.08);
+    animation: fadeInUp 0.6s 0.2s backwards;
     border: 1px solid rgba(16, 185, 129, 0.1);
+    transition: all 0.3s ease;
+
+    &:hover {
+        box-shadow: 
+            0 1px 3px rgba(0, 0, 0, 0.05),
+            0 20px 50px rgba(16, 185, 129, 0.12);
+    }
 
     .search-header {
         display: flex;
@@ -112,285 +108,309 @@ $white: #ffffff;
         i {
             font-size: 1.5rem;
             color: $primary-color;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
         }
 
         h2 {
             font-size: 1.5rem;
             color: $text-dark;
             margin: 0;
+            font-weight: 700;
         }
     }
 
     .search-controls {
         display: flex;
         gap: 1rem;
-        margin-bottom: 1rem;
         flex-wrap: wrap;
 
-        .search-input-group {
-            flex: 1;
-            display: flex;
-            gap: 0.5rem;
-            min-width: 300px;
-
-            .search-input {
-                flex: 1;
-                padding: 0.875rem 1.25rem;
-                border: 2px solid $border-color;
-                border-radius: 12px;
-                font-size: 1rem;
-                transition: all 0.3s;
-
-                &:focus {
-                    outline: none;
-                    border-color: $primary-color;
-                    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-                }
-
-                &::placeholder {
-                    color: $text-light;
-                }
-            }
-
-            .btn-search {
-                padding: 0.875rem 2rem;
-                background: linear-gradient(110.43deg, $secondary-color 0.04%, $primary-color 100.11%);
-                color: $white;
-                border: none;
-                border-radius: 12px;
-                font-weight: 600;
-                cursor: pointer;
-                transition: all 0.3s;
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-
-                &:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
-                }
-            }
-        }
-
         .btn-filter {
-            padding: 0.875rem 1.5rem;
-            background: $white;
-            color: $text-dark;
-            border: 2px solid $primary-color;
-            border-radius: 12px;
+            padding: 1rem 1.75rem;
+            background: linear-gradient(135deg, $secondary-color, $primary-color);
+            color: $white;
+            border: none;
+            border-radius: 14px;
             font-weight: 600;
+            font-size: 1rem;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
             position: relative;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+
+            &:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(16, 185, 129, 0.35);
+            }
+
+            &:active {
+                transform: translateY(-1px);
+            }
 
             .filter-count {
                 background: $danger-color;
                 color: $white;
                 border-radius: 50%;
-                width: 20px;
-                height: 20px;
+                width: 24px;
+                height: 24px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 font-size: 0.75rem;
+                font-weight: 700;
                 position: absolute;
-                top: -8px;
-                right: -8px;
-            }
-
-            &:hover {
-                background: $primary-color;
-                color: $white;
+                top: -6px;
+                right: -6px;
+                border: 2px solid $white;
+                box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
             }
         }
     }
 
     .active-filters {
         display: flex;
-        gap: 0.5rem;
+        gap: 0.75rem;
         flex-wrap: wrap;
         align-items: center;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid $border-color;
 
         .filter-tag {
-            background: linear-gradient(110.43deg, $secondary-color 0.04%, $primary-color 100.11%);
-            color: $white;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+            color: $primary-color;
+            padding: 0.625rem 1.25rem;
+            border-radius: 25px;
             font-size: 0.875rem;
+            font-weight: 600;
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+
+            i {
+                font-size: 0.875rem;
+            }
         }
 
         .btn-clear-filters {
-            padding: 0.5rem 1rem;
+            padding: 0.625rem 1.25rem;
             background: transparent;
             color: $danger-color;
-            border: 1px solid $danger-color;
-            border-radius: 20px;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 25px;
             font-size: 0.875rem;
+            font-weight: 600;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
 
             &:hover {
                 background: $danger-color;
                 color: $white;
+                border-color: $danger-color;
             }
         }
     }
 }
 
-// Results Section
+// 📊 SECTION RÉSULTATS
 .results-section {
     .loading-state {
         text-align: center;
-        padding: 4rem 2rem;
-        background: rgba(255, 255, 255, 0.98);
-        border-radius: 16px;
-        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.1);
+        padding: 5rem 2rem;
+        background: $white;
+        border-radius: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 
         i {
-            font-size: 3rem;
+            font-size: 4rem;
             color: $primary-color;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         p {
-            font-size: 1.1rem;
+            font-size: 1.125rem;
             color: $text-light;
+            font-weight: 500;
         }
     }
 
     .empty-state {
         text-align: center;
-        padding: 4rem 2rem;
-        background: rgba(255, 255, 255, 0.98);
-        border-radius: 16px;
-        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.1);
+        padding: 5rem 2rem;
+        background: $white;
+        border-radius: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 
         i {
-            font-size: 4rem;
-            color: $text-light;
-            margin-bottom: 1.5rem;
+            font-size: 5rem;
+            color: $border-color;
+            margin-bottom: 2rem;
         }
 
         h3 {
-            font-size: 1.5rem;
+            font-size: 1.75rem;
             color: $text-dark;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
+            font-weight: 700;
         }
 
         p {
             color: $text-light;
+            font-size: 1.125rem;
             margin-bottom: 2rem;
         }
 
         .btn-primary {
-            padding: 0.875rem 2rem;
-            background: linear-gradient(110.43deg, $secondary-color 0.04%, $primary-color 100.11%);
+            padding: 1rem 2.5rem;
+            background: linear-gradient(135deg, $secondary-color, $primary-color);
             color: $white;
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
             font-weight: 600;
+            font-size: 1rem;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
 
             &:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(16, 185, 129, 0.35);
             }
         }
     }
 }
 
-// Flight Cards
+// 🎴 CARTES DE VOL MODERNES
 .results-grid {
     display: grid;
-    gap: 1.5rem;
+    gap: 1.75rem;
 }
 
 .flight-card {
-    background: rgba(255, 255, 255, 0.98);
-    border-radius: 16px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.1);
-    transition: all 0.3s;
+    background: $white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 
+        0 1px 3px rgba(0, 0, 0, 0.05),
+        0 10px 40px rgba(16, 185, 129, 0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     animation: fadeInUp 0.6s;
     border: 1px solid rgba(16, 185, 129, 0.1);
+    position: relative;
+    overflow: hidden;
+
+    // Effet de brillance au hover
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(16, 185, 129, 0.1),
+            transparent
+        );
+        transition: left 0.5s ease;
+    }
 
     &:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 30px rgba(16, 185, 129, 0.2);
+        transform: translateY(-8px);
+        box-shadow: 
+            0 1px 3px rgba(0, 0, 0, 0.05),
+            0 20px 60px rgba(16, 185, 129, 0.15);
         border-color: $primary-color;
+
+        &::before {
+            left: 100%;
+        }
     }
 
     .card-header {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 1.5rem;
+        margin-bottom: 2rem;
         padding-bottom: 1.5rem;
-        border-bottom: 1px solid $border-color;
+        border-bottom: 2px solid $bg-light;
 
         .passenger-info {
             display: flex;
-            gap: 1rem;
+            gap: 1.25rem;
             align-items: center;
 
             .avatar {
-                width: 60px;
-                height: 60px;
-                background: linear-gradient(110.43deg, $secondary-color 0.04%, $primary-color 100.11%);
-                border-radius: 50%;
+                width: 64px;
+                height: 64px;
+                background: linear-gradient(135deg, $secondary-color, $primary-color);
+                border-radius: 16px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 color: $white;
-                font-size: 1.5rem;
+                font-size: 1.75rem;
+                box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
             }
 
             .passenger-details {
                 h3 {
-                    font-size: 1.25rem;
+                    font-size: 1.375rem;
                     color: $text-dark;
                     margin: 0 0 0.5rem 0;
+                    font-weight: 700;
                 }
 
                 .document-info {
                     color: $text-light;
-                    font-size: 0.875rem;
+                    font-size: 0.9375rem;
                     display: flex;
                     align-items: center;
                     gap: 0.5rem;
+                    font-weight: 500;
+
+                    i {
+                        color: $primary-color;
+                    }
                 }
             }
         }
 
         .status-badge {
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-weight: 600;
+            padding: 0.625rem 1.25rem;
+            border-radius: 25px;
+            font-weight: 700;
             font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
             &.status-valide {
-                background: #d1fae5;
-                color: $primary-color;
+                background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+                color: $secondary-color;
             }
 
             &.status-en_attente {
-                background: #fef3c7;
-                color: $warning-color;
+                background: linear-gradient(135deg, #fef3c7, #fde68a);
+                color: #92400e;
             }
 
             &.status-annule, &.status-rejete {
-                background: #fee2e2;
-                color: $danger-color;
+                background: linear-gradient(135deg, #fee2e2, #fecaca);
+                color: #991b1b;
             }
         }
     }
@@ -398,8 +418,11 @@ $white: #ffffff;
     .flight-route {
         display: flex;
         align-items: center;
-        gap: 1.5rem;
-        margin-bottom: 1.5rem;
+        gap: 2rem;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.02));
+        border-radius: 16px;
 
         .route-point {
             flex: 1;
@@ -408,76 +431,88 @@ $white: #ffffff;
             align-items: center;
 
             .location-icon {
-                width: 40px;
-                height: 40px;
-                background: linear-gradient(110.43deg, rgba(5, 150, 105, 0.1) 0.04%, rgba(16, 185, 129, 0.1) 100.11%);
-                border-radius: 50%;
+                width: 48px;
+                height: 48px;
+                background: linear-gradient(135deg, $primary-color, $secondary-color);
+                border-radius: 12px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                color: $primary-color;
+                color: $white;
+                font-size: 1.25rem;
+                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
             }
 
             .location-details {
                 display: flex;
                 flex-direction: column;
+                gap: 0.25rem;
 
                 .location-label {
                     font-size: 0.75rem;
                     color: $text-light;
                     text-transform: uppercase;
-                    letter-spacing: 0.05em;
+                    letter-spacing: 0.08em;
+                    font-weight: 600;
                 }
 
                 .location-name {
-                    font-size: 1rem;
+                    font-size: 1.125rem;
                     color: $text-dark;
-                    font-weight: 600;
+                    font-weight: 700;
                 }
             }
         }
 
         .route-line {
             color: $primary-color;
-            font-size: 1.5rem;
+            font-size: 2rem;
+            animation: pulse 2s infinite;
         }
     }
 
     .flight-details {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-        padding: 1rem;
-        background: linear-gradient(110.43deg, rgba(5, 150, 105, 0.05) 0.04%, rgba(16, 185, 129, 0.05) 100.11%);
-        border-radius: 12px;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 2rem;
 
         .detail-item {
             display: flex;
-            gap: 0.75rem;
+            gap: 1rem;
             align-items: flex-start;
+            padding: 1rem;
+            background: $bg-light;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+
+            &:hover {
+                background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.04));
+            }
 
             i {
                 color: $primary-color;
-                font-size: 1.25rem;
-                margin-top: 0.25rem;
+                font-size: 1.375rem;
+                margin-top: 0.125rem;
             }
 
             > div {
                 display: flex;
                 flex-direction: column;
+                gap: 0.25rem;
 
                 .detail-label {
                     font-size: 0.75rem;
                     color: $text-light;
                     text-transform: uppercase;
-                    letter-spacing: 0.05em;
+                    letter-spacing: 0.08em;
+                    font-weight: 600;
                 }
 
                 .detail-value {
-                    font-size: 0.95rem;
+                    font-size: 1rem;
                     color: $text-dark;
-                    font-weight: 600;
+                    font-weight: 700;
                 }
             }
         }
@@ -486,76 +521,120 @@ $white: #ffffff;
     .card-footer {
         .btn-details {
             width: 100%;
-            padding: 0.875rem;
-            background: linear-gradient(110.43deg, $secondary-color 0.04%, $primary-color 100.11%);
+            padding: 1rem;
+            background: linear-gradient(135deg, $secondary-color, $primary-color);
             color: $white;
             border: none;
-            border-radius: 12px;
-            font-weight: 600;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 1rem;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+
+            i {
+                font-size: 1.125rem;
+            }
 
             &:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(16, 185, 129, 0.35);
+            }
+
+            &:active {
+                transform: translateY(-1px);
             }
         }
     }
 }
 
-// Pagination
+// 📄 PAGINATION
 .pagination-container {
-    margin-top: 2rem;
+    margin-top: 3rem;
     display: flex;
     justify-content: center;
 
     ::ng-deep .p-paginator {
-        background: rgba(255, 255, 255, 0.98);
-        border-radius: 12px;
+        background: $white;
+        border-radius: 14px;
         border: 1px solid rgba(16, 185, 129, 0.1);
+        padding: 1rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 
-        .p-paginator-pages .p-paginator-page.p-highlight {
-            background: linear-gradient(110.43deg, $secondary-color 0.04%, $primary-color 100.11%);
-            border-color: $primary-color;
+        .p-paginator-pages .p-paginator-page {
+            min-width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+
+            &.p-highlight {
+                background: linear-gradient(135deg, $secondary-color, $primary-color);
+                border-color: transparent;
+                box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+            }
+
+            &:hover:not(.p-highlight) {
+                background: rgba(16, 185, 129, 0.1);
+            }
         }
     }
 }
 
-// Dialogs
-.filter-dialog, .detail-dialog {
+// 🎭 DIALOGUES
+::ng-deep .filter-dialog,
+::ng-deep .detail-dialog {
+    .p-dialog-header {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.02));
+        border-bottom: 2px solid $bg-light;
+        padding: 1.5rem 2rem;
+
+        .p-dialog-title {
+            font-weight: 700;
+            color: $text-dark;
+            font-size: 1.5rem;
+        }
+    }
+
+    .p-dialog-content {
+        padding: 2rem;
+    }
+
     .filter-group {
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.75rem;
 
         label {
             display: block;
             color: $text-dark;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            font-size: 0.9375rem;
         }
 
         .small-label {
             font-size: 0.875rem;
             color: $text-light;
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .date-range {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1rem;
+            gap: 1.25rem;
         }
 
         .dropdown-item {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
+            padding: 0.5rem;
 
             i {
                 color: $primary-color;
+                font-size: 1.125rem;
             }
         }
     }
@@ -563,25 +642,42 @@ $white: #ffffff;
     .dialog-footer {
         display: flex;
         justify-content: flex-end;
-        gap: 0.5rem;
+        gap: 0.75rem;
+        padding: 1.5rem 2rem;
+        border-top: 2px solid $bg-light;
 
         .p-button-primary {
-            background: linear-gradient(110.43deg, $secondary-color 0.04%, $primary-color 100.11%);
+            background: linear-gradient(135deg, $secondary-color, $primary-color);
             border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 12px;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
 
             &:hover {
-                box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+            }
+        }
+
+        .p-button-text {
+            color: $text-light;
+            font-weight: 600;
+
+            &:hover {
+                background: $bg-light;
             }
         }
     }
 }
 
+// Dialogue de détail
 .detail-dialog {
     .detail-content {
         .detail-section {
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
             padding-bottom: 2rem;
-            border-bottom: 1px solid $border-color;
+            border-bottom: 2px solid $bg-light;
 
             &:last-child {
                 border-bottom: none;
@@ -591,37 +687,56 @@ $white: #ffffff;
 
             h3 {
                 color: $text-dark;
-                font-size: 1.25rem;
-                margin-bottom: 1.5rem;
+                font-size: 1.375rem;
+                font-weight: 700;
+                margin-bottom: 1.75rem;
                 display: flex;
                 align-items: center;
-                gap: 0.75rem;
+                gap: 0.875rem;
 
                 i {
-                    color: $primary-color;
+                    color: $white;
+                    background: linear-gradient(135deg, $secondary-color, $primary-color);
+                    width: 40px;
+                    height: 40px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
                 }
             }
 
             .info-grid {
                 display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-                gap: 1.5rem;
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 1.75rem;
 
                 .info-item {
                     display: flex;
                     flex-direction: column;
                     gap: 0.5rem;
+                    padding: 1.25rem;
+                    background: $bg-light;
+                    border-radius: 12px;
+                    transition: all 0.3s ease;
+
+                    &:hover {
+                        background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.04));
+                    }
 
                     .label {
                         font-size: 0.875rem;
                         color: $text-light;
-                        font-weight: 500;
+                        font-weight: 600;
+                        text-transform: uppercase;
+                        letter-spacing: 0.05em;
                     }
 
                     .value {
-                        font-size: 1rem;
+                        font-size: 1.125rem;
                         color: $text-dark;
-                        font-weight: 600;
+                        font-weight: 700;
                     }
                 }
             }
@@ -629,57 +744,46 @@ $white: #ffffff;
             .history-list {
                 display: flex;
                 flex-direction: column;
-                gap: 1rem;
+                gap: 1.25rem;
 
                 .history-item {
                     display: flex;
                     align-items: center;
-                    gap: 1rem;
-                    padding: 1rem;
-                    background: linear-gradient(110.43deg, rgba(5, 150, 105, 0.05) 0.04%, rgba(16, 185, 129, 0.05) 100.11%);
-                    border-radius: 12px;
+                    gap: 1.5rem;
+                    padding: 1.25rem;
+                    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.02));
+                    border-radius: 14px;
+                    border: 1px solid rgba(16, 185, 129, 0.1);
+                    transition: all 0.3s ease;
+
+                    &:hover {
+                        border-color: $primary-color;
+                        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+                    }
 
                     .history-date {
                         display: flex;
                         align-items: center;
-                        gap: 0.5rem;
+                        gap: 0.625rem;
                         color: $text-light;
-                        font-size: 0.875rem;
-                        min-width: 120px;
+                        font-size: 0.9375rem;
+                        font-weight: 600;
+                        min-width: 140px;
+
+                        i {
+                            color: $primary-color;
+                        }
                     }
 
                     .history-route {
                         flex: 1;
                         color: $text-dark;
-                        font-weight: 600;
+                        font-weight: 700;
+                        font-size: 1.0625rem;
 
                         i {
-                            margin: 0 0.5rem;
+                            margin: 0 0.75rem;
                             color: $primary-color;
-                        }
-                    }
-
-                    .history-status {
-                        .status-badge {
-                            padding: 0.4rem 0.8rem;
-                            border-radius: 20px;
-                            font-weight: 600;
-                            font-size: 0.75rem;
-
-                            &.status-valide {
-                                background: #d1fae5;
-                                color: $primary-color;
-                            }
-
-                            &.status-en_attente {
-                                background: #fef3c7;
-                                color: $warning-color;
-                            }
-
-                            &.status-annule, &.status-rejete {
-                                background: #fee2e2;
-                                color: $danger-color;
-                            }
                         }
                     }
                 }
@@ -688,7 +792,7 @@ $white: #ffffff;
     }
 }
 
-// Animations
+// ✨ ANIMATIONS
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -700,13 +804,35 @@ $white: #ffffff;
     }
 }
 
-// Responsive
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.1);
+    }
+}
+
+// 📱 RESPONSIVE
 @media (max-width: 768px) {
     .page-header {
-        padding: 2rem 0;
+        padding: 2rem 0 1.5rem;
 
         .page-title {
-            font-size: 1.75rem;
+            font-size: 2rem;
         }
 
         .page-subtitle {
@@ -720,16 +846,6 @@ $white: #ffffff;
         .search-controls {
             flex-direction: column;
 
-            .search-input-group {
-                min-width: 100%;
-                flex-direction: column;
-
-                .btn-search {
-                    width: 100%;
-                    justify-content: center;
-                }
-            }
-
             .btn-filter {
                 width: 100%;
                 justify-content: center;
@@ -738,9 +854,11 @@ $white: #ffffff;
     }
 
     .flight-card {
+        padding: 1.5rem;
+
         .card-header {
             flex-direction: column;
-            gap: 1rem;
+            gap: 1.25rem;
 
             .passenger-info {
                 width: 100%;
@@ -753,7 +871,8 @@ $white: #ffffff;
 
         .flight-route {
             flex-direction: column;
-            gap: 1rem;
+            gap: 1.25rem;
+            padding: 1.25rem;
 
             .route-line {
                 transform: rotate(90deg);
@@ -765,7 +884,15 @@ $white: #ffffff;
         }
     }
 
-    .detail-dialog .detail-content .detail-section .info-grid {
-        grid-template-columns: 1fr;
+    .detail-dialog .detail-content .detail-section {
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .history-list .history-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
     }
 }
