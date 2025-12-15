@@ -33,8 +33,9 @@ import { TypeVol, Vol } from 'src/app/store/vol/model';
 import { CountryService } from 'src/app/demo/service/country.service';
 import { NationaliteService } from 'src/app/demo/service/nationalite.service';
 import { Router } from '@angular/router';
-import { RegulaDocumentReaderService } from 'src/app/service-util/auth/regularForensic.service';
+import { IdentityData } from 'src/app/service-util/auth/regularForensic.service';
 import { StatutVoyageur } from 'src/app/store/motifVoyage/model';
+import { RegulaDocumentReaderService } from 'src/app/service-util/auth/regularForensic.service';
 
 interface Passager {
   id: number;
@@ -137,52 +138,76 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   isScanning = signal<boolean>(false);
   autoDetectionEnabled = signal<boolean>(false);
 
-  ngOnInit(): void {
-    this.initializeFormData();
-    
-    // Surveiller le statut du lecteur
-   /*  this.deviceStatus$.pipe(takeUntil(this.destroy$)).subscribe(status => {
-      if (status.error) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur Lecteur',
-          detail: status.error,
-          life: 5000
-        });
-      } else if (status.connected) {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Lecteur connecté',
-          detail: 'Regula 70X4M prêt',
-          life: 3000
-        });
-      }
-       */
-      // Notification si un document est détecté
-      /* if (status.documentPresent && this.autoDetectionEnabled()) {
-        this.lireDocumentAuto();
-      }
+  async ngOnInit(): Promise<void> {
+  this.initializeFormData();
+  
+  // Vérifier le statut du lecteur Regula
+  const status = this.regulaService.getCurrentStatus();
+  
+  if (status.connected) {
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Lecteur Regula',
+      detail: `${status.deviceName || 'Lecteur'} prêt à l\'usage`,
+      life: 3000
     });
-
-    // Surveiller les données d'identité
-    this.identityData$.pipe(
-      takeUntil(this.destroy$),
-      filter(data => data !== null)
-    ).subscribe(data => {
-      if (data) {
-        this.remplirFormulaireAvecDonnees(data);
-      }
-    }); */
-    this.subscribeToStoreUpdates();
-    this.loadVols();
-    this.loadMotifs();
-     this.countryService.getCountries().then((countries) => {
-            this.countries = countries;
-        });
-        this.nationaliteService.getCountries().then((nationalites) => {
-            this.nationalites = nationalites;
-        });
+  } else {
+    this.messageService.add({
+      severity: 'warn',
+      summary: 'Lecteur Regula',
+      detail: 'Non connecté - Mode webcam uniquement',
+      life: 4000
+    });
   }
+
+  // Surveiller le statut du lecteur
+  this.deviceStatus$.pipe(
+    takeUntil(this.destroy$)
+  ).subscribe(deviceStatus => {
+    if (deviceStatus.error) {
+      console.error('Erreur lecteur:', deviceStatus.error);
+    }
+    
+    // Mettre à jour l'UI selon le statut
+    if (deviceStatus.documentPresent && this.autoDetectionEnabled()) {
+      this.messageService.add({
+        severity: 'info',
+        summary: 'Document détecté',
+        detail: 'Cliquez sur "Lire" pour scanner',
+        life: 2000
+      });
+    }
+  });
+
+  // Surveiller les données d'identité
+  this.identityData$.pipe(
+    takeUntil(this.destroy$),
+    filter(data => data !== null)
+  ).subscribe(data => {
+    if (data) {
+      this.remplirFormulaireAvecDonnees(data);
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Document lu',
+        detail: `${data.firstName} ${data.lastName}`,
+        life: 3000
+      });
+    }
+  });
+
+  this.subscribeToStoreUpdates();
+  this.loadVols();
+  this.loadMotifs();
+  
+  // Charger les pays et nationalités
+  this.countryService.getCountries().then((countries) => {
+    this.countries = countries;
+  });
+  
+  this.nationaliteService.getCountries().then((nationalites) => {
+    this.nationalites = nationalites;
+  });
+}
 
 
   /**
@@ -373,42 +398,42 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   /**
    * Remplit le formulaire avec les données du document
    */
-  private remplirFormulaireAvecDonnees(data: any): void {
-    this.formData.update(form => ({
-      ...form,
-      // Type de document
-      //typeDocument: this.mapDocumentType(data.documentType),
-      numeroDocument: data.documentNumber || form.numeroDocument,
+  // private remplirFormulaireAvecDonnees(data: any): void {
+  //   this.formData.update(form => ({
+  //     ...form,
+  //     // Type de document
+  //     //typeDocument: this.mapDocumentType(data.documentType),
+  //     numeroDocument: data.documentNumber || form.numeroDocument,
       
-      // Dates
-      dateDelivrance: data.issueDate || form.dateDelivrance,
+  //     // Dates
+  //     dateDelivrance: data.issueDate || form.dateDelivrance,
       
-      // Informations personnelles
-      nomFamille: data.lastName || form.nomFamille,
-      prenom: data.firstName || form.prenom,
-      dateNaissance: data.dateOfBirth || form.dateNaissance,
-      lieuNaissance: data.placeOfBirth || form.lieuNaissance,
-      nationalite: data.nationality || form.nationalite,
+  //     // Informations personnelles
+  //     nomFamille: data.lastName || form.nomFamille,
+  //     prenom: data.firstName || form.prenom,
+  //     dateNaissance: data.dateOfBirth || form.dateNaissance,
+  //     lieuNaissance: data.placeOfBirth || form.lieuNaissance,
+  //     nationalite: data.nationality || form.nationalite,
       
-      // Numéro national
-      numeroNip: data.nationalNumber || form.numeroNip,
+  //     // Numéro national
+  //     numeroNip: data.nationalNumber || form.numeroNip,
       
-      // Adresse
-      adresseBurkina: data.address || form.adresseBurkina,
+  //     // Adresse
+  //     adresseBurkina: data.address || form.adresseBurkina,
       
-      // Photo
-      photoProfil: data.photo || form.photoProfil
-    }));
+  //     // Photo
+  //     photoProfil: data.photo || form.photoProfil
+  //   }));
 
-    // Sélectionner la nationalité
+  //   // Sélectionner la nationalité
    
 
-  }
+  // }
 
   /**
    * Convertit le type de document Regula vers le type local
    */
-  private mapDocumentType(docType?: string): 'PASSEPORT' | 'CNI' | undefined {
+ /*  private mapDocumentType(docType?: string): 'PASSEPORT' | 'CNI' | undefined {
     if (!docType) return undefined;
     
     if (docType.toLowerCase().includes('passeport') || docType.toLowerCase().includes('passport')) {
@@ -418,7 +443,7 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
     }
     
     return undefined;
-  }
+  } */
 
   /**
    * Efface les données du lecteur
@@ -569,24 +594,7 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
     }
   }
 
-  /* onVolSelectionChange(volId: number): void {
-    const selectedVol = this.volList().find(v => v.id === volId);
-    if (selectedVol) {
-      this.selectedVolInfo.set(selectedVol);
-      this.formData.update(data => ({
-        ...data,
-        volId: volId,
-        villeDepart: selectedVol.aeroport?.nomAeroport,
-        villeDestination: selectedVol.nomAgentConnecteAeroport,
-        dateVoyage: selectedVol.dateDepart
-          ? new Date(selectedVol.dateDepart).toISOString().split('T')[0]
-          : '',
-        heureVoyage: selectedVol.dateDepart
-          ? new Date(selectedVol.dateDepart).toISOString().split('T')[1].substring(0, 5)
-          : ''
-      }));
-    }
-  } */
+  
  onVolSelectionChange(volId: number): void {
   const selectedVol = this.volList().find(v => v.id === volId);
 
@@ -747,6 +755,99 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
       this.isCameraModalOpen.set(false);
     }
   }
+
+  async demarrerCameraRegula(target: 'recto' | 'verso' | 'profil' | 'biometrique'): Promise<void> {
+  this.currentCameraTarget.set(target);
+  this.capturedPhotoBase64.set(null);
+  this.isCameraModalOpen.set(true);
+
+  try {
+    await this.waitForView();
+
+    // Lister tous les périphériques vidéo
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const videoDevices = devices.filter(device => device.kind === 'videoinput');
+    
+    console.log('Périphériques vidéo disponibles:', videoDevices);
+
+    // Filtrer pour exclure le Regula (en cherchant par nom ou ID)
+    const webcam = videoDevices.find(device => 
+      !device.label.toLowerCase().includes('regula') &&
+      !device.label.toLowerCase().includes('document') &&
+      !device.label.toLowerCase().includes('scanner')
+    );
+
+    if (!webcam) {
+      throw new Error('Aucune webcam standard trouvée');
+    }
+
+    // Utiliser spécifiquement la webcam identifiée
+    this.mediaStream = await navigator.mediaDevices.getUserMedia({
+      video: { 
+        deviceId: { exact: webcam.deviceId },
+        width: 1280, 
+        height: 720 
+      }
+    });
+
+    if (this.videoElement && this.videoElement.nativeElement) {
+      this.videoElement.nativeElement.srcObject = this.mediaStream;
+    }
+  } catch (error) {
+    console.error('Erreur d\'accès à la caméra:', error);
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erreur caméra',
+      detail: 'Impossible d\'accéder à la caméra',
+      life: 3000
+    });
+    this.isCameraModalOpen.set(false);
+  }
+}
+
+
+async selectWebcam(): Promise<MediaDeviceInfo | null> {
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const videoDevices = devices.filter(d => d.kind === 'videoinput');
+    
+    // Afficher les appareils pour déboguer
+    console.log('Caméras disponibles:', videoDevices.map(d => ({
+      id: d.deviceId,
+      label: d.label
+    })));
+
+    // Stratégie de sélection
+    // 1. Chercher une webcam intégrée
+    let webcam = videoDevices.find(d => 
+      d.label.toLowerCase().includes('integrated') ||
+      d.label.toLowerCase().includes('built-in') ||
+      d.label.toLowerCase().includes('facetime')
+    );
+
+    // 2. Sinon, prendre la première qui n'est PAS le Regula
+    if (!webcam) {
+      webcam = videoDevices.find(d => 
+        !d.label.toLowerCase().includes('regula') &&
+        !d.label.toLowerCase().includes('document') &&
+        !d.label.toLowerCase().includes('reader') &&
+        !d.label.toLowerCase().includes('scanner')
+      );
+    }
+
+    // 3. En dernier recours, prendre le 2ème périphérique
+    if (!webcam && videoDevices.length > 1) {
+      webcam = videoDevices[1];
+    }
+
+    return webcam || null;
+  } catch (error) {
+    console.error('Erreur sélection webcam:', error);
+    return null;
+  }
+}
+
+
 
   async demarrerCamera(target: 'recto' | 'verso' | 'profil' | 'biometrique'): Promise<void> {
     this.currentCameraTarget.set(target);
@@ -914,6 +1015,265 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
       return undefined;
     }
   }
+
+
+
+  async scannerDocumentAvecRegula(type: 'recto' | 'verso'): Promise<void> {
+  const status = this.regulaService.getCurrentStatus();
+  
+  if (!status.connected || !status.ready) {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Lecteur non disponible',
+      detail: 'Le lecteur Regula n\'est pas connecté. Utilisez la webcam.',
+      life: 4000
+    });
+    return;
+  }
+
+  try {
+    this.isScanning.set(true);
+    
+    // Vérifier la présence d'un document
+    const hasDocument = await this.regulaService.checkDocumentPresence();
+    
+    if (!hasDocument) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Document absent',
+        detail: 'Veuillez insérer un document dans le lecteur',
+        life: 4000
+      });
+      this.isScanning.set(false);
+      return;
+    }
+
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Scan en cours',
+      detail: `Capture de l'image ${type}...`,
+      life: 2000
+    });
+
+    // Capturer l'image
+    const imageBase64 = await this.regulaService.captureImage('white');
+     const file = this.base64ToFile(imageBase64, type === 'recto' ? 'recto.jpg' : 'verso.jpg');
+    
+    // Mettre à jour le formulaire
+    if (type === 'recto') {
+      this.formData.update(form => ({
+        ...form,
+        imageRecto: file
+      }));
+    } else {
+      this.formData.update(form => ({
+        ...form,
+        imageVerso: file
+      }));
+    }
+
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Image capturée',
+      detail: `Image ${type} enregistrée avec succès`,
+      life: 3000
+    });
+
+  } catch (error) {
+    console.error('Erreur scan document:', error);
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erreur de scan',
+      detail: (error as Error).message || 'Impossible de scanner le document',
+      life: 5000
+    });
+  } finally {
+    this.isScanning.set(false);
+  }
+}
+
+base64ToFile(base64: string, filename: string): File {
+  const arr = base64.split(',');
+  const mime = arr[0].match(/:(.*?);/)![1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+
+  return new File([u8arr], filename, { type: mime });
+}
+
+/**
+ * Lire complètement le document et extraire les données
+ */
+async lireEtExtraireDocument(): Promise<void> {
+  const status = this.regulaService.getCurrentStatus();
+  
+  if (!status.connected || !status.ready) {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Lecteur non disponible',
+      detail: 'Le lecteur Regula n\'est pas connecté',
+      life: 4000
+    });
+    return;
+  }
+
+  try {
+    this.isScanning.set(true);
+    
+    // Vérifier la présence d'un document
+    const hasDocument = await this.regulaService.checkDocumentPresence();
+    
+    if (!hasDocument) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Document absent',
+        detail: 'Veuillez insérer un document dans le lecteur',
+        life: 4000
+      });
+      this.isScanning.set(false);
+      return;
+    }
+
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Lecture en cours',
+      detail: 'Analyse du document...',
+      life: 2000
+    });
+
+    // Lire le document (retourne un Observable)
+    this.regulaService.readDocument().subscribe({
+      next: (data) => {
+        console.log('✅ Données extraites:', data);
+        
+        // Les données sont automatiquement remplies via l'observable
+        // mais vous pouvez aussi les utiliser directement ici
+        
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Document lu',
+          detail: `${data.firstName} ${data.lastName} - ${data.documentNumber}`,
+          life: 5000
+        });
+        
+        this.isScanning.set(false);
+      },
+      error: (err) => {
+        console.error('❌ Erreur lecture:', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur de lecture',
+          detail: err.message || 'Impossible de lire le document',
+          life: 5000
+        });
+        this.isScanning.set(false);
+      }
+    });
+
+  } catch (error) {
+    console.error('Erreur:', error);
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erreur',
+      detail: (error as Error).message || 'Une erreur est survenue',
+      life: 5000
+    });
+    this.isScanning.set(false);
+  }
+}
+
+/**
+ * Remplit le formulaire avec les données extraites du document
+ */
+private remplirFormulaireAvecDonnees(data: IdentityData): void {
+  console.log('Remplissage formulaire avec:', data);
+
+  this.formData.update(form => ({
+    ...form,
+    // Type de document
+    typeDocument: this.mapDocumentType(data.documentType),
+    numeroDocument: data.documentNumber || form.numeroDocument,
+    
+    // Dates
+    dateDelivrance: this.parseDate(data.issueDate) || form.dateDelivrance,
+    lieuDelivrance: data.issuingAuthority || form.lieuDelivrance,
+    
+    // Informations personnelles
+    nomFamille: data.lastName || form.nomFamille,
+    prenom: data.firstName || form.prenom,
+    dateNaissance: this.parseDate(data.dateOfBirth) || form.dateNaissance,
+    lieuNaissance: data.placeOfBirth || form.lieuNaissance,
+    nationalite: data.nationality || form.nationalite,
+    
+    // Numéro national
+    numeroNip: data.nationalNumber || form.numeroNip,
+    
+    // Adresse
+    adresseBurkina: data.address || form.adresseBurkina,
+    
+    // Photo
+    //photoProfil: data.photo || form.photoProfil
+  }));
+
+  // Sélectionner la nationalité dans le dropdown
+  if (data.nationality) {
+    const nat = this.nationalites.find(n => 
+      n.nationalite.toLowerCase().includes(data.nationality!.toLowerCase())
+    );
+    if (nat) {
+      this.selectedNationalite = nat;
+    }
+  }
+}
+
+/**
+ * Convertit le type de document Regula vers le type local
+ */
+private mapDocumentType(docType?: string): TypeDocument | undefined {
+  if (!docType) return undefined;
+  
+  const lowerType = docType.toLowerCase();
+  
+  if (lowerType.includes('passeport') || lowerType.includes('passport')) {
+    return TypeDocument.PASSEPORT;
+  } else if (lowerType.includes('carte') || lowerType.includes('card') || lowerType.includes('cni')) {
+    return TypeDocument.CNI;
+  }
+  
+  return undefined;
+}
+
+/**
+ * Parse une date depuis le format Regula
+ */
+private parseDate(dateStr?: string): string | undefined {
+  if (!dateStr) return undefined;
+  
+  try {
+    // Regula retourne souvent DDMMYYYY ou DD/MM/YYYY
+    const cleaned = dateStr.replace(/[\/\-\.]/g, '');
+    
+    if (cleaned.length === 8) {
+      const day = cleaned.substring(0, 2);
+      const month = cleaned.substring(2, 4);
+      const year = cleaned.substring(4, 8);
+      
+      // Format ISO pour Angular calendar: YYYY-MM-DD
+      return `${year}-${month}-${day}`;
+    }
+    
+    return dateStr;
+  } catch (error) {
+    console.error('Erreur parse date:', error);
+    return dateStr;
+  }
+}
+
 
   ngOnDestroy(): void {
     this.arreterCamera();
