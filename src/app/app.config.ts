@@ -47,6 +47,8 @@ import { NotificationEffects } from './store/notification/effect';
 import { NotificationReducer } from './store/notification/reducer';
 import { VoyageReducer } from './store/voyage/reducer';
 import { VoyageEffects } from './store/voyage/effect';
+import { initializeRegulaService } from './service-util/interceptor/regula.conf';
+import { RegulaDocumentReaderService } from './service-util/auth/regularForensic.service';
 
 
 
@@ -57,6 +59,12 @@ export const appConfig: ApplicationConfig = {
     {
       provide: APP_INITIALIZER,
       useFactory: authInitializerFactory,
+      multi: true
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeRegulaService,
+      deps: [RegulaDocumentReaderService],
       multi: true
     },
 

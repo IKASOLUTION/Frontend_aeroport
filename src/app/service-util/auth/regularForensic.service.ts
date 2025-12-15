@@ -1,153 +1,234 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, from, throwError, interval } from 'rxjs';
-import { map, catchError, switchMap, filter } from 'rxjs/operators';
+import { BehaviorSubject, Observable, from, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
+/**
+ * Interface pour le statut de l'appareil
+ */
+export interface DeviceStatus {
+  connected: boolean;
+  deviceName?: string;
+  deviceId?: string;
+  error?: string;
+  documentPresent?: boolean;
+  ready?: boolean;
+}
+
+/**
+ * Interface pour les données d'identité extraites
+ */
 export interface IdentityData {
+  documentType?: string;
   documentNumber?: string;
   firstName?: string;
   lastName?: string;
   dateOfBirth?: string;
-  nationality?: string;
-  sex?: string;
-  nationalNumber?: string;
   placeOfBirth?: string;
-  expiryDate?: string;
+  nationality?: string;
   issueDate?: string;
-  documentType?: string;
-  issuingCountry?: string;
+  expiryDate?: string;
+  issuingAuthority?: string;
+  nationalNumber?: string;
   address?: string;
   photo?: string;
-  mrzLine1?: string;
-  mrzLine2?: string;
-  mrzLine3?: string;
-  rawData?: any;
+  mrz?: string;
+  sex?: string;
 }
 
-export interface DeviceStatus {
-  connected: boolean;
-  deviceName?: string;
-  documentPresent?: boolean;
-  error?: string;
+/**
+ * Configuration du SDK Regula
+ */
+export interface RegulaConfig {
+  deviceId?: string;
+  exclusive?: boolean;
+  apiUrl?: string;
+  licenseKey?: string;
+  timeout?: number;
 }
 
-export interface RegulaResponse {
-  Status: number;
-  Msg?: string;
-  Text?: any;
-  Images?: any;
-  Graphics?: any;
-  DocumentType?: any;
-  ChipPage?: number;
-}
+/**
+ * Type d'image à capturer
+ */
+export type ImageType = 'white' | 'ir' | 'uv' | 'axial';
 
+/**
+ * Service Angular pour gérer le lecteur de documents Regula
+ * Compatible avec les modèles Regula 70X4M, 7310, etc.
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class RegulaDocumentReaderService {
-  private deviceStatus$ = new BehaviorSubject<DeviceStatus>({ 
+  
+  // URL de l'API locale du Document Reader SDK
+  private readonly API_BASE_URL = 'http://127.0.0.1:9443/api/v1';
+  
+  // Sujets RxJS pour l'état réactif
+  private deviceStatusSubject = new BehaviorSubject<DeviceStatus>({
     connected: false,
-    documentPresent: false 
+    ready: false
   });
-  private identityData$ = new BehaviorSubject<IdentityData | null>(null);
   
-  // URL du service Regula (peut être local ou sur un serveur)
-  private readonly REGULA_API_URL = 'http://localhost:3480/api'; // Port par défaut du SDK
+  private identityDataSubject = new BehaviorSubject<IdentityData | null>(null);
   
-  // Polling pour vérifier la présence du document
-  private documentCheckInterval: any;
-
+  // Configuration du service
+  private config: RegulaConfig = {
+    exclusive: true,
+    timeout: 30000 // 30 secondes
+  };
+  
+  // État interne
+  private initialized = false;
+  private documentDetectionInterval?: any;
+  
   constructor() {
-    this.checkDeviceConnection();
+    console.log('RegulaDocumentReaderService initialisé');
   }
 
   /**
-   * Vérifie si le service Regula est disponible
+   * Initialise le lecteur Regula
    */
-  private async checkDeviceConnection(): Promise<void> {
-    try {
-      const response = await fetch(`${this.REGULA_API_URL}/ping`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        this.deviceStatus$.next({
-          connected: true,
-          deviceName: 'Regula 70X4M'
-        });
-      }
-    } catch (error) {
-      this.deviceStatus$.next({
-        connected: false,
-        error: 'Service Regula Document Reader non disponible. Vérifiez que le SDK est installé et démarré.'
-      });
-    }
-  }
-
-  /**
-   * Démarre la détection automatique de document
-   */
-  startDocumentDetection(): void {
-    if (this.documentCheckInterval) {
+  async initialize(config?: Partial<RegulaConfig>): Promise<void> {
+    if (this.initialized) {
+      console.warn('Service Regula déjà initialisé');
       return;
     }
 
-    this.documentCheckInterval = setInterval(async () => {
-      try {
-        const hasDocument = await this.checkDocumentPresence();
-        this.deviceStatus$.next({
-          ...this.deviceStatus$.value,
-          documentPresent: hasDocument
-        });
-      } catch (error) {
-        console.error('Erreur détection document:', error);
+    try {
+      // Fusionner la configuration
+      if (config) {
+        this.config = { ...this.config, ...config };
       }
-    }, 1000); // Vérifie toutes les secondes
-  }
 
-  /**
-   * Arrête la détection automatique
-   */
-  stopDocumentDetection(): void {
-    if (this.documentCheckInterval) {
-      clearInterval(this.documentCheckInterval);
-      this.documentCheckInterval = null;
+      console.log('Initialisation du lecteur Regula...', this.config);
+
+      // Vérifier si le SDK est accessible
+      const sdkAvailable = await this.checkSDKAvailability();
+      
+      if (!sdkAvailable) {
+        throw new Error(
+          'Le SDK Regula Document Reader n\'est pas accessible. ' +
+          'Veuillez vérifier que le service est démarré sur le port 9443.'
+        );
+      }
+
+      // Obtenir la liste des périphériques
+      const devices = await this.listDevices();
+      
+      if (devices.length === 0) {
+        throw new Error('Aucun lecteur Regula détecté. Vérifiez la connexion USB.');
+      }
+
+      // Sélectionner le périphérique
+      const deviceId = this.config.deviceId || devices[0].id;
+      const device = devices.find(d => d.id === deviceId) || devices[0];
+
+      // Initialiser le périphérique en mode exclusif
+      await this.initializeDevice(device.id);
+
+      // Mettre à jour le statut
+      this.deviceStatusSubject.next({
+        connected: true,
+        ready: true,
+        deviceName: device.name,
+        deviceId: device.id
+      });
+
+      this.initialized = true;
+      console.log('✅ Lecteur Regula initialisé avec succès:', device.name);
+
+    } catch (error) {
+      const errorMessage = (error as Error).message || 'Erreur inconnue';
+      console.error('❌ Erreur initialisation Regula:', error);
+      
+      this.deviceStatusSubject.next({
+        connected: false,
+        ready: false,
+        error: errorMessage
+      });
+      
+      throw error;
     }
   }
 
   /**
-   * Vérifie la présence d'un document
+   * Vérifie si le SDK est accessible
    */
-  async checkDocumentPresence(): Promise<boolean> {
+  private async checkSDKAvailability(): Promise<boolean> {
     try {
-      const response = await fetch(`${this.REGULA_API_URL}/process`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          processParam: {
-            scenario: 'MrzAndLocate'
-          }
-        })
+      const response = await fetch(`${this.API_BASE_URL}/status`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
       });
-
-      const data: RegulaResponse = await response.json();
-      return data.Status === 1; // 1 = succès avec document
+      
+      return response.ok;
     } catch (error) {
+      console.error('SDK non accessible:', error);
       return false;
     }
   }
 
   /**
-   * Lit le document inséré dans le lecteur
+   * Liste tous les lecteurs Regula connectés
+   */
+  private async listDevices(): Promise<Array<{ id: string; name: string }>> {
+    try {
+      const response = await fetch(`${this.API_BASE_URL}/devices`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) {
+        throw new Error('Impossible de lister les périphériques');
+      }
+
+      const data = await response.json();
+      return data.devices || [];
+      
+    } catch (error) {
+      console.error('Erreur listage périphériques:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Initialise un périphérique spécifique en mode exclusif
+   */
+  private async initializeDevice(deviceId: string): Promise<void> {
+    try {
+      const response = await fetch(`${this.API_BASE_URL}/device/initialize`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          deviceId: deviceId,
+          exclusive: this.config.exclusive
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Erreur initialisation périphérique');
+      }
+
+      console.log(`Périphérique ${deviceId} initialisé en mode exclusif`);
+      
+    } catch (error) {
+      console.error('Erreur initializeDevice:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Lit un document et extrait les données
    */
   readDocument(): Observable<IdentityData> {
+    if (!this.initialized) {
+      return throwError(() => new Error('Service non initialisé. Appelez initialize() d\'abord.'));
+    }
+
     return from(this.performDocumentRead()).pipe(
       map(data => {
-        this.identityData$.next(data);
+        this.identityDataSubject.next(data);
         return data;
       }),
       catchError(error => {
@@ -158,245 +239,266 @@ export class RegulaDocumentReaderService {
   }
 
   /**
-   * Effectue la lecture complète du document
+   * Effectue la lecture du document
    */
   private async performDocumentRead(): Promise<IdentityData> {
     try {
-      // Configuration de la requête de traitement
-      const processRequest = {
-        processParam: {
-          scenario: 'FullProcess', // Traitement complet
-          multipageProcessing: false,
-          imageQA: {
-            expectedPass: ["dpiThreshold", "glaresCheck"]
-          },
-          returnImages: true,
-          returnCroppedBarcode: false
-        }
-      };
-
-      const response = await fetch(`${this.REGULA_API_URL}/process`, {
+      const response = await fetch(`${this.API_BASE_URL}/process`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(processRequest)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          processParam: {
+            scenario: 'FullProcess',
+            resultTypeOutput: ['TEXT', 'IMAGES', 'MRZ']
+          }
+        })
       });
 
       if (!response.ok) {
-        throw new Error('Erreur lors de la communication avec le lecteur');
+        throw new Error('Erreur lors de la lecture du document');
       }
 
-      const result: RegulaResponse = await response.json();
-
-      if (result.Status === 0) {
-        throw new Error('Aucun document détecté ou erreur de lecture');
-      }
-
-      if (result.Status === 2) {
-        throw new Error(result.Msg || 'Erreur lors du traitement du document');
-      }
-
-      return this.parseRegulaResponse(result);
-
-    } catch (error: any) {
-      throw new Error(error.message || 'Impossible de lire le document');
+      const result = await response.json();
+      return this.extractIdentityData(result);
+      
+    } catch (error) {
+      console.error('Erreur performDocumentRead:', error);
+      throw error;
     }
   }
 
   /**
-   * Parse la réponse du SDK Regula
+   * Extrait les données d'identité du résultat brut
    */
-  private parseRegulaResponse(response: RegulaResponse): IdentityData {
-    const textFields = response.Text?.fieldList || [];
-    const images = response.Images?.fieldList || [];
-    
-    const identity: IdentityData = {
-      rawData: response
+  private extractIdentityData(result: any): IdentityData {
+    const textFields = result.text?.fieldList || [];
+    const images = result.images?.fieldList || [];
+
+    // Fonction helper pour récupérer un champ
+    const getField = (fieldType: number): string | undefined => {
+      const field = textFields.find((f: any) => f.fieldType === fieldType);
+      return field?.value || undefined;
     };
 
-    // Extraction des champs texte
-    textFields.forEach((field: any) => {
-      const fieldType = field.fieldType;
-      const value = field.value || field.values?.[0]?.value;
-
-      if (!value) return;
-
-      switch (fieldType) {
-        case 0: // Document Number
-          identity.documentNumber = value;
-          break;
-        case 1: // Surname
-          identity.lastName = value;
-          break;
-        case 2: // Given Names
-          identity.firstName = value;
-          break;
-        case 5: // Date of Birth
-          identity.dateOfBirth = this.formatDate(value);
-          break;
-        case 7: // Nationality
-          identity.nationality = value;
-          break;
-        case 8: // Sex
-          identity.sex = value;
-          break;
-        case 9: // Place of Birth
-          identity.placeOfBirth = value;
-          break;
-        case 10: // Date of Issue
-          identity.issueDate = this.formatDate(value);
-          break;
-        case 11: // Date of Expiry
-          identity.expiryDate = this.formatDate(value);
-          break;
-        case 13: // Issuing State
-          identity.issuingCountry = value;
-          break;
-        case 21: // National Number / Personal Number
-          identity.nationalNumber = value;
-          break;
-        case 50: // Address
-          identity.address = value;
-          break;
-        case 220: // MRZ Line 1
-          identity.mrzLine1 = value;
-          break;
-        case 221: // MRZ Line 2
-          identity.mrzLine2 = value;
-          break;
-        case 222: // MRZ Line 3
-          identity.mrzLine3 = value;
-          break;
-      }
-    });
-
-    // Extraction de la photo
-    const portraitField = images.find((img: any) => 
-      img.fieldType === 201 // Portrait
+    // Extraire la photo
+    const photoField = images.find((img: any) => 
+      img.fieldType === 3 || img.lightType === 1
     );
 
-    if (portraitField?.value) {
-      identity.photo = `data:image/jpeg;base64,${portraitField.value}`;
-    }
-
-    // Déduction du type de document
-    if (response.DocumentType) {
-      const docType = response.DocumentType[0];
-      identity.documentType = this.getDocumentTypeName(docType?.dType);
-    }
-
-    return identity;
-  }
-
-  /**
-   * Convertit le code de type de document Regula en nom lisible
-   */
-  private getDocumentTypeName(dType: number): string {
-    const types: { [key: number]: string } = {
-      1: 'Passeport',
-      2: "Carte d'identité",
-      3: 'Visa',
-      4: 'Permis de conduire',
-      11: 'Carte de résidence'
+    return {
+      documentType: getField(0),
+      documentNumber: getField(1),
+      firstName: getField(2),
+      lastName: getField(3),
+      dateOfBirth: getField(4),
+      placeOfBirth: getField(5),
+      nationality: getField(6),
+      issueDate: getField(7),
+      expiryDate: getField(8),
+      issuingAuthority: getField(9),
+      nationalNumber: getField(10),
+      address: getField(11),
+      sex: getField(12),
+      photo: photoField?.value || undefined,
+      mrz: result.text?.mrz || undefined
     };
-    return types[dType] || 'Document';
-  }
-
-  /**
-   * Formate une date du format Regula (YYMMDD ou YYYYMMDD) vers ISO
-   */
-  private formatDate(dateStr: string): string {
-    if (!dateStr) return '';
-
-    // Nettoie la chaîne
-    const cleaned = dateStr.replace(/[^0-9]/g, '');
-
-    if (cleaned.length === 6) {
-      // Format YYMMDD
-      const year = parseInt(cleaned.substring(0, 2));
-      const month = cleaned.substring(2, 4);
-      const day = cleaned.substring(4, 6);
-      
-      // Détermine le siècle (années > 50 = 19xx, sinon 20xx)
-      const fullYear = year > 50 ? `19${year}` : `20${year}`;
-      
-      return `${fullYear}-${month}-${day}`;
-    } else if (cleaned.length === 8) {
-      // Format YYYYMMDD
-      const year = cleaned.substring(0, 4);
-      const month = cleaned.substring(4, 6);
-      const day = cleaned.substring(6, 8);
-      
-      return `${year}-${month}-${day}`;
-    }
-
-    return dateStr;
   }
 
   /**
    * Capture une image du document
    */
-  async captureImage(lightType: 'white' | 'ir' | 'uv' = 'white'): Promise<string> {
+  async captureImage(type: ImageType = 'white'): Promise<string> {
+    if (!this.initialized) {
+      throw new Error('Service non initialisé');
+    }
+
     try {
-      const response = await fetch(`${this.REGULA_API_URL}/process`, {
+      const lightMap: Record<ImageType, number> = {
+        white: 6,    // Lumière blanche
+        ir: 1,       // Infrarouge
+        uv: 4,       // Ultraviolet
+        axial: 16    // Axiale
+      };
+
+      const response = await fetch(`${this.API_BASE_URL}/capture`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          processParam: {
-            scenario: 'CaptureImage',
-            lightType: lightType
-          }
+          light: lightMap[type]
         })
       });
 
-      const result = await response.json();
-      
-      if (result.Images?.fieldList?.[0]?.value) {
-        return `data:image/jpeg;base64,${result.Images.fieldList[0].value}`;
+      if (!response.ok) {
+        throw new Error('Erreur capture image');
       }
 
-      throw new Error('Impossible de capturer l\'image');
-    } catch (error: any) {
-      throw new Error(error.message || 'Erreur de capture');
+      const result = await response.json();
+      return result.image || '';
+      
+    } catch (error) {
+      console.error('Erreur captureImage:', error);
+      throw error;
     }
   }
 
   /**
-   * Obtient le statut de l'appareil
+   * Vérifie la présence d'un document
    */
-  getDeviceStatus(): Observable<DeviceStatus> {
-    return this.deviceStatus$.asObservable();
+  async checkDocumentPresence(): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.API_BASE_URL}/document/present`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) return false;
+
+      const result = await response.json();
+      const isPresent = result.present === true;
+
+      // Mettre à jour le statut
+      const currentStatus = this.deviceStatusSubject.value;
+      this.deviceStatusSubject.next({
+        ...currentStatus,
+        documentPresent: isPresent
+      });
+
+      return isPresent;
+      
+    } catch (error) {
+      console.error('Erreur vérification document:', error);
+      return false;
+    }
   }
 
   /**
-   * Obtient les données d'identité
+   * Démarre la détection automatique de document
    */
-  getIdentityData(): Observable<IdentityData | null> {
-    return this.identityData$.asObservable();
+  startDocumentDetection(intervalMs: number = 1000): void {
+    if (this.documentDetectionInterval) {
+      return;
+    }
+
+    console.log('Détection automatique activée');
+    
+    this.documentDetectionInterval = setInterval(async () => {
+      await this.checkDocumentPresence();
+    }, intervalMs);
+  }
+
+  /**
+   * Arrête la détection automatique
+   */
+  stopDocumentDetection(): void {
+    if (this.documentDetectionInterval) {
+      clearInterval(this.documentDetectionInterval);
+      this.documentDetectionInterval = undefined;
+      console.log('Détection automatique désactivée');
+    }
+  }
+
+  /**
+   * Rafraîchit le statut du périphérique
+   */
+  async refreshStatus(): Promise<DeviceStatus> {
+    try {
+      const response = await fetch(`${this.API_BASE_URL}/device/status`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) {
+        throw new Error('Impossible de récupérer le statut');
+      }
+
+      const status = await response.json();
+      
+      const deviceStatus: DeviceStatus = {
+        connected: status.connected || false,
+        ready: status.ready || false,
+        deviceName: status.deviceName,
+        deviceId: status.deviceId
+      };
+
+      this.deviceStatusSubject.next(deviceStatus);
+      return deviceStatus;
+      
+    } catch (error) {
+      const errorStatus: DeviceStatus = {
+        connected: false,
+        ready: false,
+        error: (error as Error).message
+      };
+      
+      this.deviceStatusSubject.next(errorStatus);
+      return errorStatus;
+    }
   }
 
   /**
    * Efface les données en mémoire
    */
   clearData(): void {
-    this.identityData$.next(null);
+    this.identityDataSubject.next(null);
+    console.log('Données effacées');
   }
 
   /**
-   * Rafraîchit le statut de connexion
+   * Libère les ressources
    */
-  async refreshStatus(): Promise<DeviceStatus> {
-    await this.checkDeviceConnection();
-    return this.deviceStatus$.value;
+  async dispose(): Promise<void> {
+    try {
+      this.stopDocumentDetection();
+      
+      if (this.initialized) {
+        await fetch(`${this.API_BASE_URL}/device/release`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+
+      this.initialized = false;
+      this.deviceStatusSubject.next({ connected: false, ready: false });
+      
+      console.log('Service Regula libéré');
+      
+    } catch (error) {
+      console.error('Erreur libération:', error);
+    }
   }
 
   /**
-   * Nettoie les ressources
+   * Observable du statut du périphérique
    */
-  destroy(): void {
-    this.stopDocumentDetection();
+  getDeviceStatus(): Observable<DeviceStatus> {
+    return this.deviceStatusSubject.asObservable();
+  }
+
+  /**
+   * Observable des données d'identité
+   */
+  getIdentityData(): Observable<IdentityData | null> {
+    return this.identityDataSubject.asObservable();
+  }
+
+  /**
+   * Obtient le statut actuel (synchrone)
+   */
+  getCurrentStatus(): DeviceStatus {
+    return this.deviceStatusSubject.value;
+  }
+
+  /**
+   * Obtient les données d'identité actuelles (synchrone)
+   */
+  getCurrentIdentityData(): IdentityData | null {
+    return this.identityDataSubject.value;
+  }
+
+  /**
+   * Vérifie si le service est initialisé
+   */
+  isInitialized(): boolean {
+    return this.initialized;
   }
 }

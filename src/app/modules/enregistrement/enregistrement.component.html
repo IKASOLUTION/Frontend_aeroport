@@ -21,37 +21,119 @@
         <!-- Capture Document Recto -->
         <div class="col-12 md:col-4">
           <label class="text-sm font-medium text-gray-700">Image recto du document <span class="text-red-500">*</span></label>
-          <div class="w-full h-32 bg-gray-200 flex items-center justify-center overflow-hidden border-2 rounded-md" [class]="formData().imageRecto ? 'border-green-500' : 'border-gray-300'">
-            <img *ngIf="formData().imageRecto" [src]="formData().imageRecto" alt="Aperçu document recto" class="w-full h-full object-contain">
-            <i *ngIf="!formData().imageRecto" class="pi pi-id-card text-5xl text-gray-400"></i>
-          </div>
-          <p-button label="Scanner" icon="pi pi-camera" severity="secondary" size="small" (onClick)="demarrerCamera('recto')"></p-button>
-          <small *ngIf="formErrors()['imageRecto']" class="p-error block text-center">{{ formErrors()['imageRecto'] }}</small>
-        </div>
+          <div class="w-full h-32 bg-gray-200 flex items-center justify-center overflow-hidden border-2 rounded-md" 
+         [class]="formData().imageRecto ? 'border-green-500' : 'border-gray-300'">
+      <img *ngIf="formData().imageRecto" 
+           [src]="formData().imageRecto" 
+           alt="Aperçu document recto" 
+           class="w-full h-full object-contain">
+      <i *ngIf="!formData().imageRecto" 
+         class="pi pi-id-card text-5xl text-gray-400"></i>
+    </div>
+        <!-- Boutons de capture -->
+    <div class="flex gap-2 mt-2">
+      <!-- Bouton Scanner avec Regula -->
+      <p-button 
+        label="Scanner Regula" 
+        icon="pi pi-qrcode" 
+        severity="primary" 
+        size="small"
+        [disabled]="isScanning()"
+        [loading]="isScanning()"
+        (onClick)="scannerDocumentAvecRegula('recto')"
+        styleClass="flex-1">
+      </p-button>
+      
+      <!-- Bouton Webcam alternatif -->
+      <p-button 
+        label="Webcam" 
+        icon="pi pi-camera" 
+        severity="secondary" 
+        size="small"
+        (onClick)="demarrerCamera('recto')"
+        styleClass="flex-1">
+      </p-button>
+    </div>
+    
+    <small *ngIf="formErrors()['imageRecto']" 
+           class="p-error block text-center mt-1">
+      {{ formErrors()['imageRecto'] }}
+    </small>
+  </div>
 
         
 
         <!-- Capture Document Verso -->
         <div class="col-12 md:col-4">
           <label class="text-sm font-medium text-gray-700">Image verso du document <span class="text-red-500">*</span></label>
-          <div class="w-full h-32 bg-gray-200 flex items-center justify-center overflow-hidden border-2 rounded-md" [class]="formData().imageVerso ? 'border-green-500' : 'border-gray-300'">
-            <img *ngIf="formData().imageVerso" [src]="formData().imageVerso" alt="Aperçu document verso" class="w-full h-full object-contain">
-            <i *ngIf="!formData().imageVerso" class="pi pi-book text-5xl text-gray-400"></i>
-          </div>
-          <p-button label="Scanner" icon="pi pi-camera" severity="secondary" size="small" (onClick)="demarrerCamera('verso')"></p-button>
-          <small *ngIf="formErrors()['imageVerso']" class="p-error block text-center">{{ formErrors()['imageVerso'] }}</small>
-        </div>
+           <div class="w-full h-32 bg-gray-200 flex items-center justify-center overflow-hidden border-2 rounded-md" 
+         [class]="formData().imageVerso ? 'border-green-500' : 'border-gray-300'">
+      <img *ngIf="formData().imageVerso" 
+           [src]="formData().imageVerso" 
+           alt="Aperçu document verso" 
+           class="w-full h-full object-contain">
+      <i *ngIf="!formData().imageVerso" 
+         class="pi pi-book text-5xl text-gray-400"></i>
+    </div>
+           <div class="flex gap-2 mt-2">
+      <p-button 
+        label="Scanner Regula" 
+        icon="pi pi-qrcode" 
+        severity="primary" 
+        size="small"
+        [disabled]="isScanning()"
+        [loading]="isScanning()"
+        (onClick)="scannerDocumentAvecRegula('verso')"
+        styleClass="flex-1">
+      </p-button>
+      
+      <p-button 
+        label="Webcam" 
+        icon="pi pi-camera" 
+        severity="secondary" 
+        size="small"
+        (onClick)="demarrerCamera('verso')"
+        styleClass="flex-1">
+      </p-button>
+    </div>
+    
+    <small *ngIf="formErrors()['imageVerso']" 
+           class="p-error block text-center mt-1">
+      {{ formErrors()['imageVerso'] }}
+    </small>
+  </div>
 
         <!-- Capture Photo Profil -->
         <div class="col-12 md:col-4">
-          <label class="text-sm font-medium text-gray-700">Photo de profil <span class="text-red-500">*</span></label>
-          <div class="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border-2" [class]="formData().photoProfil ? 'border-green-500' : 'border-gray-300'">
-            <img *ngIf="formData().photoProfil" [src]="formData().photoProfil" alt="Aperçu Photo de profil" class="w-full h-full object-cover">
-            <i *ngIf="!formData().photoProfil" class="pi pi-user text-5xl text-gray-400"></i>
-          </div>
-          <p-button label="Prendre" icon="pi pi-camera" severity="secondary" size="small" (onClick)="demarrerCamera('profil')"></p-button>
-          <small *ngIf="formErrors()['photoProfil']" class="p-error block text-center">{{ formErrors()['photoProfil'] }}</small>
-        </div>
+    <label class="text-sm font-medium text-gray-700">
+      Photo de profil <span class="text-red-500">*</span>
+    </label>
+    
+    <div class="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border-2" 
+         [class]="formData().photoProfil ? 'border-green-500' : 'border-gray-300'">
+      <img *ngIf="formData().photoProfil" 
+           [src]="formData().photoProfil" 
+           alt="Aperçu Photo de profil" 
+           class="w-full h-full object-cover">
+      <i *ngIf="!formData().photoProfil" 
+         class="pi pi-user text-5xl text-gray-400"></i>
+    </div>
+    
+    <p-button 
+      label="Prendre" 
+      icon="pi pi-camera" 
+      severity="secondary" 
+      size="small" 
+      (onClick)="demarrerCamera('profil')">
+    </p-button>
+    
+    <small *ngIf="formErrors()['photoProfil']" 
+           class="p-error block text-center">
+      {{ formErrors()['photoProfil'] }}
+    </small>
+  </div>
+
+
       
 
       
