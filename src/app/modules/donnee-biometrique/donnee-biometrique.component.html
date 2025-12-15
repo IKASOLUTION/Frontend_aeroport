@@ -34,23 +34,61 @@
             </ng-template>
 
             <ng-template pTemplate="header">
+                <!-- PREMIÈRE LIGNE : Titres des colonnes -->
                 <tr>
-                    <th style="font-weight: bold;">Passager
-                        <p-columnFilter type="text" display="menu"
-                            field="informationPersonnelle.nomFamille"></p-columnFilter>
-                    </th>
-                    <th style="font-weight: bold;">Document
-                        <p-columnFilter type="text" display="menu"
-                            field="informationPersonnelle.typeDocument"></p-columnFilter>
-                    </th>
-                    <th style="font-weight: bold;">Nationalité
-                        <p-columnFilter type="text" display="menu"
-                            field="informationPersonnelle.nationalite"></p-columnFilter>
-                    </th>
+                    <th style="font-weight: bold;">Passager</th>
+                    <th style="font-weight: bold;">Document</th>
+                    <th style="font-weight: bold;">Nationalité</th>
                     <th style="font-weight: bold;">Empreintes</th>
                     <th style="font-weight: bold;">Type capture</th>
                     <th style="font-weight: bold;">Statut</th>
                     <th style="font-weight: bold;" class="text-center">Actions</th>
+                </tr>
+
+                <!-- DEUXIÈME LIGNE : Champs de recherche par colonne -->
+                <tr>
+                    <th>
+                        <span class="p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text"
+                                (input)="dt.filter($any($event.target).value, 'informationPersonnelle.nomFamille', 'contains')"
+                                placeholder="Rechercher" class="w-full" style="width: 100%;" />
+                        </span>
+                    </th>
+                    <th>
+                        <span class="p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text"
+                                (input)="dt.filter($any($event.target).value, 'informationPersonnelle.typeDocument', 'contains')"
+                                placeholder="Rechercher" class="w-full" style="width: 100%;" />
+                        </span>
+                    </th>
+                    <th>
+                        <span class="p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text"
+                                (input)="dt.filter($any($event.target).value, 'informationPersonnelle.nationalite', 'contains')"
+                                placeholder="Rechercher" class="w-full" style="width: 100%;" />
+                        </span>
+                    </th>
+                    <th></th> <!-- Colonne Empreintes sans filtre -->
+                    <th>
+                        <span class="p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text"
+                                (input)="dt.filter($any($event.target).value, 'typeCapture', 'contains')"
+                                placeholder="Rechercher" class="w-full" style="width: 100%;" />
+                        </span>
+                    </th>
+                    <th>
+                        <span class="p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text"
+                                (input)="dt.filter($any($event.target).value, 'statut', 'contains')"
+                                placeholder="Rechercher" class="w-full" style="width: 100%;" />
+                        </span>
+                    </th>
+                    <th></th> <!-- Colonne actions sans filtre -->
                 </tr>
             </ng-template>
 
@@ -378,10 +416,9 @@
             <div class="grid">
                 <div class="col-12 md:col-6">
                     <label for="informationPersonnelle">Personne <span class="text-red-500">*</span></label>
-                    <p-dropdown id="informationPersonnelle"
-                        [options]="informationPersonnelles" [(ngModel)]="informationPersonnelleId"
-                        optionLabel="nomFamille" optionValue="id" placeholder="Sélectionner une personne"
-                        styleClass="w-full">
+                    <p-dropdown id="informationPersonnelle" [options]="informationPersonnelles"
+                        [(ngModel)]="informationPersonnelleId" optionLabel="nomFamille" optionValue="id"
+                        placeholder="Sélectionner une personne" styleClass="w-full">
                         <!-- <ng-template pTemplate="selectedItem">
               ({{ selectedVoyageInfo()?.villeDepart?.nom }} → {{ selectedVoyageInfo()?.villeDestination?.nom }})
             </ng-template> -->

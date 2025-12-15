@@ -1,0 +1,40 @@
+/* Animations clés pour les éléments décoratifs */
+@keyframes pulse {
+  0%, 100% { opacity: 0.1; transform: scale(1); }
+  50% { opacity: 0.15; transform: scale(1.05); }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Styles pour les cartes de procédure */
+.procedure-card {
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.6s ease-out forwards;
+  
+  &:hover {
+    border-color: #059669 !important;
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* Animation d'apparition progressive pour les sections */
+.section-fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+  
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

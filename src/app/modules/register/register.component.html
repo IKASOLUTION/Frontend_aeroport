@@ -1,112 +1,159 @@
 <div class="grid">
     <div class="col-12 md:col-12">
-        <p-table #dt styleClass="p-datatable-gridlines p-datatable-sm p-datatable" [value]="enregistrementList()"
-            [columns]="cols" [rows]="10" [paginator]="true" [rowsPerPageOptions]="[5, 10, 20, 30]"
-            [showCurrentPageReport]="true"
-            [globalFilterFields]="['nomFamille', 'prenom', 'numeroDocument', 'nationalite', 'villeDepart', 'villeDestination']"
-            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
-            [(selection)]="selectedEnregistrement" selectionMode="single" [rowHover]="true" dataKey="id"
-            [loading]="loading()">
+        <p-table #dt styleClass="p-datatable-gridlines p-datatable-sm p-datatable" 
+         [value]="enregistrementList()"
+         [columns]="cols" [rows]="10" [paginator]="true" [rowsPerPageOptions]="[5, 10, 20, 30]"
+         [showCurrentPageReport]="true"
+         [globalFilterFields]="['nomFamille', 'prenom', 'numeroDocument', 'nationalite', 'villeDepart', 'villeDestination']"
+         currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+         [(selection)]="selectedEnregistrement" selectionMode="single" [rowHover]="true" dataKey="id"
+         [loading]="loading()">
 
-            <ng-template pTemplate="caption">
-                <div class="flex justify-content-between flex-column sm:flex-row">
-                    <div class="flex gap-2">
-                        <button pButton label="Nouvel enregistrement" [routerLink]="['/admin/gestion-enregistrements']"
-                            class="p-button-success mb-2" icon="pi pi-plus">
-                        </button>
-                        <button pButton label="Filtrer par période" class="p-button-info mb-2" icon="pi pi-filter"
-                            (click)="openFilterDialog()">
-                        </button>
-                        <button pButton label="Réinitialiser" class="p-button-secondary mb-2" icon="pi pi-refresh"
-                            (click)="resetFilters()">
-                        </button>
-                    </div>
-                    <div class="flex flex-column align-items-end">
-                        <span class="p-input-icon-left mb-2">
-                            <i class="pi pi-search"></i>
-                            <input pInputText type="text" #filter (input)="onGlobalFilter(dt, $event)"
-                                placeholder="Rechercher" class="w-full" />
-                        </span>
-                        <small class="text-500" *ngIf="dateDebut && dateFin">
-                            Période: {{dateDebut | date:'dd/MM/yyyy'}} - {{dateFin | date:'dd/MM/yyyy'}}
-                        </small>
-                    </div>
+    <ng-template pTemplate="caption">
+        <div class="flex justify-content-between flex-column sm:flex-row">
+            <div class="flex gap-2">
+                <button pButton label="Filtrer par période" class="p-button-info mb-2" icon="pi pi-filter"
+                    (click)="openFilterDialog()">
+                </button>
+                <button pButton label="Réinitialiser" class="p-button-secondary mb-2" icon="pi pi-refresh"
+                    (click)="resetFilters()">
+                </button>
+            </div>
+            <div class="flex flex-column align-items-end">
+                <span class="p-input-icon-left mb-2">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" #filter (input)="onGlobalFilter(dt, $event)"
+                        placeholder="Rechercher" class="w-full" />
+                </span>
+                <small class="text-500" *ngIf="dateDebut && dateFin">
+                    Période: {{dateDebut | date:'dd/MM/yyyy'}} - {{dateFin | date:'dd/MM/yyyy'}}
+                </small>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+        <!-- PREMIÈRE LIGNE : Titres des colonnes -->
+        <tr>
+            <th style="font-weight: bold;">Passager</th>
+            <th style="font-weight: bold;">Document</th>
+            <th style="font-weight: bold;">Nationalité</th>
+            <th style="font-weight: bold;">Itinéraire</th>
+            <th style="font-weight: bold;">Voyage</th>
+            <th style="font-weight: bold;">Statut</th>
+            <th style="font-weight: bold;" class="text-center">Actions</th>
+        </tr>
+        
+        <!-- DEUXIÈME LIGNE : Champs de recherche par colonne -->
+        <tr>
+            <th>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" 
+                           (input)="dt.filter($any($event.target).value, 'nomFamille', 'contains')"
+                           placeholder="Rechercher"
+                           class="w-full" 
+                           style="width: 100%;" />
+                </span>
+            </th>
+            <th>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" 
+                           (input)="dt.filter($any($event.target).value, 'typeDocument', 'contains')"
+                           placeholder="Rechercher"
+                           class="w-full" 
+                           style="width: 100%;" />
+                </span>
+            </th>
+            <th>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" 
+                           (input)="dt.filter($any($event.target).value, 'nationalite', 'contains')"
+                           placeholder="Rechercher"
+                           class="w-full" 
+                           style="width: 100%;" />
+                </span>
+            </th>
+            <th>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" 
+                           (input)="dt.filter($any($event.target).value, 'aeroportDepart', 'contains')"
+                           placeholder="Rechercher"
+                           class="w-full" 
+                           style="width: 100%;" />
+                </span>
+            </th>
+            <th>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" 
+                           (input)="dt.filter($any($event.target).value, 'dateVoyage', 'contains')"
+                           placeholder="Rechercher"
+                           class="w-full" 
+                           style="width: 100%;" />
+                </span>
+            </th>
+            <th>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" 
+                           (input)="dt.filter($any($event.target).value, 'statut', 'contains')"
+                           placeholder="Rechercher"
+                           class="w-full" 
+                           style="width: 100%;" />
+                </span>
+            </th>
+            <th></th> <!-- Colonne actions sans filtre -->
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-enregistrement>
+        <tr>
+            <td class="table-separator">
+                <div class="text-sm font-medium text-gray-900">{{ enregistrement.nomFamille }} {{
+                    enregistrement.prenom }}</div>
+                <div class="text-sm text-gray-500">{{ enregistrement.nbreVoyage }} vol(s)</div>
+            </td>
+            <td class="table-separator">
+                <div class="text-sm text-gray-900">{{ enregistrement.typeDocument }}</div>
+                <div class="text-sm text-gray-500">{{ enregistrement.numeroDocument }}</div>
+            </td>
+            <td class="table-separator px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ enregistrement.nationalite || 'N/A' }}
+            </td>
+            <td class="table-separator px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ enregistrement.aeroportDepart }}
+                <i class="fa-solid fa-arrow-right pi pi-arrow-right mr-2 mx-1 text-gray-400"></i>
+                {{ enregistrement.aeroportDestination }}
+            </td>
+            <td class="table-separator">
+                <div class="text-sm text-gray-900">{{ enregistrement.dateVoyage | date:'dd/MM/yyyy' || 'N/A' }}
                 </div>
-            </ng-template>
+                <div class="text-sm text-gray-500">{{ enregistrement.heureVoyage || 'N/A' }}</div>
+            </td>
+            <td class="table-separator">
+                <p-tag [value]="enregistrement.statut || 'N/A'">
+                </p-tag>
+            </td>
+            <td class="text-center">
+                <button pButton icon="pi pi-eye" class="p-button-rounded p-button-primary"
+                    pTooltip="Voir détail" tooltipPosition="top" (click)="selectEnregistrement(enregistrement)">
+                </button>
+            </td>
+        </tr>
+    </ng-template>
 
-            <ng-template pTemplate="header">
-                <tr>
-                    <th style="font-weight: bold;">Passager
-                        <p-columnFilter type="text" display="menu" field="nomFamille"></p-columnFilter>
-                    </th>
-                    <th style="font-weight: bold;">Document
-                        <p-columnFilter type="text" display="menu" field="typeDocument"></p-columnFilter>
-                    </th>
-                    <th style="font-weight: bold;">Nationalité
-                        <p-columnFilter type="text" display="menu" field="nationalite"></p-columnFilter>
-                    </th>
-                    <th style="font-weight: bold;">Itinéraire
-                        <p-columnFilter type="text" display="menu" field="villeDepart"></p-columnFilter>
-                    </th>
-                    <th style="font-weight: bold;">Voyage
-                        <p-columnFilter type="text" display="menu" field="dateVoyage"></p-columnFilter>
-                    </th>
-                    <th style="font-weight: bold;">Statut
-                        <p-columnFilter type="text" display="menu" field="motifVoyage"></p-columnFilter>
-                    </th>
-                    <th style="font-weight: bold;" class="text-center">Actions</th>
-                </tr>
-            </ng-template>
-
-            <ng-template pTemplate="body" let-enregistrement>
-                <tr>
-                    <td class="table-separator">
-                        <div class="text-sm font-medium text-gray-900">{{ enregistrement.nomFamille }} {{
-                            enregistrement.prenom }}</div>
-                        <div class="text-sm text-gray-500">{{ enregistrement.nbreVoyage }} vol(s)</div>
-                    </td>
-                    <td class="table-separator">
-                        <div class="text-sm text-gray-900">{{ enregistrement.typeDocument }}</div>
-                        <div class="text-sm text-gray-500">{{ enregistrement.numeroDocument }}</div>
-                    </td>
-                    <td class="table-separator px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {{ enregistrement.nationalite || 'N/A' }}
-                    </td>
-                    <td class="table-separator px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {{ enregistrement.aeroportDepart }}
-                        <i class="fa-solid fa-arrow-right pi pi-arrow-right mr-2 mx-1 text-gray-400"></i>
-
-                        {{ enregistrement.aeroportDestination }}
-
-
-
-                    </td>
-
-                    <td class="table-separator">
-                        <div class="text-sm text-gray-900">{{ enregistrement.dateVoyage | date:'dd/MM/yyyy' || 'N/A' }}
-                        </div>
-                        <div class="text-sm text-gray-500">{{ enregistrement.heureVoyage || 'N/A' }}</div>
-                    </td>
-                    <td class="table-separator">
-                        <p-tag [value]="enregistrement.statut || 'N/A'">
-                        </p-tag>
-                    </td>
-                    <td class="text-center">
-                        <button pButton icon="pi pi-eye" class="p-button-rounded p-button-primary"
-                            pTooltip="Voir détail" tooltipPosition="top" (click)="selectEnregistrement(enregistrement)">
-                        </button>
-                    </td>
-                </tr>
-            </ng-template>
-
-            <ng-template pTemplate="emptymessage">
-                <tr>
-                    <td colspan="7" style="text-align: center; font-size: 1.2em; color: red; font-weight: bold;">
-                        <span class="text-danger">Aucun enregistrement trouvé !</span>
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table>
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td colspan="7" style="text-align: center; font-size: 1.2em; color: red; font-weight: bold;">
+                <span class="text-danger">Aucun enregistrement trouvé !</span>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
     </div>
 </div>
 
@@ -392,6 +439,70 @@
                 </div>
             </div>
         </p-fieldset>
+
+        <!-- Ajoute cette section AVANT le ng-template footer -->
+
+<!-- Section: Liste des Vols -->
+<p-fieldset legend="Historique des Vols" [toggleable]="false" styleClass="mb-3">
+    <p-table 
+        [value]="listeVols()"  
+        [paginator]="true" 
+        [rows]="5"
+        [tableStyle]="{'min-width': '50rem'}"
+        [rowsPerPageOptions]="[5, 10, 20]"
+        responsiveLayout="scroll">
+        
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Date</th>
+                <th>Heure</th>
+                <th>Départ</th>
+                <th>Destination</th>
+                <th>Motif</th>
+                <th>État</th>
+                <th>Durée (jours)</th>
+                <th>Statut</th>
+            </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="body" let-vol>
+            <tr>
+                <td>{{ vol.dateVoyage | date: 'dd/MM/yyyy' }}</td>
+                <td>{{ vol.heureVoyage | date: 'HH:mm' }}</td>
+                <td>{{ vol.aeroportDepart }}</td>
+                <td>{{ vol.aeroportDestination }}</td>
+                <td>
+                    <p-tag 
+                        [value]="vol.motifVoyage" 
+                        [severity]="getMotifSeverity(vol.motifVoyage)">
+                    </p-tag>
+                </td>
+                <td>
+                    <p-tag 
+                        [value]="vol.etatVoyage"
+                        [severity]="vol.etatVoyage === 'ALLER' ? 'info' : 'success'">
+                    </p-tag>
+                </td>
+                <td>{{ vol.dureeSejour }}</td>
+                <td>
+                    <p-tag 
+                        [value]="vol.statut"
+                        [severity]="getStatutSeverity(vol.statut)">
+                    </p-tag>
+                </td>
+            </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="8" class="text-center">
+                    <i class="pi pi-info-circle mr-2"></i>
+                    Aucun vol trouvé pour ce voyageur
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</p-fieldset>
 
     </div>
 

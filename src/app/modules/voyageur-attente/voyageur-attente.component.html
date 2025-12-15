@@ -1,6 +1,6 @@
 <div class="grid">
     <div class="col-12 md:col-12">
-        <p-table #dt styleClass="p-datatable-gridlines p-datatable-sm p-datatable" 
+       <p-table #dt styleClass="p-datatable-gridlines p-datatable-sm p-datatable" 
     [value]="enregistrementList()"
     [columns]="cols" 
     [rows]="10" 
@@ -50,7 +50,7 @@
     </ng-template>
 
     <ng-template pTemplate="header">
-        <!-- Première ligne: titres des colonnes -->
+        <!-- PREMIÈRE LIGNE : Titres des colonnes -->
         <tr>
             <th style="font-weight: bold;">Passager</th>
             <th style="font-weight: bold;">Document</th>
@@ -61,88 +61,69 @@
             <th style="font-weight: bold;" class="text-center">Actions</th>
         </tr>
         
-        <!-- Deuxième ligne: filtres dans le header -->
+        <!-- DEUXIÈME LIGNE : Champs de recherche par colonne -->
         <tr>
-            <!-- Filtre Passager (Nom) -->
             <th>
-                <p-columnFilter type="text" 
-                    field="nomFamille" 
-                    placeholder="Rechercher nom" 
-                    ariaLabel="Filter Nom">
-                </p-columnFilter>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" 
+                           (input)="dt.filter($any($event.target).value, 'nomFamille', 'contains')"
+                           placeholder="Rechercher"
+                           class="w-full" 
+                           style="width: 100%;" />
+                </span>
             </th>
-            
-            <!-- Filtre Type Document -->
             <th>
-                <p-columnFilter field="typeDocument" 
-                    matchMode="equals" 
-                    [showMenu]="false">
-                    <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                        <p-dropdown 
-                            [ngModel]="value" 
-                            [options]="typesDocument" 
-                            (onChange)="filter($event.value)" 
-                            placeholder="Type document" 
-                            [showClear]="true"
-                            optionLabel="label"
-                            optionValue="value"
-                            styleClass="w-full">
-                        </p-dropdown>
-                    </ng-template>
-                </p-columnFilter>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" 
+                           (input)="dt.filter($any($event.target).value, 'typeDocument', 'contains')"
+                           placeholder="Rechercher"
+                           class="w-full" 
+                           style="width: 100%;" />
+                </span>
             </th>
-            
-            <!-- Filtre Nationalité -->
             <th>
-                <p-columnFilter type="text" 
-                    field="nationalite" 
-                    placeholder="Nationalité" 
-                    ariaLabel="Filter Nationalité">
-                </p-columnFilter>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" 
+                           (input)="dt.filter($any($event.target).value, 'nationalite', 'contains')"
+                           placeholder="Rechercher"
+                           class="w-full" 
+                           style="width: 100%;" />
+                </span>
             </th>
-            
-            <!-- Filtre Aéroport Départ -->
             <th>
-                <p-columnFilter type="text" 
-                    field="aeroportDepart" 
-                    placeholder="Départ" 
-                    ariaLabel="Filter Départ">
-                </p-columnFilter>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" 
+                           (input)="dt.filter($any($event.target).value, 'aeroportDepart', 'contains')"
+                           placeholder="Rechercher"
+                           class="w-full" 
+                           style="width: 100%;" />
+                </span>
             </th>
-            
-            <!-- Filtre Date Voyage -->
             <th>
-                <p-columnFilter type="date" 
-                    field="dateVoyage" 
-                    placeholder="Date voyage">
-                </p-columnFilter>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" 
+                           (input)="dt.filter($any($event.target).value, 'dateVoyage', 'contains')"
+                           placeholder="Rechercher"
+                           class="w-full" 
+                           style="width: 100%;" />
+                </span>
             </th>
-            
-            <!-- Filtre Statut -->
             <th>
-                <p-columnFilter field="statut" 
-                    matchMode="in" 
-                    [showMenu]="false">
-                    <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                        <p-multiSelect 
-                            [ngModel]="value" 
-                            [options]="statutsVol" 
-                            (onChange)="filter($event.value)" 
-                            placeholder="Statuts" 
-                            optionLabel="label"
-                            optionValue="value"
-                            styleClass="w-full"
-                            [maxSelectedLabels]="1">
-                            <ng-template let-option pTemplate="item">
-                                <p-tag [value]="option.label"></p-tag>
-                            </ng-template>
-                        </p-multiSelect>
-                    </ng-template>
-                </p-columnFilter>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" 
+                           (input)="dt.filter($any($event.target).value, 'statut', 'contains')"
+                           placeholder="Rechercher"
+                           class="w-full" 
+                           style="width: 100%;" />
+                </span>
             </th>
-            
-            <!-- Colonne Actions (pas de filtre) -->
-            <th></th>
+            <th></th> <!-- Colonne actions sans filtre -->
         </tr>
     </ng-template>
 
@@ -270,8 +251,13 @@
 
 
 
-<p-dialog [(visible)]="isEditModalOpen" [style]="{width: '1000px'}" header="Validation de l'enregistrement"
-    [modal]="true" [closable]="true" [draggable]="false" class="p-fluid">
+<p-dialog [(visible)]="isDetailModalOpen" 
+          [style]="{width: '1000px'}" 
+          [header]="selectedEnregistrement.id ? 'Modification de l\'enregistrement' : 'Nouvel enregistrement'"
+          [modal]="true" 
+          [closable]="true" 
+          [draggable]="false" 
+          class="p-fluid">
 
     <form [formGroup]="editFormGroup">
         <!-- Section: Informations Document -->
@@ -281,32 +267,42 @@
                     <label for="typeDocument" class="font-bold">
                         <i class="pi pi-id-card mr-2"></i>Type de document
                     </label>
-                    <p-dropdown id="typeDocument" formControlName="typeDocument" [options]="typesDocument"
-                        optionLabel="label" optionValue="value" placeholder="Sélectionner un type" [showClear]="true">
+                    <p-dropdown id="typeDocument" 
+                                formControlName="typeDocument" 
+                                [options]="typesDocument"
+                                optionLabel="label" 
+                                optionValue="value" 
+                                placeholder="Sélectionner un type" 
+                                [showClear]="true">
                     </p-dropdown>
-
                 </div>
 
                 <div class="field col-12 md:col-6">
                     <label for="numeroDocument" class="font-bold">
                         <i class="pi pi-hashtag mr-2"></i>Numéro de document
                     </label>
-                    <input pInputText id="numeroDocument" formControlName="numeroDocument" />
+                    <input pInputText 
+                           id="numeroDocument" 
+                           formControlName="numeroDocument" />
                 </div>
 
                 <div class="field col-12 md:col-6">
                     <label for="numeroNip" class="font-bold">
                         <i class="pi pi-key mr-2"></i>Numéro NIP
                     </label>
-                    <input pInputText id="numeroNip" formControlName="numeroNip" />
+                    <input pInputText 
+                           id="numeroNip" 
+                           formControlName="numeroNip" />
                 </div>
 
                 <div class="field col-12 md:col-6">
                     <label for="dateDelivrance" class="font-bold">
                         <i class="pi pi-calendar mr-2"></i>Date de délivrance
                     </label>
-                    <p-calendar id="dateDelivrance" formControlName="dateDelivrance" dateFormat="dd/mm/yy"
-                        [showIcon]="true">
+                    <p-calendar id="dateDelivrance" 
+                                formControlName="dateDelivrance" 
+                                dateFormat="dd/mm/yy"
+                                [showIcon]="true">
                     </p-calendar>
                 </div>
 
@@ -314,7 +310,9 @@
                     <label for="lieuDelivrance" class="font-bold">
                         <i class="pi pi-map-marker mr-2"></i>Lieu de délivrance
                     </label>
-                    <input pInputText id="lieuDelivrance" formControlName="lieuDelivrance" />
+                    <input pInputText 
+                           id="lieuDelivrance" 
+                           formControlName="lieuDelivrance" />
                 </div>
             </div>
         </p-fieldset>
@@ -326,22 +324,28 @@
                     <label for="nomFamille" class="font-bold">
                         <i class="pi pi-user mr-2"></i>Nom de famille
                     </label>
-                    <input pInputText id="nomFamille" formControlName="nomFamille" />
+                    <input pInputText 
+                           id="nomFamille" 
+                           formControlName="nomFamille" />
                 </div>
 
                 <div class="field col-12 md:col-6">
                     <label for="prenom" class="font-bold">
                         <i class="pi pi-user mr-2"></i>Prénom
                     </label>
-                    <input pInputText id="prenom" formControlName="prenom" />
+                    <input pInputText 
+                           id="prenom" 
+                           formControlName="prenom" />
                 </div>
 
                 <div class="field col-12 md:col-6">
                     <label for="dateNaissance" class="font-bold">
                         <i class="pi pi-calendar mr-2"></i>Date de naissance
                     </label>
-                    <p-calendar id="dateNaissance" formControlName="dateNaissance" dateFormat="dd/mm/yy"
-                        [showIcon]="true">
+                    <p-calendar id="dateNaissance" 
+                                formControlName="dateNaissance" 
+                                dateFormat="dd/mm/yy"
+                                [showIcon]="true">
                     </p-calendar>
                 </div>
 
@@ -349,21 +353,27 @@
                     <label for="lieuNaissance" class="font-bold">
                         <i class="pi pi-map-marker mr-2"></i>Lieu de naissance
                     </label>
-                    <input pInputText id="lieuNaissance" formControlName="lieuNaissance" />
+                    <input pInputText 
+                           id="lieuNaissance" 
+                           formControlName="lieuNaissance" />
                 </div>
 
                 <div class="field col-12 md:col-6">
                     <label for="nationalite" class="font-bold">
                         <i class="pi pi-flag mr-2"></i>Nationalité
                     </label>
-                    <input pInputText id="nationalite" formControlName="nationalite" />
+                    <input pInputText 
+                           id="nationalite" 
+                           formControlName="nationalite" />
                 </div>
 
                 <div class="field col-12 md:col-6">
                     <label for="profession" class="font-bold">
                         <i class="pi pi-briefcase mr-2"></i>Profession
                     </label>
-                    <input pInputText id="profession" formControlName="profession" />
+                    <input pInputText 
+                           id="profession" 
+                           formControlName="profession" />
                 </div>
             </div>
         </p-fieldset>
@@ -375,42 +385,59 @@
                     <label for="paysResidence" class="font-bold">
                         <i class="pi pi-globe mr-2"></i>Pays de résidence
                     </label>
-                    <input pInputText id="paysResidence" formControlName="paysResidence" />
+                    <input pInputText 
+                           id="paysResidence" 
+                           formControlName="paysResidence" />
                 </div>
 
                 <div class="field col-12 md:col-6">
                     <label for="emailContact" class="font-bold">
                         <i class="pi pi-envelope mr-2"></i>Email
                     </label>
-                    <input pInputText id="emailContact" type="email" formControlName="emailContact" />
+                    <input pInputText 
+                           id="emailContact" 
+                           type="email" 
+                           formControlName="emailContact" />
                 </div>
 
                 <div class="field col-12 md:col-6">
                     <label for="telephoneBurkina" class="font-bold">
                         <i class="pi pi-phone mr-2"></i>Téléphone Burkina
                     </label>
-                    <input pInputText id="telephoneBurkina" formControlName="telephoneBurkina" />
+                    <input pInputText 
+                           id="telephoneBurkina" 
+                           formControlName="telephoneBurkina" />
                 </div>
 
                 <div class="field col-12 md:col-6">
                     <label for="telephoneEtranger" class="font-bold">
                         <i class="pi pi-phone mr-2"></i>Téléphone Étranger
                     </label>
-                    <input pInputText id="telephoneEtranger" formControlName="telephoneEtranger" />
+                    <input pInputText 
+                           id="telephoneEtranger" 
+                           formControlName="telephoneEtranger" />
                 </div>
 
                 <div class="field col-12 md:col-6">
                     <label for="adresseBurkina" class="font-bold">
                         <i class="pi pi-home mr-2"></i>Adresse Burkina
                     </label>
-                    <textarea pInputText id="adresseBurkina" formControlName="adresseBurkina" rows="2"></textarea>
+                  
+
+                    <input pInputText 
+                           id="adresseBurkina" 
+                           formControlName="adresseBurkina" />
                 </div>
 
                 <div class="field col-12 md:col-6">
                     <label for="adresseEtranger" class="font-bold">
                         <i class="pi pi-home mr-2"></i>Adresse Étranger
                     </label>
-                    <textarea pInputText id="adresseEtranger" formControlName="adresseEtranger" rows="2"></textarea>
+                 
+                     <input pInputText 
+                           id="adresseEtranger" 
+                           formControlName="adresseEtranger" />
+                    
                 </div>
             </div>
         </p-fieldset>
@@ -422,21 +449,28 @@
                     <label for="aeroportDepart" class="font-bold">
                         <i class="pi pi-arrow-up mr-2"></i>Aéroport départ
                     </label>
-                    <input pInputText id="aeroportDepart" formControlName="aeroportDepart" />
+                    <input pInputText 
+                           id="aeroportDepart" 
+                           formControlName="aeroportDepart" />
                 </div>
 
                 <div class="field col-12 md:col-6">
                     <label for="aeroportDestination" class="font-bold">
                         <i class="pi pi-arrow-down mr-2"></i>Aéroport destination
                     </label>
-                    <input pInputText id="aeroportDestination" formControlName="aeroportDestination" />
+                    <input pInputText 
+                           id="aeroportDestination" 
+                           formControlName="aeroportDestination" />
                 </div>
 
                 <div class="field col-12 md:col-6">
                     <label for="dateVoyage" class="font-bold">
                         <i class="pi pi-calendar mr-2"></i>Date de vol
                     </label>
-                    <p-calendar id="dateVoyage" formControlName="dateVoyage" dateFormat="dd/mm/yy" [showIcon]="true">
+                    <p-calendar id="dateVoyage" 
+                                formControlName="dateVoyage" 
+                                dateFormat="dd/mm/yy" 
+                                [showIcon]="true">
                     </p-calendar>
                 </div>
 
@@ -444,27 +478,39 @@
                     <label for="heureVoyage" class="font-bold">
                         <i class="pi pi-clock mr-2"></i>Heure de vol
                     </label>
-                    <input pInputText id="heureVoyage" formControlName="heureVoyage" placeholder="HH:MM" />
+                    <input pInputText 
+                           id="heureVoyage" 
+                           formControlName="heureVoyage" 
+                           placeholder="HH:MM" />
                 </div>
 
                 <div class="field col-12 md:col-6">
                     <label for="dureeSejour" class="font-bold">
                         <i class="pi pi-hourglass mr-2"></i>Durée de séjour (jours)
                     </label>
-                    <input pInputText id="dureeSejour" type="number" formControlName="dureeSejour" />
+                    <input pInputText 
+                           id="dureeSejour" 
+                           type="number" 
+                           formControlName="dureeSejour" />
                 </div>
-
-
             </div>
         </p-fieldset>
     </form>
 
     <ng-template pTemplate="footer">
         <div class="flex justify-content-end gap-2">
-            <button pButton label="Annuler" icon="pi pi-times" class="p-button-secondary" (click)="closeEditModal()">
+            <button pButton 
+                    label="Annuler" 
+                    icon="pi pi-times" 
+                    class="p-button-secondary" 
+                    (click)="closeEditModal()">
             </button>
-            <button pButton label="Valider" icon="pi pi-check" class="p-button-primary" (click)="saveEnregistrement()"
-                [disabled]="editFormGroup.invalid">
+            <button pButton 
+                    label="Valider" 
+                    icon="pi pi-check" 
+                    class="p-button-primary" 
+                    (click)="saveEnregistrement()"
+                    [disabled]="editFormGroup.invalid">
             </button>
         </div>
     </ng-template>

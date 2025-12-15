@@ -52,7 +52,7 @@ export class AppMenuComponent implements OnInit {
             icon: 'fa-solid fa-building',
             items: [
                   {
-                    label: 'Gestion des Villes',
+                    label: 'Gestion des Localités',
                     icon: 'fa-solid fa-city',
                     routerLink: ['/admin/ville']
                 },

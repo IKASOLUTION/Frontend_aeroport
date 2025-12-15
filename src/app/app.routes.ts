@@ -19,6 +19,9 @@ export const routes: Routes = [
        {
         path: 'preEnregistrement', loadComponent: () => import('./modules/site/PreEnregistrement/preEnregistrement.component').then(m => m.PreEnregistrementComponent)
       },
+      {
+        path: 'mesPreEnregistrement', loadComponent: () => import('./modules/site/MesPreEnregistrement/mesPreEnregistrement.component').then(m => m.MesPreEnregistrementComponent)
+      },
     ]
   },
 

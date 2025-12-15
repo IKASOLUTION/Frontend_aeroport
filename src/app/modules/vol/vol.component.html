@@ -1,126 +1,172 @@
 <div class="grid">
     <div class="col-12 md:col-12">
         <p-table #dt styleClass="p-datatable-gridlines p-datatable-sm p-datatable" [value]="vols" [columns]="cols"
-            [rows]="5" [paginator]="true" [rowsPerPageOptions]="[5, 10, 20, 30]" [showCurrentPageReport]="true"
-            [globalFilterFields]="['numero', 'villeNomD', 'villeNomA','typeVol', 'compagnie.nomCompagine', 'statut']"
-            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
-            [(selection)]="selectedVol" selectionMode="single" [rowHover]="true" dataKey="id" [loading]="loading">
+    [rows]="5" [paginator]="true" [rowsPerPageOptions]="[5, 10, 20, 30]" [showCurrentPageReport]="true"
+    [globalFilterFields]="['numero', 'villeNomD', 'villeNomA','typeVol', 'compagnie.nomCompagine', 'statut']"
+    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+    [(selection)]="selectedVol" selectionMode="single" [rowHover]="true" dataKey="id" [loading]="loading">
 
-            <ng-template pTemplate="caption">
-                <div class="flex justify-content-between flex-column sm:flex-row">
-                    <div class="flex gap-2">
-                        <button pButton label="Nouveau Vol" class="p-button-success mb-2" icon="pi pi-plus"
-                            (click)="openNew()">
-                        </button>
-                        <button pButton label="Filtrer par période" class="p-button-info mb-2" icon="pi pi-filter"
-                            (click)="openFilterDialog()">
-                        </button>
-                        <button pButton label="Réinitialiser" class="p-button-secondary mb-2" icon="pi pi-refresh"
-                            (click)="resetFilters()">
-                        </button>
-                    </div>
-                    <div class="flex flex-column align-items-end">
-                        <span class="p-input-icon-left mb-2">
-                            <i class="pi pi-search"></i>
-                            <input pInputText type="text" #filter (input)="onGlobalFilter(dt, $event)"
-                                placeholder="Rechercher" class="w-full" />
-                        </span>
-                        <small class="text-500" *ngIf="dateDebut && dateFin">
-                            Période: {{dateDebut | date:'dd/MM/yyyy'}} - {{dateFin | date:'dd/MM/yyyy'}}
-                            <span *ngIf="selectedStatuts.length > 0"> | Statuts: {{selectedStatuts.length}}
-                                sélectionné(s)</span>
-                        </small>
-                    </div>
-                </div>
-            </ng-template>
+    <ng-template pTemplate="caption">
+        <div class="flex justify-content-between flex-column sm:flex-row">
+            <div class="flex gap-2">
+                <button pButton label="Nouveau Vol" class="p-button-success mb-2" icon="pi pi-plus"
+                    (click)="openNew()">
+                </button>
+                <button pButton label="Filtrer par période" class="p-button-info mb-2" icon="pi pi-filter"
+                    (click)="openFilterDialog()">
+                </button>
+                <button pButton label="Réinitialiser" class="p-button-secondary mb-2" icon="pi pi-refresh"
+                    (click)="resetFilters()">
+                </button>
+            </div>
+            <div class="flex flex-column align-items-end">
+                <span class="p-input-icon-left mb-2">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" #filter (input)="onGlobalFilter(dt, $event)"
+                        placeholder="Rechercher" class="w-full" />
+                </span>
+                <small class="text-500" *ngIf="dateDebut && dateFin">
+                    Période: {{dateDebut | date:'dd/MM/yyyy'}} - {{dateFin | date:'dd/MM/yyyy'}}
+                    <span *ngIf="selectedStatuts.length > 0"> | Statuts: {{selectedStatuts.length}}
+                        sélectionné(s)</span>
+                </small>
+            </div>
+        </div>
+    </ng-template>
 
-            <ng-template pTemplate="header">
-                <tr>
-                    <th style="font-weight: bold;">N° Vol / Type
-                        <p-columnFilter type="text" display="menu" field="numero"></p-columnFilter>
-                    </th>
-                    <th style="font-weight: bold;">Compagnie
-                        <p-columnFilter type="text" display="menu" field="villeNomD"></p-columnFilter>
-                    </th>
+    <ng-template pTemplate="header">
+        <!-- PREMIÈRE LIGNE : Titres des colonnes -->
+        <tr>
+            <th style="font-weight: bold;">N° Vol / Type</th>
+            <th style="font-weight: bold;">Compagnie</th>
+            <th style="font-weight: bold;">Itinéraire</th>
+            <th style="font-weight: bold;">Départ</th>
+            <th style="font-weight: bold;">Arrivée</th>
+            <th style="font-weight: bold;">Statut</th>
+            <th style="font-weight: bold;" class="text-center">Actions</th>
+        </tr>
+        
+        <!-- DEUXIÈME LIGNE : Champs de recherche par colonne -->
+        <tr>
+            <th>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" 
+                           (input)="dt.filter($any($event.target).value, 'numero', 'contains')"
+                           placeholder="Rechercher"
+                           class="w-full" 
+                           style="width: 100%;" />
+                </span>
+            </th>
+            <th>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" 
+                           (input)="dt.filter($any($event.target).value, 'compagnie.nomCompagine', 'contains')"
+                           placeholder="Rechercher"
+                           class="w-full" 
+                           style="width: 100%;" />
+                </span>
+            </th>
+            <th>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" 
+                           (input)="dt.filter($any($event.target).value, 'aeroport.nomAeroport', 'contains')"
+                           placeholder="Rechercher"
+                           class="w-full" 
+                           style="width: 100%;" />
+                </span>
+            </th>
+            <th>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" 
+                           (input)="dt.filter($any($event.target).value, 'dateDepart', 'contains')"
+                           placeholder="Rechercher"
+                           class="w-full" 
+                           style="width: 100%;" />
+                </span>
+            </th>
+            <th>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" 
+                           (input)="dt.filter($any($event.target).value, 'dateArrivee', 'contains')"
+                           placeholder="Rechercher"
+                           class="w-full" 
+                           style="width: 100%;" />
+                </span>
+            </th>
+            <th>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" 
+                           (input)="dt.filter($any($event.target).value, 'statut', 'contains')"
+                           placeholder="Rechercher"
+                           class="w-full" 
+                           style="width: 100%;" />
+                </span>
+            </th>
+            <th></th> <!-- Colonne actions sans filtre -->
+        </tr>
+    </ng-template>
 
-                    <th style="width: 35%; font-weight: bold;">Itinéraire
-                        <p-columnFilter type="text" display="menu" field="villeNomA"></p-columnFilter>
-                    </th>
-                    <th style="font-weight: bold;">Départ
-                        <p-columnFilter type="text" display="menu" field="typeVol"></p-columnFilter>
-                    </th>
-                    <th style="font-weight: bold;">Arrivée
-                        <p-columnFilter type="text" display="menu" field="compagnie.nomCompagine"></p-columnFilter>
-                    </th>
-                    <th style="font-weight: bold;">Statut
-                        <p-columnFilter type="text" display="menu" field="aeroport.nomAeroport"></p-columnFilter>
-                    </th>
+    <ng-template pTemplate="body" let-vol>
+        <tr>
+            <td class="table-separator">
+                <div class="text-sm font-medium text-gray-900">{{ vol.numero }}</div>
+                <div class="text-sm text-gray-500">{{ vol.typeVol }}</div>
+            </td>
+            <td class="table-separator px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">{{ vol.compagnie?.nomCompagine }}</div>
+            </td>
+            <td class="table-separator px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <span *ngIf="vol.typeVol == 'ARRIVEE'">
+                    {{ vol.aeroport?.nomAeroport }}
+                </span>
+                <span *ngIf="vol.typeVol != 'ARRIVEE'">
+                    {{ vol.nomAgentConnecteAeroport }}
+                </span>
 
-                    <th style="font-weight: bold;" class="text-center">Actions</th>
-                </tr>
-            </ng-template>
+                <i class="fa-solid fa-arrow-right pi pi-arrow-right mr-2 mx-1 text-gray-400"></i>
+                
+                <span *ngIf="vol.typeVol == 'ARRIVEE'">
+                    {{ vol.nomAgentConnecteAeroport }}
+                </span>
+                <span *ngIf="vol.typeVol != 'ARRIVEE'">
+                    {{ vol.aeroport?.nomAeroport }}
+                </span>
+            </td>
+            <td class="table-separator">{{vol.dateDepart | date:'dd/MM/yyyy HH:mm' || 'N/A'}}</td>
+            <td class="table-separator">{{vol.dateDepart | date:'dd/MM/yyyy HH:mm' || 'N/A'}}</td>
+            <td class="table-separator">
+                <span [class]="'badge ' + getStatutClass(vol.statut)">
+                    {{vol.statut || 'N/A'}}
+                </span>
+            </td>
+            <td class="text-center">
+                <button pButton icon="pi pi-eye" class="p-button-rounded p-button-primary mr-2"
+                    pTooltip="Voir détail" tooltipPosition="top" (click)="openDetailModal(vol)">
+                </button>
+                <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-info mr-2"
+                    pTooltip="Modifier" tooltipPosition="top" (click)="update(vol)">
+                </button>
+                <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger" pTooltip="Supprimer"
+                    tooltipPosition="top" (click)="confirmDelete(vol)">
+                </button>
+            </td>
+        </tr>
+    </ng-template>
 
-            <ng-template pTemplate="body" let-vol>
-                <tr>
-                    <td class="table-separator">
-                        <div class="text-sm font-medium text-gray-900">{{ vol.numero }}</div>
-                        <div class="text-sm text-gray-500">{{ vol.typeVol }}</div>
-                    </td>
-                    <td class="table-separator px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">{{ vol.compagnie?.nomCompagine }}</div>
-                    </td>
-                    <td class="table-separator px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <span *ngIf="vol.typeVol == 'ARRIVEE'">
-                            {{ vol.aeroport?.nomAeroport }}
-
-                        </span>
-                        <span *ngIf="vol.typeVol != 'ARRIVEE'">
-                            {{ vol.nomAgentConnecteAeroport }}
-
-                        </span>
-
-                        <i class="fa-solid fa-arrow-right pi pi-arrow-right mr-2 mx-1 text-gray-400"></i>
-                        <span *ngIf="vol.typeVol == 'ARRIVEE'">
-                            {{ vol.nomAgentConnecteAeroport }}
-
-                        </span>
-                        <span *ngIf="vol.typeVol != 'ARRIVEE'">
-                            {{ vol.aeroport?.nomAeroport }}
-
-                        </span>
-                    </td>
-                    <td class="table-separator">{{vol.dateDepart | date:'dd/MM/yyyy HH:mm' || 'N/A'}}</td>
-                    <td class="table-separator">{{vol.dateDepart | date:'dd/MM/yyyy HH:mm' || 'N/A'}}</td>
-                    <td class="table-separator">
-                        <span [class]="'badge ' + getStatutClass(vol.statut)">
-                            {{vol.statut || 'N/A'}}
-                        </span>
-                    </td>
-                    <td class="text-center">
-                        <button pButton icon="pi pi-eye" class="p-button-rounded p-button-primary mr-2"
-                            pTooltip="Voir détail" tooltipPosition="top" (click)="openDetailModal(vol)">
-                        </button>
-                        <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-info mr-2"
-                            pTooltip="Modifier" tooltipPosition="top" (click)="update(vol)">
-                        </button>
-
-
-
-                        <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger" pTooltip="Supprimer"
-                            tooltipPosition="top" (click)="confirmDelete(vol)">
-                        </button>
-                    </td>
-                </tr>
-            </ng-template>
-
-            <ng-template pTemplate="emptymessage">
-                <tr>
-                    <td colspan="10" style="text-align: center; font-size: 1.2em; color: red; font-weight: bold;">
-                        <span class="text-danger">Aucun vol trouvé !</span>
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table>
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td colspan="7" style="text-align: center; font-size: 1.2em; color: red; font-weight: bold;">
+                <span class="text-danger">Aucun vol trouvé !</span>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
     </div>
 </div>
 
