@@ -96,6 +96,20 @@ export class EnregistrementService {
     return this.http.put<PageResponse<Enregistrement>>(`${GlobalConfig.getEndpoint(Endpoints.ENREIGISTREMENT)}/periode/voyageur-attente`, body);
   }
 
+
+
+   getPreEnregistrementByPeriode(searchDto: SearchDto): Observable<PageResponse<Enregistrement>> {
+    // @FIXME: put request
+    const body = {
+      dateDebut: this.formatDate(searchDto.dateDebut),
+      dateFin: this.formatDate(searchDto.dateFin),
+      page: searchDto.page || 0,
+      size: searchDto.size || 10,
+      sort: searchDto.sortBy || 'dateDepart,desc'
+    };
+    return this.http.put<PageResponse<Enregistrement>>(`${GlobalConfig.getEndpoint(Endpoints.ENREIGISTREMENT)}/pre-enrgistrement/periode`, body);
+  }
+
   private formatDate(date: Date): string {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');

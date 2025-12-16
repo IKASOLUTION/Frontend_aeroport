@@ -6,6 +6,7 @@ import { EnregistrementState } from './state';
 const initialState: EnregistrementState = {
   enregistrements: [],
   voyageurAttentes: [],
+  preEnregistrements: [],
   enregistrement: {},
   totalItems: 0,
   loading: false,
@@ -81,6 +82,15 @@ const featureReducer = createReducer<EnregistrementState>(
   on(featureActions.loadEnregistrementsByPeriodeSuccess, (state, { enregistrements, totalItems }) => ({
           ...state,
           enregistrements,
+          totalItems,
+          loading: false,
+          error: null
+      })),
+
+
+       on(featureActions.loadPreEnregistrementsByPeriodeSuccess, (state, { preEnregistrements, totalItems }) => ({
+          ...state,
+          preEnregistrements,
           totalItems,
           loading: false,
           error: null

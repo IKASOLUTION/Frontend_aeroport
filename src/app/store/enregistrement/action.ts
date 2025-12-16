@@ -26,6 +26,17 @@ export const loadVoyageurAttenteByPeriode = createAction(
     props<{ searchDto: SearchDto }>()
 );
 
+export const loadPreEnregistrementeByPeriode = createAction(
+    '[Enregistrement] Load pre enregistrement  By Periode',
+    props<{ searchDto: SearchDto }>()
+);
+
+
+export const loadPreEnregistrementsByPeriodeSuccess = createAction(
+    '[Enregistrement] Load Enregistrements By Periode Success',
+    props<{ preEnregistrements: Enregistrement[], totalItems: number }>()
+);
+
 export const listeVols = createAction(
     '[Enregistrement] Load voyageur  By numeroDocument',
     props<{ numeroDocument: String }>()

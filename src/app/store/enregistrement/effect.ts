@@ -114,6 +114,29 @@ export class EnregistrementEffects {
     );
 
 
+
+      loadPreEnregistrementByPeriode$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(featureActions.loadPreEnregistrementeByPeriode),
+            tap(action => console.log('Action déclenchée:', action)),
+            switchMap(action =>
+                this.enregistrementService.getPreEnregistrementByPeriode(action.searchDto).pipe(
+                    tap(response => console.log('Réponse reçue:', response)),
+                    map(response => featureActions.loadPreEnregistrementsByPeriodeSuccess({
+                        preEnregistrements: response.content,
+                        totalItems: response.totalElements
+                    })),
+                    catchError(error => {
+                        console.error('Erreur:', error);
+                        return of(GlobalConfig.setStatus(StatusEnum.error, error.error.error)
+                        );
+                    })
+                )
+            )
+        )
+    );
+
+
     deleteEnregistrementAttente$ = createEffect(() =>
         this.actions$.pipe(
             ofType(featureActions.deleteEnregistrementAttente),

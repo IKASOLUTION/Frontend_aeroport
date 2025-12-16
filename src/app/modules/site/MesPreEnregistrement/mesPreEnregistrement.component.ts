@@ -1,4 +1,4 @@
-// mesPreEnregistrement.component.ts - VERSION FRONT OFFICE
+// mesPreEnregistrement.component.ts - PÉRIODE ANNÉE COURANTE
 
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
@@ -33,7 +33,6 @@ import { MotifVoyage, StatutVoyageur } from 'src/app/store/motifVoyage/model';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { EnregistrementService } from 'src/app/store/enregistrement/service';
 import { NavbarComponent } from '../navbar/navbar.component';
-
 
 @Component({
     selector: 'app-public-register',
@@ -99,9 +98,8 @@ export class MesPreEnregistrementComponent implements OnInit, OnDestroy {
     dateFin: Date | null = null;
     isDetailModalOpen = false;
     selectedStatuts: StatutVoyageur[] = [];
-     isEditing: boolean = false;
+    isEditing: boolean = false;
     originalEnregistrement: Enregistrement = {};
-    
     
     statutsVol = [
         { label: 'Validé', value: StatutVoyageur.VALIDE },
@@ -122,10 +120,8 @@ export class MesPreEnregistrementComponent implements OnInit, OnDestroy {
         this.createFormSearch();
         this.createFormFilter();
 
-        // Initialiser les dates (30 derniers jours par défaut)
-        this.dateDebut = new Date();
-        this.dateDebut.setDate(this.dateDebut.getDate() - 30);
-        this.dateFin = new Date();
+        // ✅ INITIALISER LES DATES DE L'ANNÉE COURANTE
+        this.initCurrentYearDates();
 
         // Charger les données
         this.loadEnregistrements();
@@ -151,6 +147,23 @@ export class MesPreEnregistrementComponent implements OnInit, OnDestroy {
                     this.motifVoyages = value || [];
                 }
             });
+    }
+
+    // ✅ NOUVELLE MÉTHODE : Initialiser les dates de l'année courante
+    private initCurrentYearDates(): void {
+        const currentYear = new Date().getFullYear();
+        
+        // Date de début : 1er janvier de l'année courante
+        this.dateDebut = new Date(currentYear, 0, 1); // Mois 0 = janvier
+        
+        // Date de fin : 31 décembre de l'année courante
+        this.dateFin = new Date(currentYear, 11, 31, 23, 59, 59); // Mois 11 = décembre
+        
+        console.log('Période chargée:', {
+            debut: this.dateDebut.toLocaleDateString('fr-FR'),
+            fin: this.dateFin.toLocaleDateString('fr-FR'),
+            annee: currentYear
+        });
     }
 
     private loadEnregistrements(): void {
@@ -179,20 +192,18 @@ export class MesPreEnregistrementComponent implements OnInit, OnDestroy {
         const searchDto: SearchDto = {
             dateDebut: this.dateDebut,
             dateFin: this.dateFin,
-            aeroportId: this.aeroportSelected ? this.aeroportSelected.id : 0,
-            status: this.selectedStatuts.length > 0 ? this.selectedStatuts : undefined,
             page: this.page,
             size: this.rows,
             sortBy: 'dateVoyage,desc'
         };
 
-        this.store.dispatch(enregistrementAction.loadEnregistrementsByPeriode({ searchDto }));
+        this.store.dispatch(enregistrementAction.loadPreEnregistrementeByPeriode({ searchDto }));
     }
 
     private subscribeToStoreUpdates(): void {
         // Écouter la liste des enregistrements
         this.store.pipe(
-            select(enregistrementSelector.enregistrementList),
+            select(enregistrementSelector.preEnregistrementList),
             takeUntil(this.destroy$)
         ).subscribe(value => {
             this.loading.set(false);
@@ -288,8 +299,6 @@ export class MesPreEnregistrementComponent implements OnInit, OnDestroy {
         this.filterFormGroup = this.fb.group({
             dateDebut: [this.dateDebut],
             dateFin: [this.dateFin],
-            aeroport: [null],
-            statutVoyages: [[]]
         });
     }
 
@@ -309,8 +318,6 @@ export class MesPreEnregistrementComponent implements OnInit, OnDestroy {
         this.filterFormGroup.patchValue({
             dateDebut: this.dateDebut,
             dateFin: this.dateFin,
-            aeroport: this.aeroportSelected,
-            statutVoyages: this.selectedStatuts
         });
         this.filterDialog = true;
     }
@@ -319,9 +326,6 @@ export class MesPreEnregistrementComponent implements OnInit, OnDestroy {
         const formValue = this.filterFormGroup.value;
         this.dateDebut = formValue.dateDebut;
         this.dateFin = formValue.dateFin;
-        this.aeroportSelected = formValue.aeroport;
-        this.selectedStatuts = formValue.statutVoyages || [];
-
         this.page = 0;
         this.first = 0;
 
@@ -336,19 +340,14 @@ export class MesPreEnregistrementComponent implements OnInit, OnDestroy {
         });
     }
 
+    // ✅ MODIFIÉ : Reset avec les dates de l'année courante
     resetFilters(): void {
-        this.dateDebut = new Date();
-        this.dateDebut.setDate(this.dateDebut.getDate() - 30);
-        this.dateFin = new Date();
-        this.aeroportSelected = null;
-        this.motifVoyageSelected = null;
-        this.selectedStatuts = [];
-
+        // Réinitialiser avec les dates de l'année courante
+        this.initCurrentYearDates();
+        
         this.filterFormGroup.patchValue({
             dateDebut: this.dateDebut,
             dateFin: this.dateFin,
-            aeroport: null,
-            statutVoyages: []
         });
 
         this.page = 0;
@@ -359,7 +358,7 @@ export class MesPreEnregistrementComponent implements OnInit, OnDestroy {
         this.messageService.add({
             severity: 'info',
             summary: 'Filtres réinitialisés',
-            detail: 'Les filtres ont été réinitialisés',
+            detail: 'Les filtres ont été réinitialisés à l\'année courante',
             life: 3000
         });
     }
