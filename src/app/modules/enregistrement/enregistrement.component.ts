@@ -703,7 +703,7 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
       dateDelivrance: this.formatDate(data.dateDelivrance),
       dateNaissance: this.formatDate(data.dateNaissance),
       dateVoyage: this.formatDate(data.dateVoyage),
-      statut: StatutVoyageur.VALIDE.toString(),
+      statut: StatutVoyageur.VALIDE
     };
   }
 

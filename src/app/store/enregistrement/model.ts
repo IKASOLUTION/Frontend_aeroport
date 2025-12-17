@@ -38,7 +38,7 @@ export interface Enregistrement {
   etatVoyage?: 'ALLER' | 'RETOUR' | 'ALLER_RETOUR';
   dureeSejour?: number | null;
   nbreVoyage?: number | 0;
-  statut?: string;
+  statut?: StatutVoyageur;
   informationPersonnelle?: InformationPersonnelle;
   informationPersonnelleId?: number;
   aeroportDepart?: string;
@@ -64,6 +64,12 @@ export  enum MotifVoyage {
     MEDICAL
 }
 
+
+export enum StatutVoyageur {
+    
+    EN_ATTENTE,VALIDE,REJETE,ANNULE
+    
+}
 
 export enum TypeDocument {
     

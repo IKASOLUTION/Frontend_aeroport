@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Enregistrement, EnregistrementList, MotifVoyage, TypeDocument } from "./model";
+import { Enregistrement, EnregistrementList, MotifVoyage, StatutVoyageur, TypeDocument } from "./model";
 import { catchError, map, Observable, throwError } from "rxjs";
 import { GlobalConfig } from "src/app/config/global.config";
 import { Endpoints } from "src/app/config/module.endpoints";
@@ -46,7 +46,7 @@ export class EnregistrementService {
           }
         }
         // Champs enum : convertir en string
-        else if (typeof value === 'number' && (key === 'typeDocument' || key === 'motifVoyage' || key === 'etatVoyage')) {
+        else if (typeof value === 'number' && (key === 'typeDocument' || key === 'motifVoyage' || key === 'etatVoyage' || key === 'statut')) {
           // convertir la valeur enum numérique en nom de l’enum
           //formData.append(key, (enregistrement[key as keyof Enregistrement] as any).toString());
           // ou mieux : Object.keys(enum)[value] pour récupérer le nom
@@ -148,6 +148,8 @@ export class EnregistrementService {
         return TypeDocument;
       case 'motifVoyage':
         return MotifVoyage;
+        case 'statut':
+        return StatutVoyageur;
 
       default:
         return {};
