@@ -16,18 +16,19 @@ export const authInitializerFactory = (): (() => Promise<boolean>) => {
     return new Promise<boolean>((resolve) => {
       const accessToken = authServerProvider.getAccessToken();
       const refreshToken = authServerProvider.getRefreshToken();
-      const currentUrl = router.url; // <-- Récupère l'URL actuelle
+      
+      // Récupère l'URL cible depuis le navigateur
+      const targetUrl = window.location.pathname;
 
       // Si aucun token
       if (!accessToken && !refreshToken) {
-
         // Si l'utilisateur essaie d'accéder à une route admin
-        if (currentUrl.startsWith('/admin')) {
-          router.navigate(['/admin/login']);
-        } else {
-          router.navigate(['/site-aeroport/accueil']);
+        if (targetUrl.startsWith('/admin') && targetUrl !== '/admin/login') {
+          router.navigate(['/admin/login'], { 
+            queryParams: { returnUrl: targetUrl } 
+          });
         }
-
+        // Sinon, laisser le routing normal s'effectuer
         resolve(true);
         return;
       }
@@ -37,6 +38,7 @@ export const authInitializerFactory = (): (() => Promise<boolean>) => {
         authServerProvider.refreshToken().pipe(
           map((response: any) => {
             console.log('Token rafraîchi au démarrage');
+            // Après refresh réussi, laisser l'utilisateur accéder à sa route
             return true;
           }),
           catchError((error) => {
@@ -44,8 +46,12 @@ export const authInitializerFactory = (): (() => Promise<boolean>) => {
             loginService.logout();
 
             // Si tentative admin
-            if (currentUrl.startsWith('/admin')) {
-              router.navigate(['/admin/login']);
+            if (targetUrl.startsWith('/admin') && targetUrl !== '/admin/login') {
+              router.navigate(['/admin/login'], { 
+                queryParams: { returnUrl: targetUrl } 
+              });
+            } else if (targetUrl.startsWith('/site-aeroport')) {
+              // L'utilisateur est déjà sur le site, ne pas rediriger
             } else {
               router.navigate(['/site-aeroport/accueil']);
             }
@@ -57,7 +63,9 @@ export const authInitializerFactory = (): (() => Promise<boolean>) => {
           error: () => resolve(true)
         });
       } else {
-        resolve(true); // user déjà connecté → tout va bien
+        // accessToken existe, laisser passer
+        // Optionnel : vous pourriez vérifier si le token est expiré ici
+        resolve(true);
       }
     });
   };

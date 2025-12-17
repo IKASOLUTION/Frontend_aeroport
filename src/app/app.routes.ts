@@ -4,10 +4,7 @@ export const routes: Routes = [
 
   {
     path: 'site-aeroport',
-    /* loadComponent: () =>
-      import('./layout/app.layout.component').then(
-        (module) => module.AppLayoutComponent
-      ), */
+   
     children: [
       {
         path: 'accueil', loadComponent: () => import('./demo/components/landing/landing.component').then(m => m.LandingComponent)
@@ -42,6 +39,7 @@ export const routes: Routes = [
         (module) => module.AppLayoutComponent
       ),
     children: [
+      // { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       // { path: 'dashboard', data: { breadcrumb: 'Accueil' }, title: 'Dashboard', loadComponent: () => import('./modules/home/home.component').then(c => c.HomeComponent) },
       { path: 'dashboard', data: { breadcrumb: 'Acceuil' }, loadChildren: () => import('./demo/components/dashboards/dashboards.module').then(m => m.DashboardsModule) },
       { path: 'pages', data: { breadcrumb: 'Pages' }, loadChildren: () => import('./demo/components/pages/pages.module').then(m => m.PagesModule) },
