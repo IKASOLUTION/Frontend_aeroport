@@ -52,7 +52,12 @@ export class LoginService {
             }),
             catchError((error) => {
                 console.error('Erreur lors de la connexion:', error);
+                if (credentials.type =="PASSAGER") {
+                    console.error('Identifiants invalides');
+                } else {
                 this.logout();
+                }
+               
                 return throwError(() => error);
             })
         );
