@@ -135,7 +135,13 @@
                 <div class="text-sm text-gray-500">{{ enregistrement.heureVoyage || 'N/A' }}</div>
             </td>
             <td class="table-separator">
-                <p-tag [value]="enregistrement.statut || 'N/A'">
+              <p-tag
+                [value]="enregistrement.statut || 'N/A'"
+                [severity]="enregistrement.statut === 'VALIDE' 
+                    ? 'success' 
+                    : enregistrement.statut === 'EN_ATTENTE' 
+                    ? 'danger' 
+                    : 'secondary'">
                 </p-tag>
             </td>
             <td class="text-center">

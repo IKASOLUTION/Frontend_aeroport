@@ -1,3 +1,5 @@
+import { Voyage } from "../voyage/model";
+
 export interface Enregistrement {
   id?: number;
    // Document
@@ -41,6 +43,8 @@ export interface Enregistrement {
   informationPersonnelleId?: number;
   aeroportDepart?: string;
   aeroportDestination?: string;
+  voyage?: Voyage;  
+  voyageId ?: number;
 }
 
 

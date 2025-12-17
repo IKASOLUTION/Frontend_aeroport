@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -28,7 +28,8 @@ import * as volSelector from '../../store/vol/selector';
 import * as villeSelector from '../../store/ville/selector';
 import * as compagnieSelector from '../../store/compagnie/selector';
 import * as voyageSelector from '../../store/voyage/selector';
-
+import * as enregistrementAction from '../../store/enregistrement/action';
+import * as enregistrementSelector from '../../store/enregistrement/selector';
 import { FormsValidationComponent } from '../forms-validation/forms-validation.component';
 import { StatusEnum, StatutVoyage } from 'src/app/store/global-config/model';
 import * as globalSelector from '../../store/global-config/selector';
@@ -40,8 +41,13 @@ import { Aeroport } from 'src/app/store/aeroport/model';
 import { FieldsetModule } from 'primeng/fieldset';
 import { TagModule } from 'primeng/tag';
 import { Voyage } from 'src/app/store/voyage/model';
-import { Enregistrement } from 'src/app/store/enregistrement/model';
-import { co } from '@fullcalendar/core/internal-common';
+import { Enregistrement, TypeDocument } from 'src/app/store/enregistrement/model';
+import { co, en } from '@fullcalendar/core/internal-common';
+import { StatutVoyageur } from 'src/app/store/motifVoyage/model';
+import * as aeroportSelector from '../../store/aeroport/selector';
+import { EnregistrementService } from 'src/app/store/enregistrement/service';
+
+
 
 @Component({
     selector: 'app-vol',
@@ -50,11 +56,11 @@ import { co } from '@fullcalendar/core/internal-common';
         CommonModule,
         TableModule,
         LoadingSpinnerComponent,
-        ButtonModule, 
-        RippleModule, 
-        TooltipModule, 
-        ToolbarModule, 
-        ToastModule, 
+        ButtonModule,
+        RippleModule,
+        TooltipModule,
+        ToolbarModule,
+        ToastModule,
         InputTextModule,
         InputTextareaModule,
         FormsValidationComponent,
@@ -63,9 +69,9 @@ import { co } from '@fullcalendar/core/internal-common';
         DropdownModule,
         CalendarModule,
         MultiSelectModule,
-        SplitButtonModule, 
-        PaginatorModule, 
-        DialogModule, 
+        SplitButtonModule,
+        PaginatorModule,
+        DialogModule,
         FieldsetModule,
         TagModule,
         ConfirmDialogModule
@@ -76,31 +82,31 @@ import { co } from '@fullcalendar/core/internal-common';
 })
 export class VoyageComponent implements OnInit, OnDestroy {
     destroy$ = new Subject<boolean>();
-    
+
     // Observables
     voyageList$!: Observable<Array<Voyage>>;
-   
-    
+
+
     // Listes de données
     voyages: Voyage[] = [];
-     StatutVol = StatutVol;
-       TypeVol = TypeVol;
-  
+    StatutVol = StatutVol;
+    TypeVol = TypeVol;
+
     // Objet sélectionné
     voyage: Voyage = {};
     selectedVoyage: Voyage = {};
-    
+
     // Configuration du tableau
     cols: any[] = [];
     isDetailModalOpen = false;
-    
+
 
     // Options pour les dropdowns
     typesVol = [
         { label: 'Arrivée', value: TypeVol.ARRIVEE },
         { label: 'Départ', value: TypeVol.DEPART }
     ];
-    
+
     statutsVol = [
         { label: 'Programmé', value: StatutVol.PROGRAMME },
         { label: 'Confirmé', value: StatutVol.CONFIRME },
@@ -109,12 +115,12 @@ export class VoyageComponent implements OnInit, OnDestroy {
         { label: 'Annulé', value: StatutVol.ANNULE }
     ];
 
-     statutsVoyage = [
+    statutsVoyage = [
         { label: 'Actif', value: StatutVoyage.ACTIF },
         { label: 'Inactif', value: StatutVoyage.INACTIF },
         { label: 'Annulé', value: StatutVoyage.ANNULE }
     ];
-    
+
     // État du formulaire et recherche
     keyword = '';
     enableFilter = false;
@@ -127,47 +133,88 @@ export class VoyageComponent implements OnInit, OnDestroy {
     voyageDialog: boolean = false;
     filterDialog: boolean = false;
     loading: boolean = true;
+
     isUpdate = false;
     volFormGroup!: FormGroup;
     filterFormGroup!: FormGroup;
+    aeroportSelected: Aeroport | null = null;
+
     popupHeader = 'Enregistrer un vol';
 
     // Filtres de recherche
     selectedStatuts: StatutVoyage[] = [StatutVoyage.ACTIF];
-    
-   
+    selectedStatutVoaygeur: StatutVoyageur[] = [];
+
+    enregistrementList = signal<Enregistrement[]>([]);
+    aeroportList$!: Observable<Array<Aeroport>>;
+    aeroports: Aeroport[] = [];
+
+
     dateDebut: Date | null = null;
     dateFin: Date | null = null;
     label = "Aéroport arrivé";
 
     constructor(
         private fb: FormBuilder,
-        private store: Store<AppState>, 
+        private store: Store<AppState>,
         private messageService: MessageService,
-        private confirmationService: ConfirmationService
-    ) {}
+        private confirmationService: ConfirmationService,
+        private enregistrementService: EnregistrementService
+
+    ) { }
 
     ngOnInit(): void {
         // Définir les colonnes du tableau
-       this.cols = [
-                { field: 'vol.numeroVol', header: 'N° Vol' },
-                { field: 'passager', header: 'Passager' },
-                { field: 'villeDepart.nom', header: 'Ville départ' },
-                { field: 'villeDestination.nom', header: 'Destination' },
-                { field: 'dateVoyage', header: 'Date voyage' },
-                { field: 'heureVoyage', header: 'Heure voyage' },
-                { field: 'EtatVoyage', header: 'État du voyage' },
-                { field: 'StatutVoyage', header: 'Statut' },
-                { field: 'aeroport.nomAeroport', header: 'Aéroport' }
+        this.cols = [
+            { field: 'vol.numeroVol', header: 'N° Vol' },
+            { field: 'passager', header: 'Passager' },
+            { field: 'villeDepart.nom', header: 'Ville départ' },
+            { field: 'villeDestination.nom', header: 'Destination' },
+            { field: 'dateVoyage', header: 'Date voyage' },
+            { field: 'heureVoyage', header: 'Heure voyage' },
+            { field: 'EtatVoyage', header: 'État du voyage' },
+            { field: 'StatutVoyage', header: 'Statut' },
+            { field: 'aeroport.nomAeroport', header: 'Aéroport' }
         ];
 
 
-        
-        
-        
+
+
+
         this.createFormSearch();
         this.createFormFilter();
-        
+
+        // this.loadEnregistrements();
+        // this.subscribeToStoreUpdates();
+
+        this.enregistrementService.$getEnregistrements().subscribe({
+            next: (response) => {
+                this.enregistrementList.set(response);
+            },
+            error: (error) => {
+                console.error('Erreur lors de la récupération de l\'historique:', error);
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erreur',
+                    detail: 'Impossible de charger l\'historique des vols',
+                    life: 3000
+                });
+            }
+        });
+        // Charger les aéroports
+        this.aeroportList$ = this.store.pipe(select(aeroportSelector.aeroportList));
+        this.store.dispatch(aeroportAction.loadAeroport());
+
+        this.aeroportList$.pipe(takeUntil(this.destroy$))
+            .subscribe(value => {
+                if (value) {
+                    this.aeroports = [...value];
+                    console.log('=== Aéroports assignés ===', this.aeroports);
+                }
+            });
+
+
+
         // Initialiser les dates (7 derniers jours par défaut)
         this.dateDebut = new Date();
         this.dateDebut.setDate(this.dateDebut.getDate() - 7);
@@ -175,38 +222,38 @@ export class VoyageComponent implements OnInit, OnDestroy {
         // Charger les vols avec filtres par défaut
         this.loadVoyagesWithFilters();
 
-        
+
 
         // Écouter les résultats des voyages
-    
+
         this.voyageList$ = this.store.pipe(select(voyageSelector.voyageList));
-         this.voyageList$.pipe(takeUntil(this.destroy$))
-    .subscribe(value => {
-        console.log('=== Données voyages reçues ===', value);
-        
-        if (value && value.length > 0) {
-            console.log('=== Premier voyage détaillé ===');
-            const firstVoyage = value[0];
-            console.log('ID:', firstVoyage.id);
-            console.log('Vol:', firstVoyage.vol);
-            console.log('Nom voyageur:', firstVoyage.nomVoyageur);
-            console.log('Prénom voyageur:', firstVoyage.prenomVoyageur);
-            console.log('Ville Nom D:', firstVoyage.villeNomD);
-            console.log('Ville Nom A:', firstVoyage.villeNomA);
-            console.log('Nom Agent Aéroport:', firstVoyage.nomAgentConnecteAeroport);
-            console.log('Statut:', firstVoyage.statut);
-            console.log('Motif:', firstVoyage.motifVoyage);
-            console.log('Durée séjour:', firstVoyage.dureeSejour);
-        }
-        
-        if (value) {
-            this.loading = false;
-            this.voyages = [...value];
-        } else { 
-            this.loading = false;
-        }
-    });
- 
+        this.voyageList$.pipe(takeUntil(this.destroy$))
+            .subscribe(value => {
+                console.log('=== Données voyages reçues ===', value);
+
+                if (value && value.length > 0) {
+                    console.log('=== Premier voyage détaillé ===');
+                    const firstVoyage = value[0];
+                    console.log('ID:', firstVoyage.id);
+                    console.log('Vol:', firstVoyage.vol);
+                    console.log('Nom voyageur:', firstVoyage.nomVoyageur);
+                    console.log('Prénom voyageur:', firstVoyage.prenomVoyageur);
+                    console.log('Ville Nom D:', firstVoyage.villeNomD);
+                    console.log('Ville Nom A:', firstVoyage.villeNomA);
+                    console.log('Nom Agent Aéroport:', firstVoyage.nomAgentConnecteAeroport);
+                    console.log('Statut:', firstVoyage.statut);
+                    console.log('Motif:', firstVoyage.motifVoyage);
+                    console.log('Durée séjour:', firstVoyage.dureeSejour);
+                }
+
+                if (value) {
+                    this.loading = false;
+                    this.voyages = [...value];
+                } else {
+                    this.loading = false;
+                }
+            });
+
         // Écouter le total d'items pour la pagination
         this.store.pipe(
             select(voyageSelector.voyageTotalItems),
@@ -224,7 +271,7 @@ export class VoyageComponent implements OnInit, OnDestroy {
         ).subscribe(status => {
             if (status && status.message) {
                 this.showToast(status.status, status.message);
-                
+
                 // Recharger après une opération réussie
                 if (status.status === StatusEnum.success) {
                     this.loadVoyagesWithFilters();
@@ -234,42 +281,74 @@ export class VoyageComponent implements OnInit, OnDestroy {
     }
 
     getPassagerFormate(voyage: Voyage): string {
-            if (!voyage) return '';
-            
-            const nom = (voyage.nomVoyageur || '').toUpperCase();
-            const prenom = voyage.prenomVoyageur || '';
-            
-            // Première lettre en majuscule pour le prénom
-            const prenomFormate = prenom.charAt(0).toUpperCase() + prenom.slice(1).toLowerCase();
-            
-            if (!nom && !prenom) return 'Non renseigné';
-            
-            return `${prenomFormate} ${nom}`.trim();
-}
+        if (!voyage) return '';
+
+        const nom = (voyage.nomVoyageur || '').toUpperCase();
+        const prenom = voyage.prenomVoyageur || '';
+
+        // Première lettre en majuscule pour le prénom
+        const prenomFormate = prenom.charAt(0).toUpperCase() + prenom.slice(1).toLowerCase();
+
+        if (!nom && !prenom) return 'Non renseigné';
+
+        return `${prenomFormate} ${nom}`.trim();
+    }
 
 
     foundAeroport() {
-        if(this.volFormGroup.get('typeVol')?.value == TypeVol.ARRIVEE){
+        if (this.volFormGroup.get('typeVol')?.value == TypeVol.ARRIVEE) {
             this.label = "Aéroport depart";
         } else {
-             this.label = "Aéroport arrivé";
+            this.label = "Aéroport arrivé";
         }
     }
     // Ouvrir le modal de détail
-  openDetailModal(voyage: Voyage) {
-    this.selectedVoyage= voyage;
-    this.isDetailModalOpen = true;
-    console.log('Voyage sélectionné pour le détail:', this.selectedVoyage);
-  }
-  
-  // Fermer le modal de détail
-  closeDetailModal() {
-    this.isDetailModalOpen = false;
-    this.selectedVoyage = {};
-  }
-     closeFilterDialog(): void {
+    openDetailModal(voyage: Voyage) {
+        this.selectedVoyage = voyage;
+        this.isDetailModalOpen = true;
+        console.log('Voyage sélectionné pour le détail:', this.selectedVoyage);
+    }
+
+    // Fermer le modal de détail
+    closeDetailModal() {
+        this.isDetailModalOpen = false;
+        this.selectedVoyage = {};
+    }
+    closeFilterDialog(): void {
         this.filterDialog = false;
     }
+
+
+    //    private loadEnregistrements(): void {
+    //         this.loading = true;
+    //                  this.store.dispatch(enregistrementAction.loadEnregistrement());
+    //     }
+
+
+
+    // private subscribeToStoreUpdates(): void {
+    //     // Écouter la liste des enregistrements
+    //     this.store.pipe(
+    //         select(enregistrementSelector.enregistrementList),
+    //         takeUntil(this.destroy$)
+    //     ).subscribe(value => {
+    //         this.loading = false;
+    //         if (value) {
+    //             this.enregistrementList.set(value);
+    //             console.log('=== Enregistrements reçus ===', value);
+    //         }
+    //     });
+
+    //     // Écouter le total d'items pour la pagination
+    //     this.store.pipe(
+    //         select(enregistrementSelector.enregistrementTotalItems),
+    //         takeUntil(this.destroy$)
+    //     ).subscribe(total => {
+    //         if (total !== undefined) {
+    //             this.totalItems = total;
+    //         }
+    //     });
+    // }
 
     private showToast(status: StatusEnum, message: string): void {
         this.messageService.clear();
@@ -310,15 +389,18 @@ export class VoyageComponent implements OnInit, OnDestroy {
         });
     }
 
+
     createFormFilter(): void {
+        this.aeroportSelected = null;
         this.filterFormGroup = this.fb.group({
-            dateDebut: [this.dateDebut, Validators.required],
-            dateFin: [this.dateFin, Validators.required],
-            statutVoyages: [[]]
+            dateDebut: [this.dateDebut],
+            dateFin: [this.dateFin],
+            aeroport: [null],
+            statutVoyages: [null]
         });
     }
 
-   
+
     loadVoyagesWithFilters(): void {
         if (!this.dateDebut || !this.dateFin) {
             this.messageService.add({
@@ -359,10 +441,12 @@ export class VoyageComponent implements OnInit, OnDestroy {
         this.filterFormGroup.patchValue({
             dateDebut: this.dateDebut,
             dateFin: this.dateFin,
-            statutVoyages:  this.selectedStatuts
+            aeroport: this.aeroportSelected,
+            statutVoyages: this.selectedStatuts
         });
         this.filterDialog = true;
     }
+
 
     applyFilters(): void {
         if (this.filterFormGroup.invalid) {
@@ -379,10 +463,10 @@ export class VoyageComponent implements OnInit, OnDestroy {
         this.dateDebut = formValue.dateDebut;
         this.dateFin = formValue.dateFin;
         this.selectedStatuts = formValue.statutVoyages || [];
-        
+
         this.page = 0;
         this.first = 0;
-        
+
         this.filterDialog = false;
         this.loadVoyagesWithFilters();
     }
@@ -392,16 +476,16 @@ export class VoyageComponent implements OnInit, OnDestroy {
         this.dateDebut.setDate(this.dateDebut.getDate() - 7);
         this.dateFin = new Date();
         this.selectedStatuts = [];
-        
+
         this.filterFormGroup.patchValue({
             dateDebut: this.dateDebut,
             dateFin: this.dateFin,
             statutVoyages: []
         });
-        
+
         this.page = 0;
         this.first = 0;
-        
+
         this.loadVoyagesWithFilters();
     }
 
@@ -417,27 +501,27 @@ export class VoyageComponent implements OnInit, OnDestroy {
         table.filterGlobal(input, 'contains');
     }
 
-   
-removeAccents(str: string): string {
-  return str
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
-}
 
-   
-    getTypeVolSeverity(type: TypeVol | undefined): string {
-    switch (type) {
-      case TypeVol.ARRIVEE:
-        return 'info';
-      case TypeVol.DEPART:
-        return 'success';
-      default:
-        return 'secondary';
+    removeAccents(str: string): string {
+        return str
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
     }
-  }
+
+
+    getTypeVolSeverity(type: TypeVol | undefined): string {
+        switch (type) {
+            case TypeVol.ARRIVEE:
+                return 'info';
+            case TypeVol.DEPART:
+                return 'success';
+            default:
+                return 'secondary';
+        }
+    }
     getStatutClass(statut: string | undefined): string {
         if (!statut) return 'badge-secondary';
-        
+
         switch (statut) {
             case StatutVoyage.ANNULE.toString():
                 return 'badge-primary';
@@ -451,19 +535,19 @@ removeAccents(str: string): string {
     }
 
     getStatutDetail(statut: StatutVoyage | undefined): string {
-    if (!statut) return 'secondary';
-    
-    switch (statut.toString()) {
-      case StatutVoyage.ANNULE.toString():
-        return 'primary';
-      case StatutVoyage.ACTIF.toString():
-        return 'success';
-      case StatutVoyage.INACTIF.toString():
-        return 'danger';
-      default:
-        return 'secondary';
+        if (!statut) return 'secondary';
+
+        switch (statut.toString()) {
+            case StatutVoyage.ANNULE.toString():
+                return 'primary';
+            case StatutVoyage.ACTIF.toString():
+                return 'success';
+            case StatutVoyage.INACTIF.toString():
+                return 'danger';
+            default:
+                return 'secondary';
+        }
     }
-  }
 
     cancel(): void {
         this.volFormGroup.reset();
@@ -482,28 +566,68 @@ removeAccents(str: string): string {
         this.destroy$.unsubscribe();
     }
 
-  imprimerFicheVoyage(voyage: Voyage) {
-    const printWindow = window.open('', '_blank', 'width=800,height=600');
-    if (printWindow) {
-        printWindow.document.write(this.generateFicheHTML(voyage));
-        printWindow.document.close();
-        setTimeout(() => {
-            printWindow.print();
-        }, 250);
+    imprimerFicheVoyage(voyage: Voyage) {
+        const printWindow = window.open('', '_blank', 'width=800,height=600');
+        if (printWindow) {
+            printWindow.document.write(this.generateFicheHTML(voyage));
+            printWindow.document.close();
+            setTimeout(() => {
+                printWindow.print();
+            }, 250);
+        }
     }
-}
 
-private generateFicheHTML(voyage: any): string {
-    const dateNaissance = voyage.dateNaissance ? new Date(voyage.dateNaissance) : null;
-    const jour = dateNaissance?.getDate() || '';
-    const mois = dateNaissance?.getMonth() ? dateNaissance.getMonth() + 1 : '';
-    const annee = dateNaissance?.getFullYear() || '';
-    
+   private generateFicheHTML(voyage: any): string {
+    console.log('=== Génération de la fiche pour le voyage ===', this.enregistrementList());
+
+    const enregistrement = this.enregistrementList().find(
+        (e: Enregistrement) => e.voyageId === voyage.id
+    );
+    console.log('=== Enregistrement trouvé pour le voyage ===', enregistrement);
+
     const motifAffaire = voyage.motifVoyage === 'AFFAIRE' ? 'checked' : '';
     const motifFamille = voyage.motifVoyage === 'FAMILLE' ? 'checked' : '';
     const motifEtude = voyage.motifVoyage === 'ETUDE' ? 'checked' : '';
     const motifAutre = !['AFFAIRE', 'FAMILLE', 'ETUDE'].includes(voyage.motifVoyage) ? 'checked' : '';
     
+    if (!enregistrement) {
+        return '';
+    }
+
+    const numeroDocument = enregistrement.numeroDocument || '';
+    const dateDelivrance = enregistrement.dateDelivrance ? new Date(enregistrement.dateDelivrance) : null;
+    const lieuDelivrance = enregistrement.lieuDelivrance || '';
+    const typeDocument =
+        enregistrement.typeDocument === TypeDocument.PASSEPORT
+            ? 'PASSEPORT'
+            : enregistrement.typeDocument === TypeDocument.CNI
+                ? 'CNI'
+                : '';
+    const lieuNaissance = enregistrement.lieuNaissance || '';
+    const nationalite = enregistrement.nationalite || '';
+    const profession = enregistrement.profession || '';
+    const adresseBurkina = enregistrement.adresseBurkina || '';
+    const adresseEtranger = enregistrement.adresseEtranger || '';
+    const paysResidence = enregistrement.paysResidence || '';
+    const dateNaissanceStr = enregistrement.dateNaissance;
+    const volarrive = voyage.vol?.aeroport?.nomAeroport || '';
+    const voldepart = voyage.nomAgentConnecteAeroport || '';
+    
+    console.log('=== voldépart ===', voldepart);
+    console.log('=== volarrive ===', volarrive);
+    console.log('voyage', voyage);
+    
+    let jour = '';
+    let mois = '';
+    let annee = '';
+
+    if (dateNaissanceStr) {
+        const date = new Date(dateNaissanceStr);
+        jour = date.getDate().toString().padStart(2, '0');
+        mois = (date.getMonth() + 1).toString().padStart(2, '0');
+        annee = date.getFullYear().toString();
+    }
+
     return `<!DOCTYPE html>
 <html>
 <head>
@@ -517,7 +641,7 @@ private generateFicheHTML(voyage: any): string {
         }
         
         body {
-            font-family: 'Courier New', monospace;
+            font-family: 'Arial', 'Helvetica', sans-serif;
             background: #f0f0f0;
             padding: 20px;
         }
@@ -534,62 +658,77 @@ private generateFicheHTML(voyage: any): string {
         
         .header {
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             border-bottom: 3px solid #000;
             padding-bottom: 10px;
         }
         
+        /* ✅ DRAPEAU BURKINA FASO CORRIGÉ */
         .flag {
-            height: 40px;
+            height: 60px;
             display: flex;
-            margin: 0 auto 10px;
+            flex-direction: column;
+            margin: 0 auto 15px;
             width: 100%;
+            border: 2px solid #000;
+            position: relative;
         }
         
         .flag-red {
             background: #EF2B2D;
-            height: 100%;
-            flex: 1;
-            position: relative;
+            height: 50%;
+            width: 100%;
         }
         
         .flag-green {
             background: #009E49;
-            height: 100%;
-            flex: 1;
+            height: 50%;
+            width: 100%;
         }
         
+        /* ✅ ÉTOILE AU CENTRE DES DEUX COULEURS */
         .star {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             color: #FCD116;
-            font-size: 24px;
+            font-size: 32px;
+            text-shadow: 0 0 3px rgba(0,0,0,0.3);
+            z-index: 10;
         }
         
         .titre {
             font-weight: bold;
-            font-size: 13px;
+            font-size: 14px;
             margin-bottom: 5px;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         .titre-en {
             font-size: 11px;
             font-style: italic;
+            color: #333;
         }
         
+        /* ✅ FILIGRANE AVEC LE LOGO */
         .watermark {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            opacity: 0.05;
-            font-size: 150px;
-            font-weight: bold;
+            opacity: 0.08;
             pointer-events: none;
             z-index: 1;
+            width: 400px;
+            height: 400px;
+        }
+        
+        .watermark img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
         
         .content {
@@ -598,73 +737,85 @@ private generateFicheHTML(voyage: any): string {
         }
         
         .ligne {
-            margin-bottom: 12px;
+            margin-bottom: 14px;
             display: flex;
             align-items: baseline;
-            font-size: 11px;
+            font-size: 12px;
+            line-height: 1.4;
         }
         
         .label {
-            font-weight: bold;
-            min-width: 180px;
+            font-weight: 600;
+            min-width: 200px;
+            color: #000;
         }
         
         .label-en {
             font-style: italic;
-            font-size: 9px;
+            font-size: 10px;
             display: block;
             font-weight: normal;
+            color: #555;
         }
         
         .dots {
             border-bottom: 1px dotted #000;
             flex: 1;
-            min-height: 18px;
-            padding-left: 5px;
+            min-height: 20px;
+            padding-left: 8px;
+            padding-bottom: 2px;
         }
         
         .date-naissance {
             display: inline-flex;
-            gap: 20px;
+            gap: 15px;
+            align-items: center;
         }
         
         .date-box {
             border-bottom: 1px dotted #000;
-            min-width: 60px;
+            min-width: 70px;
             text-align: center;
-            padding: 0 5px;
+            padding: 2px 8px;
+            font-weight: 600;
         }
         
         .motif-section {
-            margin-top: 15px;
-            padding-top: 10px;
-            border-top: 1px solid #ccc;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid #ccc;
         }
         
         .checkbox-group {
             display: flex;
-            gap: 30px;
-            margin-top: 5px;
+            gap: 25px;
+            margin-top: 10px;
             flex-wrap: wrap;
         }
         
         .checkbox-item {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
         }
         
         .checkbox {
-            width: 15px;
-            height: 15px;
+            width: 18px;
+            height: 18px;
             border: 2px solid #000;
             display: inline-block;
+            position: relative;
+            background: white;
         }
         
         .checkbox.checked::after {
             content: '✓';
             font-weight: bold;
-            font-size: 14px;
+            font-size: 16px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
         
         @media print {
@@ -678,20 +829,37 @@ private generateFicheHTML(voyage: any): string {
                 margin: 0;
                 padding: 10mm;
             }
+            
+            /* Assurer que le filigrane est visible à l'impression */
+            .watermark {
+                opacity: 0.08;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            /* Assurer que les couleurs du drapeau sont imprimées */
+            .flag-red,
+            .flag-green {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
         }
     </style>
 </head>
 <body>
     <div class="carte">
-        <div class="watermark">BURKINA FASO</div>
+        <!-- ✅ FILIGRANE AVEC LE LOGO -->
+        <div class="watermark">
+            <img src="assets/demo/images/armoirieBF.png" alt="Armoiries Burkina Faso">
+        </div>
         
         <div class="content">
             <div class="header">
+                <!-- ✅ DRAPEAU BURKINA FASO CORRIGÉ -->
                 <div class="flag">
-                    <div class="flag-red">
-                        <span class="star">★</span>
-                    </div>
+                    <div class="flag-red"></div>
                     <div class="flag-green"></div>
+                    <span class="star">★</span>
                 </div>
                 <div class="titre">
                     CARTE INTERNATIONALE D'EMBARQUEMENT / DÉBARQUEMENT
@@ -705,7 +873,7 @@ private generateFicheHTML(voyage: any): string {
                 <span class="label">DATE :</span>
                 <span class="dots">${voyage.dateVoyage || ''}</span>
                 <span class="label" style="margin-left: 20px;">VOL N° / FLIGHT N° :</span>
-                <span class="dots">${voyage.vol.numero || ''}</span>
+                <span class="dots">${voyage.vol?.numero || ''}</span>
             </div>
             
             <div class="ligne">
@@ -717,7 +885,7 @@ private generateFicheHTML(voyage: any): string {
             
             <div class="ligne">
                 <span class="label">Prénoms :<span class="label-en">Given names</span></span>
-                <span class="dots">${voyage.prenomVoyageur|| ''}</span>
+                <span class="dots">${voyage.prenomVoyageur || ''}</span>
             </div>
             
             <div class="ligne">
@@ -736,17 +904,17 @@ private generateFicheHTML(voyage: any): string {
             
             <div class="ligne">
                 <span class="label">Lieu de naissance :<span class="label-en">Place of birth</span></span>
-                <span class="dots">${voyage.lieuNaissance || ''}</span>
+                <span class="dots">${lieuNaissance}</span>
             </div>
             
             <div class="ligne">
                 <span class="label">Nationalité :<span class="label-en">Nationality</span></span>
-                <span class="dots">${voyage.nationalite || ''}</span>
+                <span class="dots">${nationalite || ''}</span>
             </div>
             
             <div class="ligne">
                 <span class="label">Profession :</span>
-                <span class="dots">${voyage.profession || ''}</span>
+                <span class="dots">${profession || ''}</span>
             </div>
             
             <div class="ligne">
@@ -756,59 +924,59 @@ private generateFicheHTML(voyage: any): string {
             
             <div class="ligne">
                 <span class="label">Adresse à l'étranger :<span class="label-en">Adress abroad</span></span>
-                <span class="dots">${voyage.adresseEtranger || ''}</span>
+                <span class="dots">${adresseEtranger || ''}</span>
                 <span style="margin-left: 10px;">Tél :</span>
                 <span class="dots" style="min-width: 100px;">${voyage.telephoneEtranger || ''}</span>
             </div>
             
             <div class="ligne">
                 <span class="label">Adresse au Burkina Faso :<span class="label-en">Adress in Burkina Faso</span></span>
-                <span class="dots">${voyage.adresseBurkina || ''}</span>
+                <span class="dots">${adresseBurkina || ''}</span>
                 <span style="margin-left: 10px;">Tél :</span>
                 <span class="dots" style="min-width: 100px;">${voyage.telephoneBurkina || ''}</span>
             </div>
             
             <div class="ligne">
                 <span class="label">Pays de résidence :<span class="label-en">Country of permanent residence</span></span>
-                <span class="dots">${voyage.paysResidence || ''}</span>
+                <span class="dots">${paysResidence || ''}</span>
             </div>
             
             <div class="ligne">
                 <span class="label">Venant de :<span class="label-en">Coming from</span></span>
-                <span class="dots">${voyage.aeroportDepart || ''}</span>
+                <span class="dots">${voldepart || ''}</span>
             </div>
             
             <div class="ligne">
                 <span class="label">Allant à :<span class="label-en">Going to</span></span>
-                <span class="dots">${voyage.aeroportDestination || ''}</span>
+                <span class="dots">${volarrive || ''}</span>
             </div>
             
             <div class="ligne">
                 <span class="label">Passeport N° :<span class="label-en">Passport N°</span></span>
-                <span class="dots">${voyage.numeroDocument || ''}</span>
+                <span class="dots">${numeroDocument}</span>
             </div>
             
             <div class="ligne">
                 <span class="label">Date et lieu de délivrance :<span class="label-en">Date and place of issue</span></span>
-                <span class="dots">${voyage.dateDelivrance || ''} - ${voyage.lieuDelivrance || ''}</span>
+                <span class="dots">${enregistrement.dateDelivrance || ''} - ${enregistrement.lieuDelivrance || ''}</span>
             </div>
             
             <div class="motif-section">
                 <div class="ligne">
-                    <span class="label" style="font-size: 12px;">Motif du voyage / Purpose of travel :</span>
+                    <span class="label" style="font-size: 13px; font-weight: 700;">Motif du voyage / Purpose of travel :</span>
                 </div>
                 <div class="checkbox-group">
                     <div class="checkbox-item">
                         <span class="checkbox ${motifAffaire}"></span>
-                        <span>Conférence / Affaires<br><i style="font-size: 9px;">Conference / Business</i></span>
+                        <span>Conférence / Affaires<br><i style="font-size: 10px;">Conference / Business</i></span>
                     </div>
                     <div class="checkbox-item">
                         <span class="checkbox ${motifFamille}"></span>
-                        <span>Vacances / Famille<br><i style="font-size: 9px;">Holidays / Family</i></span>
+                        <span>Vacances / Famille<br><i style="font-size: 10px;">Holidays / Family</i></span>
                     </div>
                     <div class="checkbox-item">
                         <span class="checkbox ${motifEtude}"></span>
-                        <span>Études<br><i style="font-size: 9px;">Studies</i></span>
+                        <span>Études<br><i style="font-size: 10px;">Studies</i></span>
                     </div>
                     <div class="checkbox-item">
                         <span class="checkbox ${motifAutre}"></span>
@@ -817,7 +985,7 @@ private generateFicheHTML(voyage: any): string {
                 </div>
             </div>
             
-            <div class="ligne" style="margin-top: 15px;">
+            <div class="ligne" style="margin-top: 20px;">
                 <span class="label">Durée du séjour :<span class="label-en">Length of the staying</span></span>
                 <span class="dots">${voyage.dureeSejour || ''} jour(s)</span>
             </div>

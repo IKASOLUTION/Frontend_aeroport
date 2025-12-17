@@ -28,14 +28,14 @@
                     <span>Procédure</span>
                 </a>
             </li>
-            <li *ngIf="isAuthenticated()">
+            <li >
                 <button pButton pRipple type="button" [routerLink]="['/site-aeroport/preEnregistrement']"
                     label="Pré-enregistrement" icon="pi pi-user"
                     class="p-button-rounded bg-green-600 border-none m-0 mt-3 md:mt-0 md:ml-5" pStyleClass="#menu"
                     enterFromClass="hidden" leaveToClass="hidden"></button>
             </li>
 
-             <li *ngIf="isAuthenticated()">
+             <li >
                 <button pButton pRipple type="button" [routerLink]="['/site-aeroport/mesPreEnregistrement']"
                     label="Mes Enregistrement" icon="pi pi-user"
                     class="p-button-rounded bg-green-600 border-none m-0 mt-3 md:mt-0 md:ml-5" pStyleClass="#menu"
