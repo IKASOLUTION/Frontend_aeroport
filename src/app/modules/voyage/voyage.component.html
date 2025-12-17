@@ -248,12 +248,7 @@
         <!-- Section: Informations Générales du Voyage -->
         <p-fieldset legend="Informations Générales du Voyage" [toggleable]="true" [collapsed]="false" styleClass="mb-4">
             <div class="grid">
-                <div class="field col-12 md:col-4">
-                    <span class="font-bold text-gray-700">
-                        <i class="pi pi-tag mr-2"></i>ID Voyage:
-                    </span>
-                    <span class="ml-2 font-semibold">{{ selectedVoyage.id || 'N/A' }}</span>
-                </div>
+                
 
 
                 <div class="field col-12 md:col-4">
@@ -529,13 +524,6 @@
                         selectedVoyage.vol?.nomAgentConnecteAeroport || 'N/A' }}</span>
                 </div>
 
-                <div class="field col-12 md:col-6">
-                    <span class="font-bold text-gray-700">
-                        <i class="pi pi-database mr-2"></i>ID Aéroport:
-                    </span>
-                    <span class="ml-2">{{ selectedVoyage.aeroportId || selectedVoyage.aeroportForUserId || 'N/A'
-                        }}</span>
-                </div>
             </div>
         </p-fieldset>
     </div>

@@ -200,6 +200,19 @@ export class RegisterComponent implements OnInit, OnDestroy {
 
 
 
+    getStatutClass(statut: string | null | undefined): string {
+        if (statut === 'EN_ATTENTE') {
+            return 'statut-attente';
+        }
+
+        if (statut === 'VALIDE') {
+            return 'statut-valide';
+        }
+
+        return 'statut-default';
+    }
+
+
 
 
     private subscribeToStoreUpdates(): void {
@@ -241,42 +254,42 @@ export class RegisterComponent implements OnInit, OnDestroy {
             console.warn('Le numéro de document est manquant pour cet enregistrement.', this.selectedEnregistrement);
             return;
         } else {
-             this.enregistrementService.ListVols(this.selectedEnregistrement.numeroDocument).subscribe({
+            this.enregistrementService.ListVols(this.selectedEnregistrement.numeroDocument).subscribe({
                 next: (response) => {
                     console.log('=== Réponse des enregistrements par numéro de document ===', response);
                     this.listeVols.set(response);
-                     console.log('=== Réponse des enregistrements par numéro de document 1===',  this.listeVols());
+                    console.log('=== Réponse des enregistrements par numéro de document 1===', this.listeVols());
                 },
                 error: (error) => {
                     console.error('Erreur lors de la récupération des enregistrements par numéro de document:', error);
                 }
-            }); 
+            });
         }
 
-        
+
 
     }
 
 
     getMotifSeverity(motif: string): string {
-    const severityMap: { [key: string]: string } = {
-        'FAMILLE': 'info',
-        'TOURISME': 'success',
-        'AFFAIRE': 'warning',
-        'ETUDE': 'primary'
-    };
-    return severityMap[motif] || 'secondary';
-}
+        const severityMap: { [key: string]: string } = {
+            'FAMILLE': 'info',
+            'TOURISME': 'success',
+            'AFFAIRE': 'warning',
+            'ETUDE': 'primary'
+        };
+        return severityMap[motif] || 'secondary';
+    }
 
-getStatutSeverity(statut: string): string {
-    const severityMap: { [key: string]: string } = {
-        'EN_ATTENTE': 'warning',
-        'VALIDE': 'success',
-        'REJETE': 'danger',
-        'EN_COURS': 'info'
-    };
-    return severityMap[statut] || 'secondary';
-}
+    getStatutSeverity(statut: string): string {
+        const severityMap: { [key: string]: string } = {
+            'EN_ATTENTE': 'warning',
+            'VALIDE': 'success',
+            'REJETE': 'danger',
+            'EN_COURS': 'info'
+        };
+        return severityMap[statut] || 'secondary';
+    }
 
     // Fermer le modal de détail
     closeDetailModal(): void {

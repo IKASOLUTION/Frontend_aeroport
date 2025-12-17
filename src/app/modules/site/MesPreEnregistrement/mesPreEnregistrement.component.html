@@ -12,8 +12,8 @@
         </div>
     </div>
 
-    <!-- Section de recherche -->
-    <div class="search-section">
+  
+    <!-- <div class="search-section">
         <div class="container">
             <div class="search-card">
                 <div class="search-header">
@@ -31,7 +31,7 @@
                     </button>
                 </div>
 
-                <!-- Filtres actifs -->
+             
                 <div class="active-filters" *ngIf="dateDebut && dateFin">
                     <span class="filter-tag">
                         <i class="pi pi-calendar"></i>
@@ -44,7 +44,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Section des résultats -->
     <div class="results-section">
@@ -67,93 +67,92 @@
             </div>
 
             <!-- Grille de résultats -->
-            <div class="results-grid" *ngIf="!loading() && enregistrementList().length > 0">
-                <p-table #dt [value]="enregistrementList()"
-                    [globalFilterFields]="['nomFamille', 'prenom', 'numeroDocument', 'nationalite', 'aeroportDepart', 'aeroportDestination']">
-                    <ng-template pTemplate="body" let-enregistrement>
-                        <div class="flight-card">
-                            <!-- En-tête de la carte -->
-                            <div class="card-header">
-                                <div class="passenger-info">
-                                    <div class="avatar">
-                                        <i class="pi pi-user"></i>
-                                    </div>
-                                    <div class="passenger-details">
-                                        <h3>{{enregistrement.nomFamille}} {{enregistrement.prenom}}</h3>
-                                        <p class="document-info">
-                                            <i class="pi pi-id-card"></i>
-                                            {{enregistrement.typeDocument}}: {{enregistrement.numeroDocument}}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="status-badge" [ngClass]="'status-' + enregistrement.statut?.toLowerCase()">
-                                    {{enregistrement.statut}}
-                                </div>
-                            </div>
-
-                            <!-- Itinéraire du vol -->
-                            <div class="flight-route">
-                                <div class="route-point">
-                                    <div class="location-icon">
-                                        <i class="pi pi-map-marker"></i>
-                                    </div>
-                                    <div class="location-details">
-                                        <span class="location-label">Départ</span>
-                                        <span class="location-name">{{enregistrement.aeroportDepart}}</span>
-                                    </div>
-                                </div>
-
-                                <div class="route-line">
-                                    <i class="pi pi-arrow-right"></i>
-                                </div>
-
-                                <div class="route-point">
-                                    <div class="location-icon">
-                                        <i class="pi pi-map-marker"></i>
-                                    </div>
-                                    <div class="location-details">
-                                        <span class="location-label">Arrivée</span>
-                                        <span class="location-name">{{enregistrement.aeroportDestination}}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Détails du vol -->
-                            <div class="flight-details">
-                                <div class="detail-item">
-                                    <i class="pi pi-calendar"></i>
-                                    <div>
-                                        <span class="detail-label">Date</span>
-                                        <span class="detail-value">{{enregistrement.dateVoyage | date:'dd/MM/yyyy'}}</span>
-                                    </div>
-                                </div>
-                                <div class="detail-item">
-                                    <i class="pi pi-clock"></i>
-                                    <div>
-                                        <span class="detail-label">Heure</span>
-                                        <span class="detail-value">{{enregistrement.heureVoyage}}</span>
-                                    </div>
-                                </div>
-                                <div class="detail-item">
-                                    <i class="pi pi-globe"></i>
-                                    <div>
-                                        <span class="detail-label">Nationalité</span>
-                                        <span class="detail-value">{{enregistrement.nationalite}}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Pied de carte -->
-                            <div class="card-footer">
-                                <button class="btn-details" (click)="selectEnregistrement(enregistrement)">
-                                    <i class="pi pi-eye"></i>
-                                    Voir les détails complets
-                                </button>
-                            </div>
-                        </div>
-                    </ng-template>
-                </p-table>
+            <!-- Grille de résultats avec cartes grises -->
+<div class="results-grid" *ngIf="!loading() && enregistrementList().length > 0">
+    <!-- ✅ Container de la grille -->
+    <div class="flight-cards-grid">
+        <div class="flight-card" *ngFor="let enregistrement of enregistrementList()">
+            <!-- En-tête de la carte -->
+            <div class="card-header">
+                <div class="passenger-info">
+                    <div class="avatar">
+                        <i class="pi pi-user"></i>
+                    </div>
+                    <div class="passenger-details">
+                        <h3>{{enregistrement.nomFamille}} {{enregistrement.prenom}}</h3>
+                        <p class="document-info">
+                            <i class="pi pi-id-card"></i>
+                            {{enregistrement.typeDocument}}: {{enregistrement.numeroDocument}}
+                        </p>
+                    </div>
+                </div>
+                <div class="status-badge" [ngClass]="'status-' + enregistrement.statut?.toLowerCase()">
+                    {{enregistrement.statut}}
+                </div>
             </div>
+
+            <!-- Itinéraire du vol -->
+            <div class="flight-route">
+                <div class="route-point">
+                    <div class="location-icon">
+                        <i class="pi pi-map-marker"></i>
+                    </div>
+                    <div class="location-details">
+                        <span class="location-label">Départ</span>
+                        <span class="location-name">{{enregistrement.aeroportDepart}}</span>
+                    </div>
+                </div>
+
+                <div class="route-line">
+                    <i class="pi pi-arrow-right"></i>
+                </div>
+
+                <div class="route-point">
+                    <div class="location-icon">
+                        <i class="pi pi-map-marker"></i>
+                    </div>
+                    <div class="location-details">
+                        <span class="location-label">Arrivée</span>
+                        <span class="location-name">{{enregistrement.aeroportDestination}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Détails du vol -->
+            <div class="flight-details">
+                <div class="detail-item">
+                    <i class="pi pi-calendar"></i>
+                    <div>
+                        <span class="detail-label">Date</span>
+                        <span class="detail-value">{{enregistrement.dateVoyage | date:'dd/MM/yyyy'}}</span>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <i class="pi pi-clock"></i>
+                    <div>
+                        <span class="detail-label">Heure</span>
+                        <span class="detail-value">{{enregistrement.heureVoyage}}</span>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <i class="pi pi-globe"></i>
+                    <div>
+                        <span class="detail-label">Nationalité</span>
+                        <span class="detail-value">{{enregistrement.nationalite}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pied de carte -->
+            <div class="card-footer">
+                <button class="btn-details" (click)="selectEnregistrement(enregistrement)">
+                    <i class="pi pi-eye"></i>
+                    Voir les détails complets
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
             <!-- Pagination -->
             <div class="pagination-container" *ngIf="!loading() && enregistrementList().length > 0">
@@ -208,6 +207,7 @@
                 </div>
             </div>
         </div>
+
     </form>
 
     <ng-template pTemplate="footer">
@@ -220,7 +220,113 @@
     </ng-template>
 </p-dialog>
 
+<!-- Dialogue de détails -->
+<p-dialog 
+    [(visible)]="isDetailModalOpen" 
+    [modal]="true" 
+    [draggable]="false"
+    [style]="{width: '950px', maxWidth: '95vw'}" 
+    header="Détails de votre réservation" 
+    styleClass="detail-dialog">
 
+    <div class="detail-content">
+        <!-- Informations passager -->
+        <div class="detail-section">
+            <h3>
+                <i class="pi pi-user"></i>
+                Informations Passager
+            </h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="label">Nom complet</span>
+                    <span class="value">{{selectedEnregistrement.nomFamille}} {{selectedEnregistrement.prenom}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Date de naissance</span>
+                    <span class="value">{{selectedEnregistrement.dateNaissance | date:'dd/MM/yyyy'}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Nationalité</span>
+                    <span class="value">{{selectedEnregistrement.nationalite}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Profession</span>
+                    <span class="value">{{selectedEnregistrement.profession || 'Non renseignée'}}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Document d'identité -->
+        <div class="detail-section">
+            <h3>
+                <i class="pi pi-id-card"></i>
+                Document d'identité
+            </h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="label">Type de document</span>
+                    <span class="value">{{selectedEnregistrement.typeDocument}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Numéro</span>
+                    <span class="value">{{selectedEnregistrement.numeroDocument}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Date de délivrance</span>
+                    <span class="value">{{selectedEnregistrement.dateDelivrance | date:'dd/MM/yyyy'}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Lieu de délivrance</span>
+                    <span class="value">{{selectedEnregistrement.lieuDelivrance}}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informations du vol -->
+        <div class="detail-section">
+            <h3>
+                <i class="pi pi-send"></i>
+                Informations du Vol
+            </h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="label">Aéroport de départ</span>
+                    <span class="value">{{selectedEnregistrement.aeroportDepart}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Destination</span>
+                    <span class="value">{{selectedEnregistrement.aeroportDestination}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Date du vol</span>
+                    <span class="value">{{selectedEnregistrement.dateVoyage | date:'dd/MM/yyyy'}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Heure de départ</span>
+                    <span class="value">{{selectedEnregistrement.heureVoyage}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Durée du séjour</span>
+                    <span class="value">{{selectedEnregistrement.dureeSejour}} jour(s)</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Type de voyage</span>
+                    <span class="value">{{selectedEnregistrement.etatVoyage}}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historique des vols -->
+        
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="dialog-footer">
+            <button pButton label="Fermer" icon="pi pi-times" class="p-button-text" (click)="closeDetailModal()">
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>
 
 <!-- Notifications -->
 <p-toast position="top-right"></p-toast>

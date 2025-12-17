@@ -1,4 +1,4 @@
-// mesPreEnregistrement.component.scss - VERSION FRONT OFFICE MODERNE
+// ✅ CSS COMPLET - THÈME VERT BURKINA FASO
 
 // Variables - Thème Burkina Faso
 $primary-color: #10b981;
@@ -13,808 +13,320 @@ $border-color: #e5e7eb;
 $bg-light: #f9fafb;
 $white: #ffffff;
 
-// 🎨 CONTAINER PRINCIPAL
-.public-enregistrement-page {
-    min-height: 100vh;
-    background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
-    position: relative;
-
-    // Motif de fond subtil
-    &::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-image: 
-            radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.03) 0%, transparent 50%),
-            radial-gradient(circle at 80% 80%, rgba(252, 211, 77, 0.03) 0%, transparent 50%);
-        pointer-events: none;
-        z-index: 0;
-    }
-}
-
-.container {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
-    position: relative;
-    z-index: 1;
-}
-
-// 🏆 HEADER INTÉGRÉ SOUS NAVBAR
-.page-header {
-    // ✅ Espacement pour être sous le navbar
-    margin-top: 0;
-    padding: 3rem 0 2rem;
-    position: relative;
-    z-index: 1;
-
-    .container {
-        text-align: center;
-    }
-
-    .page-title {
-        font-size: 2.75rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, $secondary-color 0%, $primary-color 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: 0.75rem;
-        animation: fadeInDown 0.6s ease-out;
-        letter-spacing: -0.02em;
-    }
-
-    .page-subtitle {
-        font-size: 1.125rem;
-        color: $text-light;
-        font-weight: 500;
-        animation: fadeInUp 0.6s 0.1s backwards;
-        max-width: 600px;
-        margin: 0 auto;
-    }
-}
-
-// 🔍 SECTION RECHERCHE MODERNE
-.search-section {
-    margin-bottom: 2.5rem;
-}
-
-.search-card {
-    background: $white;
-    border-radius: 20px;
-    padding: 2rem;
-    box-shadow: 
-        0 1px 3px rgba(0, 0, 0, 0.05),
-        0 10px 40px rgba(16, 185, 129, 0.08);
-    animation: fadeInUp 0.6s 0.2s backwards;
-    border: 1px solid rgba(16, 185, 129, 0.1);
-    transition: all 0.3s ease;
-
-    &:hover {
-        box-shadow: 
-            0 1px 3px rgba(0, 0, 0, 0.05),
-            0 20px 50px rgba(16, 185, 129, 0.12);
-    }
-
-    .search-header {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-
-        i {
-            font-size: 1.5rem;
-            color: $primary-color;
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
-            width: 48px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px;
-        }
-
-        h2 {
-            font-size: 1.5rem;
-            color: $text-dark;
-            margin: 0;
-            font-weight: 700;
-        }
-    }
-
-    .search-controls {
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-
-        .btn-filter {
-            padding: 1rem 1.75rem;
-            background: linear-gradient(135deg, $secondary-color, $primary-color);
-            color: $white;
-            border: none;
-            border-radius: 14px;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            position: relative;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
-
-            &:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 8px 25px rgba(16, 185, 129, 0.35);
-            }
-
-            &:active {
-                transform: translateY(-1px);
-            }
-
-            .filter-count {
-                background: $danger-color;
-                color: $white;
-                border-radius: 50%;
-                width: 24px;
-                height: 24px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 0.75rem;
-                font-weight: 700;
-                position: absolute;
-                top: -6px;
-                right: -6px;
-                border: 2px solid $white;
-                box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
-            }
-        }
-    }
-
-    .active-filters {
-        display: flex;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-        align-items: center;
-        margin-top: 1.5rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid $border-color;
-
-        .filter-tag {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
-            color: $primary-color;
-            padding: 0.625rem 1.25rem;
-            border-radius: 25px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            border: 1px solid rgba(16, 185, 129, 0.2);
-
-            i {
-                font-size: 0.875rem;
-            }
-        }
-
-        .btn-clear-filters {
-            padding: 0.625rem 1.25rem;
-            background: transparent;
-            color: $danger-color;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 25px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-
-            &:hover {
-                background: $danger-color;
-                color: $white;
-                border-color: $danger-color;
-            }
-        }
-    }
-}
-
-// 📊 SECTION RÉSULTATS
-.results-section {
-    .loading-state {
-        text-align: center;
-        padding: 5rem 2rem;
-        background: $white;
-        border-radius: 20px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-
-        i {
-            font-size: 4rem;
-            color: $primary-color;
-            margin-bottom: 1.5rem;
-        }
-
-        p {
-            font-size: 1.125rem;
-            color: $text-light;
-            font-weight: 500;
-        }
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 5rem 2rem;
-        background: $white;
-        border-radius: 20px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-
-        i {
-            font-size: 5rem;
-            color: $border-color;
-            margin-bottom: 2rem;
-        }
-
-        h3 {
-            font-size: 1.75rem;
-            color: $text-dark;
-            margin-bottom: 0.75rem;
-            font-weight: 700;
-        }
-
-        p {
-            color: $text-light;
-            font-size: 1.125rem;
-            margin-bottom: 2rem;
-        }
-
-        .btn-primary {
-            padding: 1rem 2.5rem;
-            background: linear-gradient(135deg, $secondary-color, $primary-color);
-            color: $white;
-            border: none;
-            border-radius: 14px;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
-
-            &:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 8px 25px rgba(16, 185, 129, 0.35);
-            }
-        }
-    }
-}
-
-// 🎴 CARTES DE VOL MODERNES
 .results-grid {
+    padding: 20px 0;
+}
+
+.flight-cards-grid {
     display: grid;
-    gap: 1.75rem;
-}
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 24px;
+    padding: 0;
 
-.flight-card {
-    background: $white;
-    border-radius: 20px;
-    padding: 2rem;
-    box-shadow: 
-        0 1px 3px rgba(0, 0, 0, 0.05),
-        0 10px 40px rgba(16, 185, 129, 0.08);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    animation: fadeInUp 0.6s;
-    border: 1px solid rgba(16, 185, 129, 0.1);
-    position: relative;
-    overflow: hidden;
-
-    // Effet de brillance au hover
-    &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(16, 185, 129, 0.1),
-            transparent
-        );
-        transition: left 0.5s ease;
-    }
-
-    &:hover {
-        transform: translateY(-8px);
-        box-shadow: 
-            0 1px 3px rgba(0, 0, 0, 0.05),
-            0 20px 60px rgba(16, 185, 129, 0.15);
-        border-color: $primary-color;
-
-        &::before {
-            left: 100%;
-        }
-    }
-
-    .card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 2rem;
-        padding-bottom: 1.5rem;
-        border-bottom: 2px solid $bg-light;
-
-        .passenger-info {
-            display: flex;
-            gap: 1.25rem;
-            align-items: center;
-
-            .avatar {
-                width: 64px;
-                height: 64px;
-                background: linear-gradient(135deg, $secondary-color, $primary-color);
-                border-radius: 16px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: $white;
-                font-size: 1.75rem;
-                box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
-            }
-
-            .passenger-details {
-                h3 {
-                    font-size: 1.375rem;
-                    color: $text-dark;
-                    margin: 0 0 0.5rem 0;
-                    font-weight: 700;
-                }
-
-                .document-info {
-                    color: $text-light;
-                    font-size: 0.9375rem;
-                    display: flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                    font-weight: 500;
-
-                    i {
-                        color: $primary-color;
-                    }
-                }
-            }
-        }
-
-        .status-badge {
-            padding: 0.625rem 1.25rem;
-            border-radius: 25px;
-            font-weight: 700;
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-
-            &.status-valide {
-                background: linear-gradient(135deg, #d1fae5, #a7f3d0);
-                color: $secondary-color;
-            }
-
-            &.status-en_attente {
-                background: linear-gradient(135deg, #fef3c7, #fde68a);
-                color: #92400e;
-            }
-
-            &.status-annule, &.status-rejete {
-                background: linear-gradient(135deg, #fee2e2, #fecaca);
-                color: #991b1b;
-            }
-        }
-    }
-
-    .flight-route {
-        display: flex;
-        align-items: center;
-        gap: 2rem;
-        margin-bottom: 2rem;
-        padding: 1.5rem;
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.02));
-        border-radius: 16px;
-
-        .route-point {
-            flex: 1;
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-
-            .location-icon {
-                width: 48px;
-                height: 48px;
-                background: linear-gradient(135deg, $primary-color, $secondary-color);
-                border-radius: 12px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: $white;
-                font-size: 1.25rem;
-                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
-            }
-
-            .location-details {
-                display: flex;
-                flex-direction: column;
-                gap: 0.25rem;
-
-                .location-label {
-                    font-size: 0.75rem;
-                    color: $text-light;
-                    text-transform: uppercase;
-                    letter-spacing: 0.08em;
-                    font-weight: 600;
-                }
-
-                .location-name {
-                    font-size: 1.125rem;
-                    color: $text-dark;
-                    font-weight: 700;
-                }
-            }
-        }
-
-        .route-line {
-            color: $primary-color;
-            font-size: 2rem;
-            animation: pulse 2s infinite;
-        }
-    }
-
-    .flight-details {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-        gap: 1.25rem;
-        margin-bottom: 2rem;
-
-        .detail-item {
-            display: flex;
-            gap: 1rem;
-            align-items: flex-start;
-            padding: 1rem;
-            background: $bg-light;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-
-            &:hover {
-                background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.04));
-            }
-
-            i {
-                color: $primary-color;
-                font-size: 1.375rem;
-                margin-top: 0.125rem;
-            }
-
-            > div {
-                display: flex;
-                flex-direction: column;
-                gap: 0.25rem;
-
-                .detail-label {
-                    font-size: 0.75rem;
-                    color: $text-light;
-                    text-transform: uppercase;
-                    letter-spacing: 0.08em;
-                    font-weight: 600;
-                }
-
-                .detail-value {
-                    font-size: 1rem;
-                    color: $text-dark;
-                    font-weight: 700;
-                }
-            }
-        }
-    }
-
-    .card-footer {
-        .btn-details {
-            width: 100%;
-            padding: 1rem;
-            background: linear-gradient(135deg, $secondary-color, $primary-color);
-            color: $white;
-            border: none;
-            border-radius: 14px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
-
-            i {
-                font-size: 1.125rem;
-            }
-
-            &:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 8px 25px rgba(16, 185, 129, 0.35);
-            }
-
-            &:active {
-                transform: translateY(-1px);
-            }
-        }
-    }
-}
-
-// 📄 PAGINATION
-.pagination-container {
-    margin-top: 3rem;
-    display: flex;
-    justify-content: center;
-
-    ::ng-deep .p-paginator {
+    .flight-card {
+        // ✅ Fond blanc avec bordure verte
         background: $white;
-        border-radius: 14px;
+        border-radius: 20px;
         border: 1px solid rgba(16, 185, 129, 0.1);
-        padding: 1rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 
+                    0 10px 40px rgba(16, 185, 129, 0.08);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+        position: relative;
 
-        .p-paginator-pages .p-paginator-page {
-            min-width: 2.5rem;
-            height: 2.5rem;
-            border-radius: 8px;
-            transition: all 0.3s ease;
+        // Effet de brillance vert au hover
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(16, 185, 129, 0.1),
+                transparent
+            );
+            transition: left 0.5s ease;
+        }
 
-            &.p-highlight {
-                background: linear-gradient(135deg, $secondary-color, $primary-color);
-                border-color: transparent;
-                box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+        &:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 
+                        0 20px 60px rgba(16, 185, 129, 0.15);
+            border-color: $primary-color;
+
+            &::before {
+                left: 100%;
             }
-
-            &:hover:not(.p-highlight) {
-                background: rgba(16, 185, 129, 0.1);
-            }
-        }
-    }
-}
-
-// 🎭 DIALOGUES
-::ng-deep .filter-dialog,
-::ng-deep .detail-dialog {
-    .p-dialog-header {
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.02));
-        border-bottom: 2px solid $bg-light;
-        padding: 1.5rem 2rem;
-
-        .p-dialog-title {
-            font-weight: 700;
-            color: $text-dark;
-            font-size: 1.5rem;
-        }
-    }
-
-    .p-dialog-content {
-        padding: 2rem;
-    }
-
-    .filter-group {
-        margin-bottom: 1.75rem;
-
-        label {
-            display: block;
-            color: $text-dark;
-            font-weight: 700;
-            margin-bottom: 0.75rem;
-            font-size: 0.9375rem;
         }
 
-        .small-label {
-            font-size: 0.875rem;
-            color: $text-light;
-            font-weight: 600;
-        }
-
-        .date-range {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.25rem;
-        }
-
-        .dropdown-item {
+        // ✅ EN-TÊTE VERT
+        .card-header {
+            background: linear-gradient(135deg, $secondary-color 0%, $primary-color 100%);
+            padding: 20px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 0.75rem;
-            padding: 0.5rem;
+            gap: 16px;
 
-            i {
-                color: $primary-color;
-                font-size: 1.125rem;
-            }
-        }
-    }
-
-    .dialog-footer {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.75rem;
-        padding: 1.5rem 2rem;
-        border-top: 2px solid $bg-light;
-
-        .p-button-primary {
-            background: linear-gradient(135deg, $secondary-color, $primary-color);
-            border: none;
-            padding: 0.75rem 2rem;
-            border-radius: 12px;
-            font-weight: 700;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
-
-            &:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
-            }
-        }
-
-        .p-button-text {
-            color: $text-light;
-            font-weight: 600;
-
-            &:hover {
-                background: $bg-light;
-            }
-        }
-    }
-}
-
-// Dialogue de détail
-.detail-dialog {
-    .detail-content {
-        .detail-section {
-            margin-bottom: 2.5rem;
-            padding-bottom: 2rem;
-            border-bottom: 2px solid $bg-light;
-
-            &:last-child {
-                border-bottom: none;
-                margin-bottom: 0;
-                padding-bottom: 0;
-            }
-
-            h3 {
-                color: $text-dark;
-                font-size: 1.375rem;
-                font-weight: 700;
-                margin-bottom: 1.75rem;
+            .passenger-info {
                 display: flex;
                 align-items: center;
-                gap: 0.875rem;
+                gap: 16px;
+                flex: 1;
 
-                i {
-                    color: $white;
-                    background: linear-gradient(135deg, $secondary-color, $primary-color);
-                    width: 40px;
-                    height: 40px;
+                .avatar {
+                    width: 64px;
+                    height: 64px;
+                    background: rgba(255, 255, 255, 0.2);
+                    border-radius: 16px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    border-radius: 10px;
-                    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+                    flex-shrink: 0;
+                    backdrop-filter: blur(10px);
+                    border: 2px solid rgba(255, 255, 255, 0.3);
+                    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+
+                    i {
+                        font-size: 28px;
+                        color: white;
+                    }
                 }
-            }
 
-            .info-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-                gap: 1.75rem;
+                .passenger-details {
+                    flex: 1;
+                    min-width: 0;
 
-                .info-item {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 0.5rem;
-                    padding: 1.25rem;
-                    background: $bg-light;
-                    border-radius: 12px;
-                    transition: all 0.3s ease;
-
-                    &:hover {
-                        background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.04));
-                    }
-
-                    .label {
-                        font-size: 0.875rem;
-                        color: $text-light;
-                        font-weight: 600;
-                        text-transform: uppercase;
-                        letter-spacing: 0.05em;
-                    }
-
-                    .value {
-                        font-size: 1.125rem;
-                        color: $text-dark;
+                    h3 {
+                        margin: 0 0 6px 0;
+                        font-size: 18px;
                         font-weight: 700;
-                    }
-                }
-            }
-
-            .history-list {
-                display: flex;
-                flex-direction: column;
-                gap: 1.25rem;
-
-                .history-item {
-                    display: flex;
-                    align-items: center;
-                    gap: 1.5rem;
-                    padding: 1.25rem;
-                    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.02));
-                    border-radius: 14px;
-                    border: 1px solid rgba(16, 185, 129, 0.1);
-                    transition: all 0.3s ease;
-
-                    &:hover {
-                        border-color: $primary-color;
-                        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+                        color: white;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
                     }
 
-                    .history-date {
+                    .document-info {
+                        margin: 0;
+                        font-size: 13px;
+                        color: rgba(255, 255, 255, 0.9);
                         display: flex;
                         align-items: center;
-                        gap: 0.625rem;
-                        color: $text-light;
-                        font-size: 0.9375rem;
+                        gap: 6px;
+
+                        i {
+                            font-size: 14px;
+                        }
+                    }
+                }
+            }
+
+            // ✅ BADGES DE STATUT - THÈME BURKINA
+            .status-badge {
+                padding: 8px 16px;
+                border-radius: 25px;
+                font-size: 12px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                white-space: nowrap;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+                &.status-valide {
+                    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+                    color: $secondary-color;
+                    border: none;
+                }
+
+                &.status-en_attente {
+                    background: linear-gradient(135deg, #fef3c7, #fde68a);
+                    color: #92400e;
+                    border: none;
+                }
+
+                &.status-annule,
+                &.status-rejete {
+                    background: linear-gradient(135deg, #fee2e2, #fecaca);
+                    color: #991b1b;
+                    border: none;
+                }
+
+                &.status-en_cours {
+                    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+                    color: #1e40af;
+                    border: none;
+                }
+            }
+        }
+
+        // ✅ ITINÉRAIRE VERT
+        .flight-route {
+            padding: 24px 20px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.02));
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            border-bottom: 2px solid $bg-light;
+
+            .route-point {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                flex: 1;
+
+                .location-icon {
+                    width: 48px;
+                    height: 48px;
+                    background: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+
+                    i {
+                        font-size: 20px;
+                        color: white;
+                    }
+                }
+
+                .location-details {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                    min-width: 0;
+
+                    .location-label {
+                        font-size: 11px;
                         font-weight: 600;
-                        min-width: 140px;
-
-                        i {
-                            color: $primary-color;
-                        }
+                        text-transform: uppercase;
+                        color: $text-light;
+                        letter-spacing: 0.5px;
                     }
 
-                    .history-route {
-                        flex: 1;
-                        color: $text-dark;
+                    .location-name {
+                        font-size: 15px;
                         font-weight: 700;
-                        font-size: 1.0625rem;
-
-                        i {
-                            margin: 0 0.75rem;
-                            color: $primary-color;
-                        }
+                        color: $text-dark;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
                     }
+                }
+            }
+
+            .route-line {
+                flex-shrink: 0;
+                padding: 0 8px;
+
+                i {
+                    font-size: 24px;
+                    color: $primary-color;
+                    animation: pulse 2s infinite;
+                }
+            }
+        }
+
+        // ✅ DÉTAILS AVEC ICÔNES VERTES
+        .flight-details {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            background: white;
+
+            .detail-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 12px;
+                background: $bg-light;
+                border-radius: 12px;
+                transition: all 0.3s ease;
+
+                &:hover {
+                    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.04));
+                }
+
+                > i {
+                    font-size: 20px;
+                    color: $primary-color;
+                    flex-shrink: 0;
+                }
+
+                > div {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                    min-width: 0;
+
+                    .detail-label {
+                        font-size: 11px;
+                        font-weight: 600;
+                        text-transform: uppercase;
+                        color: $text-light;
+                        letter-spacing: 0.5px;
+                    }
+
+                    .detail-value {
+                        font-size: 14px;
+                        font-weight: 700;
+                        color: $text-dark;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+                }
+            }
+        }
+
+        // ✅ BOUTON VERT
+        .card-footer {
+            padding: 16px 20px;
+            background: $bg-light;
+            border-top: 2px solid $bg-light;
+
+            .btn-details {
+                width: 100%;
+                padding: 12px 20px;
+                background: linear-gradient(135deg, $secondary-color, $primary-color);
+                color: white;
+                border: none;
+                border-radius: 14px;
+                font-size: 14px;
+                font-weight: 700;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+
+                i {
+                    font-size: 16px;
+                }
+
+                &:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.35);
+                }
+
+                &:active {
+                    transform: translateY(-1px);
                 }
             }
         }
     }
 }
 
-// ✨ ANIMATIONS
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes fadeInDown {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
+// ✅ ANIMATION PULSE
 @keyframes pulse {
     0%, 100% {
         opacity: 1;
@@ -826,73 +338,123 @@ $white: #ffffff;
     }
 }
 
-// 📱 RESPONSIVE
+// ✅ RESPONSIVE - TABLETTES
+@media (max-width: 1024px) {
+    .flight-cards-grid {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 20px;
+
+        .flight-card {
+            .card-header {
+                padding: 16px;
+
+                .passenger-info {
+                    .avatar {
+                        width: 56px;
+                        height: 56px;
+
+                        i {
+                            font-size: 24px;
+                        }
+                    }
+
+                    .passenger-details h3 {
+                        font-size: 16px;
+                    }
+                }
+            }
+
+            .flight-details {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+
+                .detail-item:last-child {
+                    grid-column: 1 / -1;
+                }
+            }
+        }
+    }
+}
+
+// ✅ RESPONSIVE - MOBILES
 @media (max-width: 768px) {
-    .page-header {
-        padding: 2rem 0 1.5rem;
+    .flight-cards-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
 
-        .page-title {
-            font-size: 2rem;
-        }
+        .flight-card {
+            padding: 1.5rem;
 
-        .page-subtitle {
-            font-size: 1rem;
-        }
-    }
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
 
-    .search-card {
-        padding: 1.5rem;
+                .status-badge {
+                    align-self: flex-start;
+                }
+            }
 
-        .search-controls {
-            flex-direction: column;
+            .flight-route {
+                padding: 20px 16px;
+                flex-direction: column;
+                gap: 16px;
 
-            .btn-filter {
-                width: 100%;
-                justify-content: center;
+                .route-point {
+                    width: 100%;
+
+                    .location-icon {
+                        width: 40px;
+                        height: 40px;
+
+                        i {
+                            font-size: 18px;
+                        }
+                    }
+
+                    .location-details {
+                        .location-name {
+                            font-size: 14px;
+                        }
+                    }
+                }
+
+                .route-line {
+                    transform: rotate(90deg);
+
+                    i {
+                        font-size: 20px;
+                    }
+                }
+            }
+
+            .flight-details {
+                grid-template-columns: 1fr;
+                padding: 16px;
+            }
+
+            .card-footer {
+                padding: 12px 16px;
+
+                .btn-details {
+                    padding: 14px 20px;
+                }
             }
         }
     }
+}
 
-    .flight-card {
-        padding: 1.5rem;
-
-        .card-header {
-            flex-direction: column;
-            gap: 1.25rem;
-
-            .passenger-info {
-                width: 100%;
-            }
-
-            .status-badge {
-                align-self: flex-start;
-            }
-        }
-
-        .flight-route {
-            flex-direction: column;
-            gap: 1.25rem;
-            padding: 1.25rem;
-
-            .route-line {
-                transform: rotate(90deg);
-            }
-        }
-
-        .flight-details {
-            grid-template-columns: 1fr;
-        }
+// ✅ RESPONSIVE - PETITS ÉCRANS
+@media (max-width: 480px) {
+    .results-grid {
+        padding: 12px 0;
     }
 
-    .detail-dialog .detail-content .detail-section {
-        .info-grid {
-            grid-template-columns: 1fr;
-        }
+    .flight-cards-grid {
+        gap: 12px;
 
-        .history-list .history-item {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;
+        .flight-card {
+            border-radius: 16px;
         }
     }
 }
