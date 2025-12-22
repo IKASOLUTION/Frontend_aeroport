@@ -2,7 +2,9 @@
 <div style="height: 68px; backdrop-filter: blur(17px);"
     class="flex justify-content-between align-items-center z-3 px-5 bg-black-alpha-40 top-0 w-full fixed">
     <div>
-        <a href="/" class="text-3xl font-bold text-white no-underline">NEYWAONGO</a>
+        <a [routerLink]="['/']" class="text-3xl font-bold text-white no-underline hover:text-green-300 transition-colors transition-duration-200">
+            NEYWAONGO
+        </a>
     </div>
 
     <a pRipple class="cursor-pointer block lg:hidden text-white" pStyleClass="@next" enterFromClass="hidden"
@@ -14,63 +16,116 @@
         class="align-items-center flex-grow-1 hidden lg:flex absolute lg:static w-full lg:px-0 z-3 shadow-2 lg:shadow-none"
         style="top:68px; right: 0%;">
         <ul
-            class="list-none p-3 lg:p-0 m-0 ml-auto flex lg:align-items-center select-none flex-column lg:flex-row cursor-pointer surface-0 lg:bg-transparent">
+            class="list-none p-3 lg:p-0 m-0 ml-auto flex lg:align-items-center select-none flex-column lg:flex-row surface-0 lg:bg-transparent gap-2">
+            
             <li>
-                <a class="flex m-0 md:ml-5 px-0 py-3 text-white line-height-3 no-underline hover:text-green-300"
-                    [routerLink]="['/']" pStyleClass="#menu" enterFromClass="hidden" leaveToClass="hidden">
+                <a class="flex align-items-center px-3 py-3 text-white font-medium no-underline hover:bg-white-alpha-10 border-round transition-all transition-duration-200"
+                    [routerLink]="['/']" 
+                    routerLinkActive="bg-green-600"
+                    [routerLinkActiveOptions]="{exact: true}"
+                    pStyleClass="#menu" 
+                    enterFromClass="hidden" 
+                    leaveToClass="hidden">
+                    <i class="pi pi-home mr-2"></i>
                     <span>Accueil</span>
                 </a>
             </li>
+
             <li>
-                <a class="flex m-0 md:ml-5 px-0 py-3 text-white line-height-3 no-underline hover:text-green-300"
-                    [routerLink]="['/']" fragment="procedure" pStyleClass="#menu" enterFromClass="hidden"
+                <a class="flex align-items-center px-3 py-3 text-white font-medium no-underline hover:bg-white-alpha-10 border-round transition-all transition-duration-200"
+                    [routerLink]="['/']" 
+                    fragment="procedure"
+                    pStyleClass="#menu" 
+                    enterFromClass="hidden"
                     leaveToClass="hidden">
+                    <i class="pi pi-list-check mr-2"></i>
                     <span>Procédure</span>
                 </a>
             </li>
-            <li >
-                <button pButton pRipple type="button" [routerLink]="['/site-aeroport/preEnregistrement']"
-                    label="Pré-enregistrement" icon="pi pi-user"
-                    class="p-button-rounded bg-green-600 border-none m-0 mt-3 md:mt-0 md:ml-5" pStyleClass="#menu"
-                    enterFromClass="hidden" leaveToClass="hidden"></button>
-            </li>
 
-             <li >
-                <button pButton pRipple type="button" [routerLink]="['/site-aeroport/mesPreEnregistrement']"
-                    label="Mes Enregistrement" icon="pi pi-user"
-                    class="p-button-rounded bg-green-600 border-none m-0 mt-3 md:mt-0 md:ml-5" pStyleClass="#menu"
-                    enterFromClass="hidden" leaveToClass="hidden"></button>
-            </li>
             <li>
-                <a class="flex m-0 md:ml-5 px-0 py-3 text-white line-height-3 no-underline hover:text-green-300"
-                    [routerLink]="['/']" fragment="conditions" pStyleClass="#menu" enterFromClass="hidden"
+                <a class="flex align-items-center px-3 py-3 text-white font-medium no-underline hover:bg-white-alpha-10 border-round transition-all transition-duration-200"
+                    [routerLink]="['/']" 
+                    fragment="conditions"
+                    pStyleClass="#menu" 
+                    enterFromClass="hidden"
                     leaveToClass="hidden">
+                    <i class="pi pi-info-circle mr-2"></i>
                     <span>Conditions</span>
                 </a>
             </li>
+
             <li>
-                <a class="flex m-0 md:ml-5 px-0 py-3 text-white line-height-3 no-underline hover:text-green-300"
-                    [routerLink]="['/']" fragment="compagnies" pStyleClass="#menu" enterFromClass="hidden"
+                <a class="flex align-items-center px-3 py-3 text-white font-medium no-underline hover:bg-white-alpha-10 border-round transition-all transition-duration-200"
+                    [routerLink]="['/']" 
+                    fragment="compagnies"
+                    pStyleClass="#menu" 
+                    enterFromClass="hidden"
                     leaveToClass="hidden">
+                    <i class="pi pi-building mr-2"></i>
                     <span>Compagnies</span>
                 </a>
             </li>
+
             <li>
-                <a class="flex m-0 md:ml-5 px-0 py-3 text-white line-height-3 no-underline hover:text-green-300"
-                    [routerLink]="['/']" fragment="faq" pStyleClass="#menu" enterFromClass="hidden"
+                <a class="flex align-items-center px-3 py-3 text-white font-medium no-underline hover:bg-white-alpha-10 border-round transition-all transition-duration-200"
+                    [routerLink]="['/']" 
+                    fragment="faq"
+                    pStyleClass="#menu" 
+                    enterFromClass="hidden"
                     leaveToClass="hidden">
+                    <i class="pi pi-question-circle mr-2"></i>
                     <span>FAQ</span>
                 </a>
             </li>
+
+            <!-- Divider -->
+            <li class="hidden lg:block">
+                <div class="mx-2 border-left-1 border-white-alpha-30" style="height: 30px;"></div>
+            </li>
+
             <li>
-                <button *ngIf="!isAuthenticated()" pButton pRipple type="button"
-                    [routerLink]="['/site-aeroport/auth']" label="Connexion" icon="pi pi-user"
-                    class="p-button-rounded bg-green-600 border-none m-0 mt-3 md:mt-0 md:ml-5" pStyleClass="#menu"
-                    enterFromClass="hidden" leaveToClass="hidden"></button>
-                <button *ngIf="isAuthenticated()" pButton pRipple type="button" (click)="logout()"
-                    label="Déconnexion" icon="pi pi-sign-out"
-                    class="p-button-rounded bg-red-500 border-none m-0 mt-3 md:mt-0 md:ml-5">
-                </button>
+                <a class="flex align-items-center px-3 py-3 text-white font-medium no-underline hover:bg-white-alpha-10 border-round transition-all transition-duration-200"
+                    [routerLink]="['/site-aeroport/preEnregistrement']"
+                    routerLinkActive="bg-green-600 shadow-2"
+                    pStyleClass="#menu"
+                    enterFromClass="hidden" 
+                    leaveToClass="hidden">
+                    <i class="pi pi-pencil mr-2"></i>
+                    <span>Pré-enregistrement</span>
+                </a>
+            </li>
+
+            <li>
+                <a class="flex align-items-center px-3 py-3 text-white font-medium no-underline hover:bg-white-alpha-10 border-round transition-all transition-duration-200"
+                    [routerLink]="['/site-aeroport/mesPreEnregistrement']"
+                    routerLinkActive="bg-green-600 shadow-2"
+                    pStyleClass="#menu"
+                    enterFromClass="hidden" 
+                    leaveToClass="hidden">
+                    <i class="pi pi-list mr-2"></i>
+                    <span>Mes Enregistrements</span>
+                </a>
+            </li>
+
+            <li>
+                <a *ngIf="!isAuthenticated()" 
+                    class="flex align-items-center px-3 py-3 text-white font-medium no-underline hover:bg-white-alpha-10 border-round transition-all transition-duration-200"
+                    [routerLink]="['/site-aeroport/auth']"
+                    routerLinkActive="bg-green-600 shadow-2"
+                    pStyleClass="#menu"
+                    enterFromClass="hidden" 
+                    leaveToClass="hidden">
+                    <i class="pi pi-sign-in mr-2"></i>
+                    <span>Connexion</span>
+                </a>
+
+                <a *ngIf="isAuthenticated()" 
+                    class="flex align-items-center px-3 py-3 text-white font-medium no-underline bg-red-500 hover:bg-red-600 border-round transition-all transition-duration-200 cursor-pointer"
+                    (click)="logout()">
+                    <i class="pi pi-sign-out mr-2"></i>
+                    <span>Déconnexion</span>
+                </a>
             </li>
         </ul>
     </div>

@@ -86,10 +86,9 @@
                         </p>
                     </div>
                 </div>
-              <div class="status-badge"
-     [ngClass]="'status-' + (enregistrement.statut ? enregistrement.statut.toString().toLowerCase() : '')">
-  {{ enregistrement.statut }}
-</div>
+                <div class="status-badge" [ngClass]="'status-' + enregistrement.statut">
+                    {{enregistrement.statut}}
+                </div>
             </div>
 
             <!-- Itinéraire du vol -->

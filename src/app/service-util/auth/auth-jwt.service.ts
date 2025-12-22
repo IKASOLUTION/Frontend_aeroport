@@ -139,6 +139,7 @@ export class AuthServerProvider {
   refreshToken(): Observable<any> {
       const refreshToken = this.getRefreshToken();
       if (!refreshToken) {
+      
           this.logout();
           return throwError(() => new Error('Aucun token de rafraîchissement disponible'));
       }
@@ -163,6 +164,7 @@ export class AuthServerProvider {
    * Déconnecte l'utilisateur
    */
   logout(): void {
+    console.log('Déconnexion en cours...====================');
       // Optionnel : appeler l'API de déconnexion
       const refreshToken = this.getRefreshToken();
       if (refreshToken) {
