@@ -22,6 +22,7 @@ import * as globalSelector from '../../store/global-config/selector';
 import { Compagnie } from 'src/app/store/compagnie/model';
 import { StatusEnum, Statut } from 'src/app/store/global-config/model';
 import { CountryService } from 'src/app/demo/service/country.service';
+import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'app-compagnie',
@@ -42,7 +43,8 @@ import { CountryService } from 'src/app/demo/service/country.service';
     FormsModule,
     DropdownModule,
     DialogModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    TagModule
   ],
   providers: [MessageService, ConfirmationService]
 })
@@ -258,6 +260,16 @@ export class CompagnieComponent implements OnInit, OnDestroy {
     this.popupHeader = 'Nouvelle Compagnie';
   }
 
+  getStatutSeverity(statut: string): 'success' | 'danger' | 'secondary' | 'info' | 'warning' | 'contrast' {
+    switch(statut?.toUpperCase()) {
+        case 'ACTIF':
+            return 'success';     // Vert - Compagnie active ✅
+        case 'INACTIF':
+            return 'danger';      // Rouge - Compagnie inactive ❌
+        default:
+            return 'secondary';
+    }
+}
   ngOnDestroy(): void {
     this.destroy$.next(true);
     this.destroy$.unsubscribe();

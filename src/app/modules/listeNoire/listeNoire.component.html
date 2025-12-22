@@ -1,42 +1,45 @@
 <div class="grid">
     <h3 class="text-3xl font-semibold text-gray-800">Gestion de la Liste Noire</h3>
   <div class="col-12 md:col-12">
-  <p-table #dt
-         styleClass="p-datatable-gridlines p-datatable-sm p-datatable"
-         [value]="listeNoires"
-         [columns]="cols"
-         [rows]="5"
-         [paginator]="true"
-         [rowsPerPageOptions]="[5, 10, 20, 30]"
-         [showCurrentPageReport]="true"
-         [globalFilterFields]="['nom', 'prenom', 'lieuNaissance', 'motif', 'numeroCnib', 'numeroNip', 'statut']"
-         currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
-         [(selection)]="selectedListeNoire"
-         selectionMode="single"
-         [rowHover]="true"
-         dataKey="id"
-         [loading]="loading">
+  <p-table 
+    #dt
+    styleClass="p-datatable-gridlines p-datatable-sm"
+    [value]="listeNoires"
+    [columns]="cols"
+    [rows]="5"
+    [paginator]="true"
+    [rowsPerPageOptions]="[5, 10, 20, 30]"
+    [showCurrentPageReport]="true"
+    [globalFilterFields]="['nom', 'prenom', 'lieuNaissance', 'motif', 'numeroCnib', 'numeroNip', 'statut']"
+    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+    [(selection)]="selectedListeNoire"
+    selectionMode="single"
+    [rowHover]="true"
+    dataKey="id"
+    [loading]="loading"
+    [filterDelay]="300">
 
     <!-- Barre d'action et recherche -->
     <ng-template pTemplate="caption">
         <div class="flex justify-content-between flex-column sm:flex-row">
             <div>
-                <button pButton 
-                        label="Nouvelle personne" 
-                        class="p-button-success mr-2 mb-2" 
-                        icon="pi pi-plus"
-                        (click)="openNew()">
-                </button>
+                <p-button 
+                    label="Nouvelle personne" 
+                    severity="success"
+                    icon="pi pi-plus"
+                    (onClick)="openNew()">
+                </p-button>
             </div>
 
             <span class="p-input-icon-left mb-2">
                 <i class="pi pi-search"></i>
-                <input pInputText 
-                       type="text"
-                       #filter
-                       (input)="onGlobalFilter(dt, $event)"
-                       placeholder="Rechercher..."
-                       class="w-full"/>
+                <input 
+                    pInputText 
+                    type="text"
+                    #filter
+                    (input)="onGlobalFilter(dt, $event)"
+                    placeholder="Rechercher..."
+                    class="w-full"/>
             </span>
         </div>
     </ng-template>
@@ -45,97 +48,145 @@
     <ng-template pTemplate="header">
         <!-- PREMIÈRE LIGNE : Titres des colonnes -->
         <tr>
-            <th style="font-weight: bold;">Nom</th>
-            <th style="font-weight: bold;">Prénom</th>
-            <th style="font-weight: bold;">Date de naissance</th>
-            <th style="font-weight: bold;">Lieu de naissance</th>
-            <th style="font-weight: bold;">Motif</th>
-            <th style="font-weight: bold;">N° NIP</th>
-            <th style="font-weight: bold;">N° CNIB</th>
-            <th style="font-weight: bold;">Statut</th>
-            <th style="font-weight: bold;" class="text-center">Actions</th>
+            <th pSortableColumn="nom">
+                <div class="flex align-items-center gap-2">
+                    Nom
+                    <p-sortIcon field="nom"></p-sortIcon>
+                </div>
+            </th>
+            <th pSortableColumn="prenom">
+                <div class="flex align-items-center gap-2">
+                    Prénom
+                    <p-sortIcon field="prenom"></p-sortIcon>
+                </div>
+            </th>
+            <th pSortableColumn="dateNaissance">
+                <div class="flex align-items-center gap-2">
+                    Date de naissance
+                    <p-sortIcon field="dateNaissance"></p-sortIcon>
+                </div>
+            </th>
+            <th pSortableColumn="lieuNaissance">
+                <div class="flex align-items-center gap-2">
+                    Lieu de naissance
+                    <p-sortIcon field="lieuNaissance"></p-sortIcon>
+                </div>
+            </th>
+            <th pSortableColumn="motif">
+                <div class="flex align-items-center gap-2">
+                    Motif
+                    <p-sortIcon field="motif"></p-sortIcon>
+                </div>
+            </th>
+            <th pSortableColumn="numeroNip">
+                <div class="flex align-items-center gap-2">
+                    N° NIP
+                    <p-sortIcon field="numeroNip"></p-sortIcon>
+                </div>
+            </th>
+            <th pSortableColumn="numeroCnib">
+                <div class="flex align-items-center gap-2">
+                    N° CNIB
+                    <p-sortIcon field="numeroCnib"></p-sortIcon>
+                </div>
+            </th>
+            <th pSortableColumn="statut">
+                <div class="flex align-items-center gap-2">
+                    Statut
+                    <p-sortIcon field="statut"></p-sortIcon>
+                </div>
+            </th>
+            <th class="text-center">Actions</th>
         </tr>
         
         <!-- DEUXIÈME LIGNE : Champs de recherche par colonne -->
         <tr>
             <th>
-                <span class="p-input-icon-left">
+                <span class="p-input-icon-left w-full">
                     <i class="pi pi-search"></i>
-                    <input pInputText type="text" 
-                           (input)="dt.filter($any($event.target).value, 'nom', 'contains')"
-                           placeholder="Rechercher"
-                           class="w-full" 
-                           style="width: 100%;" />
+                    <input 
+                        pInputText 
+                        type="text" 
+                        (input)="dt.filter($any($event.target).value, 'nom', 'contains')"
+                        placeholder="Rechercher"
+                        class="w-full" />
                 </span>
             </th>
             <th>
-                <span class="p-input-icon-left">
+                <span class="p-input-icon-left w-full">
                     <i class="pi pi-search"></i>
-                    <input pInputText type="text" 
-                           (input)="dt.filter($any($event.target).value, 'prenom', 'contains')"
-                           placeholder="Rechercher"
-                           class="w-full" 
-                           style="width: 100%;" />
+                    <input 
+                        pInputText 
+                        type="text" 
+                        (input)="dt.filter($any($event.target).value, 'prenom', 'contains')"
+                        placeholder="Rechercher"
+                        class="w-full" />
                 </span>
             </th>
             <th>
-                <span class="p-input-icon-left">
+                <span class="p-input-icon-left w-full">
                     <i class="pi pi-search"></i>
-                    <input pInputText type="text" 
-                           (input)="dt.filter($any($event.target).value, 'dateNaissance', 'contains')"
-                           placeholder="Rechercher"
-                           class="w-full" 
-                           style="width: 100%;" />
+                    <input 
+                        pInputText 
+                        type="text" 
+                        (input)="dt.filter($any($event.target).value, 'dateNaissance', 'contains')"
+                        placeholder="Rechercher"
+                        class="w-full" />
                 </span>
             </th>
             <th>
-                <span class="p-input-icon-left">
+                <span class="p-input-icon-left w-full">
                     <i class="pi pi-search"></i>
-                    <input pInputText type="text" 
-                           (input)="dt.filter($any($event.target).value, 'lieuNaissance', 'contains')"
-                           placeholder="Rechercher"
-                           class="w-full" 
-                           style="width: 100%;" />
+                    <input 
+                        pInputText 
+                        type="text" 
+                        (input)="dt.filter($any($event.target).value, 'lieuNaissance', 'contains')"
+                        placeholder="Rechercher"
+                        class="w-full" />
                 </span>
             </th>
             <th>
-                <span class="p-input-icon-left">
+                <span class="p-input-icon-left w-full">
                     <i class="pi pi-search"></i>
-                    <input pInputText type="text" 
-                           (input)="dt.filter($any($event.target).value, 'motif', 'contains')"
-                           placeholder="Rechercher"
-                           class="w-full" 
-                           style="width: 100%;" />
+                    <input 
+                        pInputText 
+                        type="text" 
+                        (input)="dt.filter($any($event.target).value, 'motif', 'contains')"
+                        placeholder="Rechercher"
+                        class="w-full" />
                 </span>
             </th>
             <th>
-                <span class="p-input-icon-left">
+                <span class="p-input-icon-left w-full">
                     <i class="pi pi-search"></i>
-                    <input pInputText type="text" 
-                           (input)="dt.filter($any($event.target).value, 'numeroNip', 'contains')"
-                           placeholder="Rechercher"
-                           class="w-full" 
-                           style="width: 100%;" />
+                    <input 
+                        pInputText 
+                        type="text" 
+                        (input)="dt.filter($any($event.target).value, 'numeroNip', 'contains')"
+                        placeholder="Rechercher"
+                        class="w-full" />
                 </span>
             </th>
             <th>
-                <span class="p-input-icon-left">
+                <span class="p-input-icon-left w-full">
                     <i class="pi pi-search"></i>
-                    <input pInputText type="text" 
-                           (input)="dt.filter($any($event.target).value, 'numeroCnib', 'contains')"
-                           placeholder="Rechercher"
-                           class="w-full" 
-                           style="width: 100%;" />
+                    <input 
+                        pInputText 
+                        type="text" 
+                        (input)="dt.filter($any($event.target).value, 'numeroCnib', 'contains')"
+                        placeholder="Rechercher"
+                        class="w-full" />
                 </span>
             </th>
             <th>
-                <span class="p-input-icon-left">
+                <span class="p-input-icon-left w-full">
                     <i class="pi pi-search"></i>
-                    <input pInputText type="text" 
-                           (input)="dt.filter($any($event.target).value, 'statut', 'contains')"
-                           placeholder="Rechercher"
-                           class="w-full" 
-                           style="width: 100%;" />
+                    <input 
+                        pInputText 
+                        type="text" 
+                        (input)="dt.filter($any($event.target).value, 'statut', 'contains')"
+                        placeholder="Rechercher"
+                        class="w-full" />
                 </span>
             </th>
             <th></th> <!-- Colonne actions sans filtre -->
@@ -145,45 +196,51 @@
     <!-- Corps du tableau -->
     <ng-template pTemplate="body" let-item>
         <tr [pSelectableRow]="item">
-            <td class="table-separator">{{item.nom}}</td>
-            <td class="table-separator">{{item.prenom}}</td>
-            <td class="table-separator">{{item.dateNaissance | date:'dd/MM/yyyy'}}</td>
-            <td class="table-separator">{{item.lieuNaissance}}</td>
-            <td class="table-separator">{{item.motif}}</td>
-            <td class="table-separator">{{item.numeroNip || 'N/A'}}</td>
-            <td class="table-separator">{{item.numeroCnib || 'N/A'}}</td>
-            <td class="table-separator">
-                <span [ngClass]="{
-                    'status-badge status-actif': item.statut === 'ACTIF',
-                    'status-badge status-levee': item.statut === 'LEVEE',
-                    'status-badge status-inactif': item.statut === 'INACTIF'}">
-                    {{item.statut}}
-                </span>
+            <td>{{ item.nom }}</td>
+            <td>{{ item.prenom }}</td>
+            <td>{{ item.dateNaissance | date:'dd/MM/yyyy' }}</td>
+            <td>{{ item.lieuNaissance }}</td>
+            <td>{{ item.motif }}</td>
+            <td>{{ item.numeroNip || 'N/A' }}</td>
+            <td>{{ item.numeroCnib || 'N/A' }}</td>
+            <td>
+                <p-tag 
+                    [value]="item.statut"
+                    [severity]="getStatutSeverity(item.statut)">
+                </p-tag>
             </td>
             <td class="text-center">
-                <button pButton 
+                <div class="flex align-items-center justify-content-center gap-2">
+                    <p-button 
                         icon="pi pi-pencil"
-                        class="p-button-rounded p-button-info mr-2"
+                        [rounded]="true"
+                        [text]="true"
+                        severity="info"
                         pTooltip="Modifier" 
                         tooltipPosition="top"
-                        (click)="update(item)">
-                </button>
+                        (onClick)="update(item)">
+                    </p-button>
 
-                <button pButton 
-                        [icon]="item.statut === 'ACTIF' ? 'pi pi-ban' : 'pi pi-check-circle'" 
-                        [class]="'p-button-rounded mr-2 ' + (item.statut === 'ACTIF' ? 'p-button-warning' : 'p-button-success')"
+                    <p-button 
+                        [icon]="item.statut === 'ACTIF' ? 'pi pi-ban' : 'pi pi-check-circle'"
+                        [rounded]="true"
+                        [text]="true"
+                        [severity]="item.statut === 'ACTIF' ? 'warning' : 'success'"
                         [pTooltip]="item.statut === 'ACTIF' ? 'Lever la mesure' : 'Réactiver'"
                         tooltipPosition="top"
-                        (click)="confirmChangeStatusListeNoire(item)">
-                </button>
+                        (onClick)="confirmChangeStatusListeNoire(item)">
+                    </p-button>
 
-                <button pButton 
+                    <p-button 
                         icon="pi pi-trash"
-                        class="p-button-rounded p-button-danger"
+                        [rounded]="true"
+                        [text]="true"
+                        severity="danger"
                         pTooltip="Supprimer"
                         tooltipPosition="top"
-                        (click)="confirmDelete(item)">
-                </button>
+                        (onClick)="confirmDelete(item)">
+                    </p-button>
+                </div>
             </td>
         </tr>
     </ng-template>
@@ -191,8 +248,23 @@
     <!-- Message si vide -->
     <ng-template pTemplate="emptymessage">
         <tr>
-            <td colspan="9" style="text-align: center; font-size: 1.2em; color: red; font-weight: bold;">
-                <span class="text-danger">Aucune personne trouvée dans la liste noire.</span>
+            <td colspan="9" class="text-center py-5">
+                <div class="flex flex-column align-items-center justify-content-center gap-3">
+                    <i class="pi pi-inbox text-5xl text-color-secondary"></i>
+                    <span class="text-xl font-semibold text-red-500">Aucune personne trouvée dans la liste noire.</span>
+                    <span class="text-color-secondary">Essayez de modifier vos critères de recherche</span>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="loadingbody">
+        <tr>
+            <td colspan="9">
+                <div class="flex align-items-center justify-content-center gap-2 py-3">
+                    <i class="pi pi-spin pi-spinner text-2xl"></i>
+                    <span>Chargement des données...</span>
+                </div>
             </td>
         </tr>
     </ng-template>

@@ -28,6 +28,7 @@ import { FieldsetModule } from 'primeng/fieldset';
 import { ListeNoire } from 'src/app/store/listeNoir/model';
 import * as listeNoireAction from '../../store/listeNoir/action';
 import * as listeNoireSelector from '../../store/listeNoir/selector';
+import { TagModule } from 'primeng/tag';
 
 
 
@@ -53,7 +54,8 @@ import * as listeNoireSelector from '../../store/listeNoir/selector';
         PaginatorModule, 
         DialogModule, 
         FieldsetModule ,
-        ConfirmDialogModule
+        ConfirmDialogModule,
+        TagModule
     ],
     providers: [MessageService, ConfirmationService],
     templateUrl: './listeNoire.component.html',
@@ -305,7 +307,31 @@ export class ListeNoireComponent implements OnInit, OnDestroy {
       }
 
    
-
+getStatutSeverity(statut: string | Statut): 'success' | 'danger' | 'secondary' | 'info' | 'warning' | 'contrast' {
+    const statutStr = typeof statut === 'string' ? statut : statut;
+    
+    switch(statutStr?.toUpperCase()) {
+        case Statut.ACTIF:
+        case 'ACTIF':
+            return 'danger';      // Rouge - Personne activement sur liste noire ⛔
+            
+        case Statut.LEVEE:
+        case 'LEVEE':
+        case 'LEVÉE':
+            return 'success';     // Vert - Mesure levée ✅
+            
+        case Statut.SUSPENDU:
+        case 'SUSPENDU':
+            return 'warning';     // Orange - Temporairement suspendu ⚠️
+            
+        case Statut.INACTIF:
+        case 'INACTIF':
+            return 'secondary';   // Gris - Inactif 🔘
+            
+        default:
+            return 'secondary';
+    }
+}
     confirmChangeStatusListeNoire(listeNoire: ListeNoire) {
         const newStatus: Statut = listeNoire.statut === Statut.ACTIF ? 
             Statut.LEVEE : 

@@ -350,6 +350,27 @@ export class VoyageComponent implements OnInit, OnDestroy {
     //     });
     // }
 
+    getStatutSeverity(statut: string): 'success' | 'danger' | 'secondary' | 'info' | 'warning' | 'contrast' {
+    switch(statut?.toUpperCase()) {
+        case 'VALIDE':
+        case 'CONFIRMÉ':
+        case 'TERMINE':
+            return 'success';
+        case 'EN_ATTENTE':
+        case 'EN COURS':
+        case 'PENDING':
+            return 'warning';
+        case 'ANNULE':
+        case 'REFUSE':
+        case 'CANCELLED':
+            return 'danger';
+        case 'EN_VOL':
+            return 'info';
+        default:
+            return 'secondary';
+    }
+}
+
     private showToast(status: StatusEnum, message: string): void {
         this.messageService.clear();
 

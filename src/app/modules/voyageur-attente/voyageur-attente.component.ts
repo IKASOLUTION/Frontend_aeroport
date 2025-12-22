@@ -202,6 +202,18 @@ export class VoyageurAttenteComponent implements OnInit, OnDestroy {
     }
 
 
+    getStatutSeverity(statut: string): 'success' | 'danger' | 'secondary' | 'info' | 'warning' | 'contrast' {
+    switch(statut) {
+        case 'VALIDE':
+            return 'success';
+        case 'EN_ATTENTE':
+            return 'warning';
+        case 'REFUSE':
+            return 'danger';
+        default:
+            return 'secondary';
+    }
+}
 
     private loadEnregistrements(): void {
         if (!this.dateDebut || !this.dateFin) {
