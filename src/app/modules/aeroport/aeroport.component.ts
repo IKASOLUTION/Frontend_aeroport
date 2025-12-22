@@ -30,6 +30,7 @@ import { Aeroport } from 'src/app/store/aeroport/model';
 import { Ville } from 'src/app/store/ville/model';
 import { CountryService } from 'src/app/demo/service/country.service';
 import { FieldsetModule } from 'primeng/fieldset';
+import { TagModule } from 'primeng/tag';
 
 @Component({
     selector: 'app-aeroport',
@@ -53,7 +54,8 @@ import { FieldsetModule } from 'primeng/fieldset';
         PaginatorModule, 
         DialogModule, 
         FieldsetModule ,
-        ConfirmDialogModule
+        ConfirmDialogModule,
+        TagModule
     ],
     providers: [MessageService, ConfirmationService],
     templateUrl: './aeroport.component.html',
@@ -396,6 +398,17 @@ export class AeroportComponent implements OnInit, OnDestroy {
         this.popupHeader = 'Enregistrer un aéroport';
     }
 
+
+    getStatutSeverity(statut: string): 'success' | 'danger' | 'secondary' | 'info' | 'warning' | 'contrast' {
+    switch(statut?.toUpperCase()) {
+        case 'ACTIF':
+            return 'success';     // Vert - Aéroport opérationnel ✅
+        case 'INACTIF':
+            return 'danger';      // Rouge - Aéroport fermé ❌
+        default:
+            return 'secondary';
+    }
+}
     ngOnDestroy() {
         this.destroy$.next(true);
         this.destroy$.unsubscribe();

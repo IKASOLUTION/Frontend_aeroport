@@ -36,6 +36,10 @@ import { Router } from '@angular/router';
 import { IdentityData } from 'src/app/service-util/auth/regularForensic.service';
 import { StatutVoyageur } from 'src/app/store/motifVoyage/model';
 import { RegulaDocumentReaderService } from 'src/app/service-util/auth/regularForensic.service';
+import { Avatar, AvatarModule } from 'primeng/avatar';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { DividerModule } from 'primeng/divider';
+import { TagModule } from 'primeng/tag';
 
 interface Passager {
   id: number;
@@ -65,7 +69,11 @@ interface Passager {
     PanelModule,
     ToastModule,
     ConfirmDialogModule,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    AvatarModule,
+    ProgressBarModule,
+    DividerModule,
+    TagModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './enregistrement.component.html'

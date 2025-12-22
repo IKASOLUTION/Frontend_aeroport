@@ -600,6 +600,23 @@ export class VolComponent implements OnInit, OnDestroy {
                 return 'secondary';
         }
     }
+
+    getStatutSeverity(statut: string): 'success' | 'danger' | 'secondary' | 'info' | 'warning' | 'contrast' {
+    switch(statut?.toUpperCase()) {
+        case 'EFFECTUE':
+            return 'success';      // Vert
+        case 'CONFIRME':
+            return 'info';         // Bleu
+        case 'PROGRAMME':
+            return 'secondary';    // Gris (ou 'info' pour bleu)
+        case 'RETARDE':
+            return 'warning';      // Orange
+        case 'ANNULE':
+            return 'danger';       // Rouge
+        default:
+            return 'secondary';
+    }
+}
     getStatutClass(statut: string | undefined): string {
         if (!statut) return 'badge-secondary';
 

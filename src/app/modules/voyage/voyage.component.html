@@ -1,170 +1,262 @@
 <div class="grid">
     <div class="col-12 md:col-12">
-        <p-table #dt styleClass="p-datatable-gridlines p-datatable-sm p-datatable" [value]="voyages" [columns]="cols"
-    [rows]="5" [paginator]="true" [rowsPerPageOptions]="[5, 10, 20, 30]" [showCurrentPageReport]="true"
-    [globalFilterFields]="['vol.numeroVol', 'dateVoyage', 'aeroport.nomAeroport','StatutVoyage']"
+        <p-table 
+    #dt 
+    styleClass="p-datatable-gridlines p-datatable-sm" 
+    [value]="voyages" 
+    [columns]="cols"
+    [rows]="5" 
+    [paginator]="true" 
+    [rowsPerPageOptions]="[5, 10, 20, 30]" 
+    [showCurrentPageReport]="true"
+    [globalFilterFields]="['vol.numeroVol', 'dateVoyage', 'aeroport.nomAeroport', 'StatutVoyage']"
     currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
-    [(selection)]="selectedVoyage" selectionMode="single" [rowHover]="true" dataKey="id" [loading]="loading">
+    [(selection)]="selectedVoyage" 
+    selectionMode="single" 
+    [rowHover]="true" 
+    dataKey="id" 
+    [loading]="loading"
+    [filterDelay]="300">
 
     <ng-template pTemplate="caption">
         <div class="flex justify-content-between flex-column sm:flex-row">
             <div class="flex gap-2">
-                <button pButton label="Filtrer par période" class="p-button-info mb-2" icon="pi pi-filter"
-                    (click)="openFilterDialog()">
-                </button>
-                <button pButton label="Réinitialiser" class="p-button-secondary mb-2" icon="pi pi-refresh"
-                    (click)="resetFilters()">
-                </button>
+                <p-button 
+                    label="Filtrer par période" 
+                    severity="info"
+                    icon="pi pi-filter"
+                    (onClick)="openFilterDialog()">
+                </p-button>
+                <p-button 
+                    label="Réinitialiser" 
+                    severity="secondary"
+                    icon="pi pi-refresh"
+                    (onClick)="resetFilters()">
+                </p-button>
             </div>
             <div class="flex flex-column align-items-end">
                 <span class="p-input-icon-left mb-2">
                     <i class="pi pi-search"></i>
-                    <input pInputText type="text" #filter (input)="onGlobalFilter(dt, $event)"
-                        placeholder="Rechercher" class="w-full" />
+                    <input 
+                        pInputText 
+                        type="text" 
+                        #filter 
+                        (input)="onGlobalFilter(dt, $event)"
+                        placeholder="Rechercher" 
+                        class="w-full" />
                 </span>
                 <small class="text-500" *ngIf="dateDebut && dateFin">
                     Période: {{dateDebut | date:'dd/MM/yyyy'}} - {{dateFin | date:'dd/MM/yyyy'}}
-                    <span *ngIf="selectedStatuts.length > 0"> | Statuts: {{selectedStatuts.length}}
-                        sélectionné(s)</span>
+                    <span *ngIf="selectedStatuts.length > 0"> | Statuts: {{selectedStatuts.length}} sélectionné(s)</span>
                 </small>
             </div>
         </div>
     </ng-template>
 
-   <ng-template pTemplate="header">
-    <!-- PREMIÈRE LIGNE : Titres des colonnes -->
-    <tr>
-        <th style="font-weight: bold;">N° Vol / Type</th>
-        <th style="font-weight: bold;">Passager</th>
-        <th style="font-weight: bold;">Itinéraire</th> <!-- Supprimé width: 35% -->
-        <th style="font-weight: bold;">Motif</th>
-        <th style="font-weight: bold;">Durée</th>
-        <th style="font-weight: bold;">Statut</th>
-        <th style="font-weight: bold;" class="text-center">Actions</th>
-    </tr>
-    
-    <!-- DEUXIÈME LIGNE : Champs de recherche par colonne -->
-    <tr>
-        <th>
-            <span class="p-input-icon-left">
-                <i class="pi pi-search"></i>
-                <input pInputText type="text" 
-                       (input)="dt.filter($any($event.target).value, 'vol.numero', 'contains')"
-                       placeholder="Rechercher"
-                       class="w-full" 
-                       style="width: 100%;" />
-            </span>
-        </th>
-        <th>
-            <span class="p-input-icon-left">
-                <i class="pi pi-search"></i>
-                <input pInputText type="text" 
-                       (input)="dt.filter($any($event.target).value, 'nomVoyageur', 'contains')"
-                       placeholder="Rechercher"
-                       class="w-full" 
-                       style="width: 100%;" />
-            </span>
-        </th>
-        <th>
-            <span class="p-input-icon-left">
-                <i class="pi pi-search"></i>
-                <input pInputText type="text" 
-                       (input)="dt.filter($any($event.target).value, 'vol.aeroport.nomAeroport', 'contains')"
-                       placeholder="Rechercher"
-                       class="w-full" 
-                       style="width: 100%;" />
-            </span>
-        </th>
-        <th>
-            <span class="p-input-icon-left">
-                <i class="pi pi-search"></i>
-                <input pInputText type="text" 
-                       (input)="dt.filter($any($event.target).value, 'motifVoyage', 'contains')"
-                       placeholder="Rechercher"
-                       class="w-full" 
-                       style="width: 100%;" />
-            </span>
-        </th>
-        <th>
-            <span class="p-input-icon-left">
-                <i class="pi pi-search"></i>
-                <input pInputText type="text" 
-                       (input)="dt.filter($any($event.target).value, 'dureeSejour', 'contains')"
-                       placeholder="Rechercher"
-                       class="w-full" 
-                       style="width: 100%;" />
-            </span>
-        </th>
-        <th>
-            <span class="p-input-icon-left">
-                <i class="pi pi-search"></i>
-                <input pInputText type="text" 
-                       (input)="dt.filter($any($event.target).value, 'statut', 'contains')"
-                       placeholder="Rechercher"
-                       class="w-full" 
-                       style="width: 100%;" />
-            </span>
-        </th>
-        <th></th> <!-- Colonne actions sans filtre -->
-    </tr>
-</ng-template> <!-- Colonne actions sans filtre -->
-       
+    <ng-template pTemplate="header">
+        <!-- PREMIÈRE LIGNE : Titres des colonnes -->
+        <tr>
+            <th pSortableColumn="vol.numero">
+                <div class="flex align-items-center gap-2">
+                    N° Vol / Type
+                    <p-sortIcon field="vol.numero"></p-sortIcon>
+                </div>
+            </th>
+            <th pSortableColumn="nomVoyageur">
+                <div class="flex align-items-center gap-2">
+                    Passager
+                    <p-sortIcon field="nomVoyageur"></p-sortIcon>
+                </div>
+            </th>
+            <th>Itinéraire</th>
+            <th pSortableColumn="motifVoyage">
+                <div class="flex align-items-center gap-2">
+                    Motif
+                    <p-sortIcon field="motifVoyage"></p-sortIcon>
+                </div>
+            </th>
+            <th pSortableColumn="dureeSejour">
+                <div class="flex align-items-center gap-2">
+                    Durée
+                    <p-sortIcon field="dureeSejour"></p-sortIcon>
+                </div>
+            </th>
+            <th pSortableColumn="statut">
+                <div class="flex align-items-center gap-2">
+                    Statut
+                    <p-sortIcon field="statut"></p-sortIcon>
+                </div>
+            </th>
+            <th class="text-center">Actions</th>
+        </tr>
+        
+        <!-- DEUXIÈME LIGNE : Champs de recherche par colonne -->
+        <tr>
+            <th>
+                <span class="p-input-icon-left w-full">
+                    <i class="pi pi-search"></i>
+                    <input 
+                        pInputText 
+                        type="text" 
+                        (input)="dt.filter($any($event.target).value, 'vol.numero', 'contains')"
+                        placeholder="Rechercher"
+                        class="w-full" />
+                </span>
+            </th>
+            <th>
+                <span class="p-input-icon-left w-full">
+                    <i class="pi pi-search"></i>
+                    <input 
+                        pInputText 
+                        type="text" 
+                        (input)="dt.filter($any($event.target).value, 'nomVoyageur', 'contains')"
+                        placeholder="Rechercher"
+                        class="w-full" />
+                </span>
+            </th>
+            <th>
+                <span class="p-input-icon-left w-full">
+                    <i class="pi pi-search"></i>
+                    <input 
+                        pInputText 
+                        type="text" 
+                        (input)="dt.filter($any($event.target).value, 'vol.aeroport.nomAeroport', 'contains')"
+                        placeholder="Rechercher"
+                        class="w-full" />
+                </span>
+            </th>
+            <th>
+                <span class="p-input-icon-left w-full">
+                    <i class="pi pi-search"></i>
+                    <input 
+                        pInputText 
+                        type="text" 
+                        (input)="dt.filter($any($event.target).value, 'motifVoyage', 'contains')"
+                        placeholder="Rechercher"
+                        class="w-full" />
+                </span>
+            </th>
+            <th>
+                <span class="p-input-icon-left w-full">
+                    <i class="pi pi-search"></i>
+                    <input 
+                        pInputText 
+                        type="text" 
+                        (input)="dt.filter($any($event.target).value, 'dureeSejour', 'contains')"
+                        placeholder="Rechercher"
+                        class="w-full" />
+                </span>
+            </th>
+            <th>
+                <span class="p-input-icon-left w-full">
+                    <i class="pi pi-search"></i>
+                    <input 
+                        pInputText 
+                        type="text" 
+                        (input)="dt.filter($any($event.target).value, 'statut', 'contains')"
+                        placeholder="Rechercher"
+                        class="w-full" />
+                </span>
+            </th>
+            <th></th> <!-- Colonne actions sans filtre -->
+        </tr>
+    </ng-template>
 
     <ng-template pTemplate="body" let-voyage>
-        <tr>
-            <td class="table-separator">
-                <div class="text-sm font-medium text-gray-900">{{ voyage?.vol?.numero }}</div>
+        <tr >
+            <td>
+                <div class="font-semibold">{{ voyage?.vol?.numero }} {{ voyage?.vol?.typeVol }}</div>
             </td>
 
             <!-- Colonne Passager -->
-            <td class="table-separator">
+            <td>
                 <div class="flex align-items-center gap-2">
                     <i class="pi pi-user text-primary"></i>
-                    <span class="font-medium">{{ getPassagerFormate(voyage) }}</span>
+                    <span class="font-semibold">{{ getPassagerFormate(voyage) }}</span>
                 </div>
             </td>
 
-            <td class="table-separator px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <span *ngIf="voyage?.vol?.typeVol == 'ARRIVEE'">
-                    {{ voyage?.vol?.aeroport?.nomAeroport }}
-                </span>
-                <span *ngIf="voyage?.vol?.typeVol != 'ARRIVEE'">
-                    {{ voyage?.nomAgentConnecteAeroport }}
-                </span>
+            <!-- Colonne Itinéraire -->
+            <td>
+                <div class="flex align-items-center gap-2">
+                    <span *ngIf="voyage?.vol?.typeVol == 'ARRIVEE'">
+                        {{ voyage?.vol?.aeroport?.nomAeroport }}
+                    </span>
+                    <span *ngIf="voyage?.vol?.typeVol != 'ARRIVEE'">
+                        {{ voyage?.nomAgentConnecteAeroport }}
+                    </span>
 
-                <i class="fa-solid fa-arrow-right pi pi-arrow-right mr-2 mx-1 text-gray-400"></i>
+                    <i class="pi pi-arrow-right text-color-secondary"></i>
 
-                <span *ngIf="voyage?.vol?.typeVol == 'ARRIVEE'">
-                    {{ voyage?.nomAgentConnecteAeroport }}
-                </span>
-                <span *ngIf="voyage?.vol?.typeVol != 'ARRIVEE'">
-                    {{ voyage?.vol?.aeroport?.nomAeroport }}
-                </span>
+                    <span *ngIf="voyage?.vol?.typeVol == 'ARRIVEE'">
+                        {{ voyage?.nomAgentConnecteAeroport }}
+                    </span>
+                    <span *ngIf="voyage?.vol?.typeVol != 'ARRIVEE'">
+                        {{ voyage?.vol?.aeroport?.nomAeroport }}
+                    </span>
+                </div>
             </td>
-            <td class="table-separator">{{voyage?.motifVoyage}}</td>
-            <td class="table-separator">{{voyage?.dureeSejour}} jours</td>
-            <td class="table-separator">
-                <span [class]="'badge ' + getStatutClass(voyage?.vol?.statut)">
-                    {{voyage?.statut || 'N/A'}}
-                </span>
+
+            <!-- Colonne Motif -->
+            <td>{{ voyage?.motifVoyage }}</td>
+
+            <!-- Colonne Durée -->
+            <td>{{ voyage?.dureeSejour }} jours</td>
+
+            <!-- Colonne Statut -->
+            <td>
+                <p-tag 
+                    [value]="voyage?.statut || 'N/A'"
+                    [severity]="getStatutSeverity(voyage?.statut)">
+                </p-tag>
             </td>
+
+            <!-- Colonne Actions -->
             <td class="text-center">
-                <button pButton icon="pi pi-eye" class="p-button-rounded p-button-primary mr-2"
-                    pTooltip="Voir détail" tooltipPosition="top" (click)="openDetailModal(voyage)">
-                </button>
+                <div class="flex align-items-center justify-content-center gap-2">
+                    <p-button 
+                        icon="pi pi-eye" 
+                        [rounded]="true"
+                        [text]="true"
+                        severity="info"
+                        pTooltip="Voir détail" 
+                        tooltipPosition="top" 
+                        (onClick)="openDetailModal(voyage)">
+                    </p-button>
 
-                <button pButton icon="pi pi-print" class="p-button-rounded p-button-success mr-2"
-                    pTooltip="Imprimer fiche de voyage" tooltipPosition="top"
-                    (click)="imprimerFicheVoyage(voyage)">
-                </button>
+                    <p-button 
+                        icon="pi pi-print" 
+                        [rounded]="true"
+                        [text]="true"
+                        severity="success"
+                        pTooltip="Imprimer fiche de voyage" 
+                        tooltipPosition="top"
+                        (onClick)="imprimerFicheVoyage(voyage)">
+                    </p-button>
+                </div>
             </td>
         </tr>
     </ng-template>
 
     <ng-template pTemplate="emptymessage">
         <tr>
-            <td colspan="7" style="text-align: center; font-size: 1.2em; color: red; font-weight: bold;">
-                <span class="text-danger">Aucun vol trouvé !</span>
+            <td colspan="7" class="text-center py-5">
+                <div class="flex flex-column align-items-center justify-content-center gap-3">
+                    <i class="pi pi-inbox text-5xl text-color-secondary"></i>
+                    <span class="text-xl font-semibold text-red-500">Aucun vol trouvé !</span>
+                    <span class="text-color-secondary">Essayez de modifier vos critères de recherche</span>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="loadingbody">
+        <tr>
+            <td colspan="7">
+                <div class="flex align-items-center justify-content-center gap-2 py-3">
+                    <i class="pi pi-spin pi-spinner text-2xl"></i>
+                    <span>Chargement des données...</span>
+                </div>
             </td>
         </tr>
     </ng-template>

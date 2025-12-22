@@ -34,6 +34,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { EnregistrementService } from 'src/app/store/enregistrement/service';
 import { co } from '@fullcalendar/core/internal-common';
 
+
 @Component({
     selector: 'app-register',
     standalone: true,
@@ -56,7 +57,7 @@ import { co } from '@fullcalendar/core/internal-common';
         FieldsetModule,
         RouterModule,
         MultiSelectModule,
-        TagModule
+        TagModule,
     ],
     providers: [MessageService],
     templateUrl: './register.component.html',

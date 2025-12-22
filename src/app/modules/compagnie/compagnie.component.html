@@ -1,41 +1,43 @@
 <div class="grid">
      <h3 class="text-3xl font-semibold text-gray-800">Gestion des Compagnies Aériennes</h3>
   <div class="col-12 md:col-12">
-   <p-table #dt 
-         styleClass="p-datatable-gridlines p-datatable-sm p-datatable"
-         [value]="compagnies"
-         [columns]="cols"
-         [rows]="5"
-         [paginator]="true"
-         [rowsPerPageOptions]="[5, 10, 20, 30]"
-         [showCurrentPageReport]="true"
-         [globalFilterFields]="['nomCompagine', 'groupe', 'pays', 'statut']"
-         currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
-         [(selection)]="selectedCompagnie"
-         selectionMode="single"
-         [rowHover]="true" 
-         dataKey="id"
-         [loading]="loading">
+   <p-table 
+    #dt 
+    styleClass="p-datatable-gridlines p-datatable-sm"
+    [value]="compagnies"
+    [columns]="cols"
+    [rows]="5"
+    [paginator]="true"
+    [rowsPerPageOptions]="[5, 10, 20, 30]"
+    [showCurrentPageReport]="true"
+    [globalFilterFields]="['nomCompagine', 'groupe', 'pays', 'statut']"
+    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+    [(selection)]="selectedCompagnie"
+    selectionMode="single"
+    [rowHover]="true" 
+    dataKey="id"
+    [loading]="loading"
+    [filterDelay]="300">
         
     <ng-template pTemplate="caption">
         <div class="flex justify-content-between flex-column sm:flex-row">
             <div>
-                <button pButton 
-                        label="Nouvelle Compagnie" 
-                        class="p-button-success mr-2 mb-2" 
-                        icon="pi pi-plus" 
-                        (click)="openNew()">
-                </button>
+                <p-button 
+                    label="Nouvelle Compagnie" 
+                    severity="success"
+                    icon="pi pi-plus" 
+                    (onClick)="openNew()">
+                </p-button>
             </div>
-            <h5 class="p-button-outlined mb-2"></h5>
             <span class="p-input-icon-left mb-2">
                 <i class="pi pi-search"></i>
-                <input pInputText 
-                       type="text" 
-                       #filter 
-                       (input)="onGlobalFilter(dt, $event)" 
-                       placeholder="Rechercher" 
-                       class="w-full"/>
+                <input 
+                    pInputText 
+                    type="text" 
+                    #filter 
+                    (input)="onGlobalFilter(dt, $event)" 
+                    placeholder="Rechercher" 
+                    class="w-full"/>
             </span>
         </div>
     </ng-template>
@@ -43,53 +45,77 @@
     <ng-template pTemplate="header">
         <!-- PREMIÈRE LIGNE : Titres des colonnes -->
         <tr>
-            <th style="font-weight: bold;">Nom de la compagnie</th>
-            <th style="font-weight: bold;">Groupe</th>
-            <th style="font-weight: bold;">Pays</th>
-            <th style="font-weight: bold;">Statut</th>
-            <th style="font-weight: bold;" class="text-center">Actions</th>
+            <th pSortableColumn="nomCompagine">
+                <div class="flex align-items-center gap-2">
+                    Nom de la compagnie
+                    <p-sortIcon field="nomCompagine"></p-sortIcon>
+                </div>
+            </th>
+            <th pSortableColumn="groupe">
+                <div class="flex align-items-center gap-2">
+                    Groupe
+                    <p-sortIcon field="groupe"></p-sortIcon>
+                </div>
+            </th>
+            <th pSortableColumn="pays">
+                <div class="flex align-items-center gap-2">
+                    Pays
+                    <p-sortIcon field="pays"></p-sortIcon>
+                </div>
+            </th>
+            <th pSortableColumn="statut">
+                <div class="flex align-items-center gap-2">
+                    Statut
+                    <p-sortIcon field="statut"></p-sortIcon>
+                </div>
+            </th>
+            <th class="text-center">Actions</th>
         </tr>
         
         <!-- DEUXIÈME LIGNE : Champs de recherche par colonne -->
         <tr>
             <th>
-                <span class="p-input-icon-left">
+                <span class="p-input-icon-left w-full">
                     <i class="pi pi-search"></i>
-                    <input pInputText type="text" 
-                           (input)="dt.filter($any($event.target).value, 'nomCompagine', 'contains')"
-                           placeholder="Rechercher"
-                           class="w-full" 
-                           style="width: 100%;" />
+                    <input 
+                        pInputText 
+                        type="text" 
+                        (input)="dt.filter($any($event.target).value, 'nomCompagine', 'contains')"
+                        placeholder="Rechercher"
+                        class="w-full" />
                 </span>
             </th>
             <th>
-                <span class="p-input-icon-left">
+                <span class="p-input-icon-left w-full">
                     <i class="pi pi-search"></i>
-                    <input pInputText type="text" 
-                           (input)="dt.filter($any($event.target).value, 'groupe', 'contains')"
-                           placeholder="Rechercher"
-                           class="w-full" 
-                           style="width: 100%;" />
+                    <input 
+                        pInputText 
+                        type="text" 
+                        (input)="dt.filter($any($event.target).value, 'groupe', 'contains')"
+                        placeholder="Rechercher"
+                        class="w-full" />
                 </span>
             </th>
             <th>
-                <span class="p-input-icon-left">
+                <span class="p-input-icon-left w-full">
                     <i class="pi pi-search"></i>
-                    <input pInputText type="text" 
-                           (input)="dt.filter($any($event.target).value, 'pays', 'contains')"
-                           placeholder="Rechercher"
-                           class="w-full" 
-                           style="width: 100%;" />
+                    <input 
+                        pInputText 
+                        type="text" 
+                        (input)="dt.filter($any($event.target).value, 'pays', 'contains')"
+                        placeholder="Rechercher"
+                        class="w-full" />
                 </span>
             </th>
             <th>
-                <span class="p-input-icon-left">
+                <span class="p-input-icon-left w-full">
                     <i class="pi pi-search"></i>
-                    <input pInputText type="text" 
-                           (input)="dt.filter($any($event.target).value, 'statut', 'contains')"
-                           placeholder="Rechercher"
-                           class="w-full" 
-                           style="width: 100%;" />
+                    <input 
+                        pInputText 
+                        type="text" 
+                        (input)="dt.filter($any($event.target).value, 'statut', 'contains')"
+                        placeholder="Rechercher"
+                        class="w-full" />
                 </span>
             </th>
             <th></th> <!-- Colonne actions sans filtre -->
@@ -98,42 +124,63 @@
 
     <ng-template pTemplate="body" let-compagnie>
         <tr [pSelectableRow]="compagnie">
-            <td class="table-separator">{{compagnie.nomCompagine}}</td>
-            <td class="table-separator">{{compagnie.groupe || 'N/A'}}</td>
-            <td class="table-separator">{{compagnie.pays || 'N/A'}}</td>
-            <td class="table-separator">
-                <span [ngClass]="{
-                    'status-badge status-actif': compagnie.statut === 'ACTIF',
-                    'status-badge status-inactif': compagnie.statut === 'INACTIF'
-                }">
-                    <i [class]="compagnie.statut === 'ACTIF' ? 'pi pi-check-circle' : 'pi pi-times-circle'"></i>
-                    {{compagnie.statut}}
-                </span>
+            <td>{{ compagnie.nomCompagine }}</td>
+            <td>{{ compagnie.groupe || 'N/A' }}</td>
+            <td>{{ compagnie.pays || 'N/A' }}</td>
+            <td>
+                <p-tag 
+                    [value]="compagnie.statut"
+                    [severity]="getStatutSeverity(compagnie.statut)">
+                    <i [class]="compagnie.statut === 'ACTIF' ? 'pi pi-check-circle' : 'pi pi-times-circle'" 
+                       class="mr-1"></i>
+                   
+                </p-tag>
             </td>
             <td class="text-center">
-                <button pButton 
+                <div class="flex align-items-center justify-content-center gap-2">
+                    <p-button 
                         icon="pi pi-pencil" 
-                        class="p-button-rounded p-button-info mr-2" 
+                        [rounded]="true"
+                        [text]="true"
+                        severity="info"
                         pTooltip="Modifier" 
                         tooltipPosition="top"
-                        (click)="update(compagnie)">
-                </button>
+                        (onClick)="update(compagnie)">
+                    </p-button>
 
-                <button pButton 
-                        [icon]="compagnie.statut === 'ACTIF' ? 'pi pi-ban' : 'pi pi-check-circle'" 
-                        [class]="'p-button-rounded mr-2 ' + (compagnie.statut === 'ACTIF' ? 'p-button-warning' : 'p-button-success')"
+                    <p-button 
+                        [icon]="compagnie.statut === 'ACTIF' ? 'pi pi-ban' : 'pi pi-check-circle'"
+                        [rounded]="true"
+                        [text]="true"
+                        [severity]="compagnie.statut === 'ACTIF' ? 'warning' : 'success'"
                         [pTooltip]="compagnie.statut === 'ACTIF' ? 'Désactiver' : 'Activer'" 
                         tooltipPosition="top"
-                        (click)="confirmChangeStatus(compagnie)">
-                </button>
+                        (onClick)="confirmChangeStatus(compagnie)">
+                    </p-button>
+                </div>
             </td>
         </tr>
     </ng-template>
 
     <ng-template pTemplate="emptymessage">
         <tr>
-            <td colspan="5" style="text-align: center; font-size: 1.2em; color: red; font-weight: bold;">
-                <span class="text-danger">Aucune compagnie trouvée !</span>
+            <td colspan="5" class="text-center py-5">
+                <div class="flex flex-column align-items-center justify-content-center gap-3">
+                    <i class="pi pi-inbox text-5xl text-color-secondary"></i>
+                    <span class="text-xl font-semibold text-red-500">Aucune compagnie trouvée !</span>
+                    <span class="text-color-secondary">Essayez de modifier vos critères de recherche</span>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="loadingbody">
+        <tr>
+            <td colspan="5">
+                <div class="flex align-items-center justify-content-center gap-2 py-3">
+                    <i class="pi pi-spin pi-spinner text-2xl"></i>
+                    <span>Chargement des données...</span>
+                </div>
             </td>
         </tr>
     </ng-template>
