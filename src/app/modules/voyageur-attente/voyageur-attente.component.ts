@@ -285,6 +285,11 @@ export class VoyageurAttenteComponent implements OnInit, OnDestroy {
         this.store.dispatch(enregistrementAction.selecteEnregistrement({ enregistrement }));
         this.openDetailModal(enregistrement);
     }
+    selectEnregistrementValid(enregistrement: Enregistrement): void {
+
+        this.store.dispatch(enregistrementAction.selecteEnregistrement({ enregistrement }));
+        this.isDetailModalOpen = true;
+    }
 
     // Ouvrir le modal de détail
     // openDetailModal(enregistrement: Enregistrement): void {
@@ -540,6 +545,13 @@ export class VoyageurAttenteComponent implements OnInit, OnDestroy {
     }
 
 
+ saveEnregistrementValid(): void {
+                  this.isCaptureBiometriqueModalOpen = true;
+           // this.loadEnregistrements();
+
+      
+    }
+
     saveEnregistrement(): void {
         if (this.editFormGroup.valid) {
             const updatedEnregistrement: Enregistrement = {
@@ -572,7 +584,7 @@ export class VoyageurAttenteComponent implements OnInit, OnDestroy {
             this.newEnregistrement = updatedEnregistrement;
             this.closeEditModal();
             this.isCaptureBiometriqueModalOpen = true;
-            this.loadEnregistrements();
+           // this.loadEnregistrements();
 
         } else {
             this.messageService.add({

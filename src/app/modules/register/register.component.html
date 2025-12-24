@@ -21,6 +21,12 @@
     <ng-template pTemplate="caption">
         <div class="flex flex-wrap align-items-center justify-content-between gap-3">
             <div class="flex gap-2">
+                 <p-button 
+                    label="Nouvel enregistrement" 
+                    [routerLink]="['/admin/gestion-enregistrements']"
+                    severity="success"
+                    icon="pi pi-plus">
+                </p-button>
                 <p-button 
                     label="Filtrer par période" 
                     icon="pi pi-filter"

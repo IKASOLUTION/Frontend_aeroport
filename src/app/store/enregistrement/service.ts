@@ -80,6 +80,10 @@ export class EnregistrementService {
   }
 
 
+
+  
+
+
   getVoyageurAttenteByPeriode(searchDto: SearchDto): Observable<PageResponse<Enregistrement>> {
     // @FIXME: put request
     const body = {
@@ -109,6 +113,19 @@ export class EnregistrementService {
     };
     return this.http.put<PageResponse<Enregistrement>>(`${GlobalConfig.getEndpoint(Endpoints.ENREIGISTREMENT)}/pre-enrgistrement/periode`, body);
   }
+
+
+  scanDocument(): Observable<PageResponse<Enregistrement>> {
+  return this.http.post<PageResponse<Enregistrement>>(
+    `${GlobalConfig.getEndpoint(Endpoints.ENREIGISTREMENT)}/scan`,
+    {}, // body vide
+    {
+      responseType: 'json'
+    }
+  ).pipe(
+    catchError(this.handleError())
+  );
+}
 
   private formatDate(date: Date): string {
     const year = date.getFullYear();

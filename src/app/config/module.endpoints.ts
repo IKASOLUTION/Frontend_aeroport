@@ -85,6 +85,21 @@ export class Endpoints {
     };
 
 
+
+      static readonly RegulaDevise = {
+        prod: `${SERVICE_PREFIX}/regula/device`,
+        mock: `assets/mock/device.mock.json`
+    };
+
+
+    static readonly RegulaDeviceEndpoints = {
+    status: `${SERVICE_PREFIX}/regula/device/status`,
+    ping: `${SERVICE_PREFIX}/regula/device/ping`,
+    captureDocument: `${SERVICE_PREFIX}/regula/device/capture/document`,
+    scanDocument: `${SERVICE_PREFIX}/regula/device/scan/document`,
+    capturePhoto: `${SERVICE_PREFIX}/regula/device/capture/photo`
+  };
+
     
 
 
