@@ -6,7 +6,7 @@ export interface Enregistrement {
   typeDocument?: TypeDocument;
   numeroDocument?: string;
   numeroNip?: string | null;
-  dateDelivrance?: string;
+  dateDelivrance?: Date | string;
   lieuDelivrance?: string;
   photoProfil?: File | null;
   imageRecto?: File | null;
@@ -15,7 +15,7 @@ export interface Enregistrement {
   // Personal Info
   nomFamille?: string;
   prenom?: string;
-  dateNaissance?: string;
+  dateNaissance?: Date | string;
   lieuNaissance?: string;
   nationalite?: string;
   profession?: string;

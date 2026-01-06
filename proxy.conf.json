@@ -2,5 +2,12 @@
     "/api/*": {
       "target": "http://localhost:8092/",
       "secure": true
-}
+},
+
+"/Regula.SDK.Api": {
+    "target": "http://localhost:80",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
 }

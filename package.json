@@ -30,6 +30,7 @@
         "@ngrx/effects": "^17.2.0",
         "@ngrx/store": "^17.2.0",
         "@ngrx/store-devtools": "^17.2.0",
+        "@regulaforensics/vp-frontend-document-components": "^8.4.2541",
         "chart.js": "^3.3.2",
         "ngx-webstorage": "^13.0.0",
         "primeflex": "^3.3.1",

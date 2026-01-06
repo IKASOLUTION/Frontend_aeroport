@@ -40,6 +40,8 @@ import { Avatar, AvatarModule } from 'primeng/avatar';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { DividerModule } from 'primeng/divider';
 import { TagModule } from 'primeng/tag';
+import { DocumentReaderWebComponent } from '@regulaforensics/vp-frontend-document-components';
+import { co } from '@fullcalendar/core/internal-common';
 
 interface Passager {
   id: number;
@@ -81,6 +83,7 @@ interface Passager {
 export class EnregistrementComponent implements OnInit, OnDestroy {
   @ViewChild('videoElement') videoElement!: ElementRef<HTMLVideoElement>;
   @ViewChild('canvasElement') canvasElement!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('reader', { static: false }) reader?: ElementRef<DocumentReaderWebComponent>;
   
 
   private store = inject(Store);
@@ -89,6 +92,10 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   private countryService = inject(CountryService);
   private nationaliteService = inject(NationaliteService);
   private router = inject(Router);
+  // Après les autres signals, ajoutez :
+rectoPreview = signal<string | null>(null);
+versoPreview = signal<string | null>(null);
+profilPreview = signal<string | null>(null);
 
   // Signals pour la gestion de l'état local
   formData = signal<Enregistrement>({
@@ -137,10 +144,9 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
   type =TypeVol.ARRIVEE;
    // Remplacer l'injection
   regulaService = inject(RegulaDocumentReaderService);
+  identityData:  IdentityData | null = null;
   
-  // Observables
-  deviceStatus$ = this.regulaService.getDeviceStatus();
-  identityData$ = this.regulaService.getIdentityData();
+
   
   // État local
   isScanning = signal<boolean>(false);
@@ -148,60 +154,14 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
   this.initializeFormData();
-  
-  // Vérifier le statut du lecteur Regula
-  const status = this.regulaService.getCurrentStatus();
-  
-  if (status.connected) {
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Lecteur Regula',
-      detail: `${status.deviceName || 'Lecteur'} prêt à l\'usage`,
-      life: 3000
-    });
-  } else {
-    this.messageService.add({
-      severity: 'warn',
-      summary: 'Lecteur Regula',
-      detail: 'Non connecté - Mode webcam uniquement',
-      life: 4000
-    });
-  }
 
-  // Surveiller le statut du lecteur
-  this.deviceStatus$.pipe(
-    takeUntil(this.destroy$)
-  ).subscribe(deviceStatus => {
-    if (deviceStatus.error) {
-      console.error('Erreur lecteur:', deviceStatus.error);
-    }
-    
-    // Mettre à jour l'UI selon le statut
-    if (deviceStatus.documentPresent && this.autoDetectionEnabled()) {
-      this.messageService.add({
-        severity: 'info',
-        summary: 'Document détecté',
-        detail: 'Cliquez sur "Lire" pour scanner',
-        life: 2000
-      });
-    }
-  });
+   /* if (!this.reader) return;
 
-  // Surveiller les données d'identité
-  this.identityData$.pipe(
-    takeUntil(this.destroy$),
-    filter(data => data !== null)
-  ).subscribe(data => {
-    if (data) {
-      this.remplirFormulaireAvecDonnees(data);
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Document lu',
-        detail: `${data.firstName} ${data.lastName}`,
-        life: 3000
-      });
-    }
-  });
+        this.reader.nativeElement.settings = {
+            serviceUrl: 'https://localhost:80'
+        }; */
+  
+  
 
   this.subscribeToStoreUpdates();
   this.loadVols();
@@ -216,257 +176,6 @@ export class EnregistrementComponent implements OnInit, OnDestroy {
     this.nationalites = nationalites;
   });
 }
-
-
-  /**
-   * Vérifie la connexion au lecteur Regula
-   */
-  async verifierLecteur() {
-    try {
-      const status = await this.regulaService.refreshStatus();
-      
-      if (!status.connected) {
-        this.messageService.add({
-          severity: 'warn',
-          summary: 'Lecteur non disponible',
-          detail: 'Veuillez installer et démarrer le Regula Document Reader SDK',
-          life: 5000
-        });
-        return;
-      }
-
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Lecteur prêt',
-        detail: status.deviceName || 'Regula 70X4M',
-        life: 3000
-      });
-    } catch (error) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erreur',
-        detail: (error as Error).message || 'Impossible de vérifier le lecteur',
-        life: 5000
-      });
-    }
-  }
-
-  /**
-   * Active/désactive la détection automatique
-   */
-  toggleAutoDetection() {
-    if (this.autoDetectionEnabled()) {
-      this.regulaService.stopDocumentDetection();
-      this.autoDetectionEnabled.set(false);
-      this.messageService.add({
-        severity: 'info',
-        summary: 'Détection désactivée',
-        detail: 'La détection automatique est maintenant désactivée',
-        life: 2000
-      });
-    } else {
-      this.regulaService.startDocumentDetection();
-      this.autoDetectionEnabled.set(true);
-      this.messageService.add({
-        severity: 'info',
-        summary: 'Détection activée',
-        detail: 'Insérez un document dans le lecteur',
-        life: 2000
-      });
-    }
-  }
-
-  /**
-   * Lit le document manuellement
-   */
-  async lireDocument() {
-    if (this.isScanning()) {
-      return;
-    }
-
-    this.isScanning.set(true);
-
-    try {
-      // Vérifier d'abord la présence d'un document
-      const hasDocument = await this.regulaService.checkDocumentPresence();
-      
-      if (!hasDocument) {
-        this.messageService.add({
-          severity: 'warn',
-          summary: 'Document absent',
-          detail: 'Veuillez insérer un document dans le lecteur',
-          life: 4000
-        });
-        this.isScanning.set(false);
-        return;
-      }
-
-      // Message de traitement
-      this.messageService.add({
-        severity: 'info',
-        summary: 'Lecture en cours',
-        detail: 'Traitement du document...',
-        life: 2000
-      });
-
-      // Lire les données
-      this.regulaService.readDocument().subscribe({
-        next: (data) => {
-          console.log('Données lues:', data);
-          
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Lecture réussie',
-            detail: `Document de ${data.firstName} ${data.lastName} traité`,
-            life: 3000
-          });
-          
-          this.isScanning.set(false);
-        },
-        error: (err) => {
-          console.error('Erreur lecture:', err);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erreur de lecture',
-            detail: err.message || 'Impossible de lire le document',
-            life: 5000
-          });
-          this.isScanning.set(false);
-        }
-      });
-    } catch (error) {
-      console.error('Erreur:', error);
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erreur',
-        detail: (error as Error).message || 'Une erreur est survenue',
-        life: 5000
-      });
-      this.isScanning.set(false);
-    }
-  }
-
-  /**
-   * Lecture automatique lorsqu'un document est détecté
-   */
-  private async lireDocumentAuto() {
-    if (this.isScanning()) {
-      return;
-    }
-
-    // Désactiver temporairement la détection auto
-    this.autoDetectionEnabled.set(false);
-    this.regulaService.stopDocumentDetection();
-
-    await this.lireDocument();
-
-    // Réactiver la détection après 3 secondes
-    setTimeout(() => {
-      this.autoDetectionEnabled.set(true);
-      this.regulaService.startDocumentDetection();
-    }, 3000);
-  }
-
-  /**
-   * Capture une image du document
-   */
-  async capturerImageDocument(type: 'white' | 'ir' | 'uv' = 'white') {
-    try {
-      const image = await this.regulaService.captureImage(type);
-      
-      // Assigner l'image selon le type
-      if (type === 'white') {
-        this.formData.update(form => ({
-          ...form,
-         // imageRecto: image
-        }));
-      } else if (type === 'ir') {
-        this.formData.update(form => ({
-          ...form,
-        //  imageVerso: image
-        }));
-      }
-
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Image capturée',
-        detail: `Image ${type} capturée avec succès`,
-        life: 2000
-      });
-    } catch (error) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erreur de capture',
-        detail: (error as Error).message || 'Impossible de capturer l\'image',
-        life: 4000
-      });
-    }
-  }
-
-  /**
-   * Remplit le formulaire avec les données du document
-   */
-  // private remplirFormulaireAvecDonnees(data: any): void {
-  //   this.formData.update(form => ({
-  //     ...form,
-  //     // Type de document
-  //     //typeDocument: this.mapDocumentType(data.documentType),
-  //     numeroDocument: data.documentNumber || form.numeroDocument,
-      
-  //     // Dates
-  //     dateDelivrance: data.issueDate || form.dateDelivrance,
-      
-  //     // Informations personnelles
-  //     nomFamille: data.lastName || form.nomFamille,
-  //     prenom: data.firstName || form.prenom,
-  //     dateNaissance: data.dateOfBirth || form.dateNaissance,
-  //     lieuNaissance: data.placeOfBirth || form.lieuNaissance,
-  //     nationalite: data.nationality || form.nationalite,
-      
-  //     // Numéro national
-  //     numeroNip: data.nationalNumber || form.numeroNip,
-      
-  //     // Adresse
-  //     adresseBurkina: data.address || form.adresseBurkina,
-      
-  //     // Photo
-  //     photoProfil: data.photo || form.photoProfil
-  //   }));
-
-  //   // Sélectionner la nationalité
-   
-
-  // }
-
-  /**
-   * Convertit le type de document Regula vers le type local
-   */
- /*  private mapDocumentType(docType?: string): 'PASSEPORT' | 'CNI' | undefined {
-    if (!docType) return undefined;
-    
-    if (docType.toLowerCase().includes('passeport') || docType.toLowerCase().includes('passport')) {
-      return TypeDocument.PASSEPORT.toString() as 'PASSEPORT';
-    } else if (docType.toLowerCase().includes('carte') || docType.toLowerCase().includes('card')) {
-      return TypeDocument.CNI.toString() as 'CNI';
-    }
-    
-    return undefined;
-  } */
-
-  /**
-   * Efface les données du lecteur
-   */
-  effacerDonneesLecteur(): void {
-    this.regulaService.clearData();
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Données effacées',
-      detail: 'Les données du lecteur ont été effacées',
-      life: 2000
-    });
-  }
-
- 
 
 
 
@@ -1024,7 +733,15 @@ async selectWebcam(): Promise<MediaDeviceInfo | null> {
     }
   }
 
-
+/**
+ * S'assure qu'une chaîne base64 a le préfixe data:image
+ */
+private ensureBase64Prefix(base64: string): string {
+  if (base64.startsWith('data:image')) {
+    return base64;
+  }
+  return `data:image/jpeg;base64,${base64}`;
+}
 
   async scannerDocumentAvecRegula(type: 'recto' | 'verso'): Promise<void> {
   const status = this.regulaService.getCurrentStatus();
@@ -1042,49 +759,77 @@ async selectWebcam(): Promise<MediaDeviceInfo | null> {
   try {
     this.isScanning.set(true);
     
-    // Vérifier la présence d'un document
-    const hasDocument = await this.regulaService.checkDocumentPresence();
-    
-    if (!hasDocument) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Document absent',
-        detail: 'Veuillez insérer un document dans le lecteur',
-        life: 4000
-      });
-      this.isScanning.set(false);
-      return;
-    }
+    this.identityData = null;
+    this.regulaService.readDocument().subscribe({
+      next: (rest) => {
+        console.log('Données extraites pour image:', rest);
+        this.identityData = rest;
+        this.remplirFormulaireAvecDonnees(this.identityData);
+        
+        // Utiliser l'image complète du document
+        const imageBase64 = this.identityData.image || this.identityData.photo;
+        
+        if (imageBase64) {
+          // Convertir en File
+          const file = this.base64ToFile(
+            imageBase64, 
+            type === 'recto' ? 'recto.jpg' : 'verso.jpg'
+          );
+          
+          // Mettre à jour le formulaire avec le File
+          if (type === 'recto') {
+            this.formData.update(form => ({
+              ...form,
+              imageRecto: file
+            }));
 
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Scan en cours',
-      detail: `Capture de l'image ${type}...`,
-      life: 2000
-    });
+            
+             this.formData.update(form => ({
+              ...form,
+              photoProfil: this.base64ToFile(
+            rest.photo ? rest.photo: "", "photo.jpg"
+          )
+            }));
+            this.profilPreview.set(this.ensureBase64Prefix(rest.photo ? rest.photo: ""));
+            // Stocker aussi le base64 pour l'aperçu
+            this.rectoPreview.set(this.ensureBase64Prefix(imageBase64));
+          } else {
+            this.formData.update(form => ({
+              ...form,
+              imageVerso: file
+            }));
+            // Stocker aussi le base64 pour l'aperçu
+            this.versoPreview.set(this.ensureBase64Prefix(imageBase64));
+          }
 
-    // Capturer l'image
-    const imageBase64 = await this.regulaService.captureImage('white');
-     const file = this.base64ToFile(imageBase64, type === 'recto' ? 'recto.jpg' : 'verso.jpg');
-    
-    // Mettre à jour le formulaire
-    if (type === 'recto') {
-      this.formData.update(form => ({
-        ...form,
-        imageRecto: file
-      }));
-    } else {
-      this.formData.update(form => ({
-        ...form,
-        imageVerso: file
-      }));
-    }
-
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Image capturée',
-      detail: `Image ${type} enregistrée avec succès`,
-      life: 3000
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Image capturée',
+            detail: `Image ${type} enregistrée avec succès`,
+            life: 3000
+          });
+        } else {
+          console.warn('Aucune image disponible dans les données');
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Image manquante',
+            detail: 'Aucune image n\'a été retournée par le lecteur',
+            life: 3000
+          });
+        }
+        
+        this.isScanning.set(false);
+      },
+      error: (err) => {
+        console.error('Erreur scan:', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur de scan',
+          detail: err.message || 'Impossible de scanner le document',
+          life: 5000
+        });
+        this.isScanning.set(false);
+      }
     });
 
   } catch (error) {
@@ -1095,12 +840,47 @@ async selectWebcam(): Promise<MediaDeviceInfo | null> {
       detail: (error as Error).message || 'Impossible de scanner le document',
       life: 5000
     });
-  } finally {
     this.isScanning.set(false);
   }
 }
 
+// Fonction corrigée pour gérer les images base64 avec ou sans préfixe
 base64ToFile(base64: string, filename: string): File {
+  try {
+    // Vérifier si le base64 a le préfixe data:image
+    let base64Data = base64;
+    let mimeType = 'image/jpeg'; // Type par défaut
+    
+    if (base64.includes(',')) {
+      // Format: data:image/jpeg;base64,/9j/4AAQ...
+      const arr = base64.split(',');
+      const mimeMatch = arr[0].match(/:(.*?);/);
+      if (mimeMatch) {
+        mimeType = mimeMatch[1];
+      }
+      base64Data = arr[1];
+    } else {
+      // Format: /9j/4AAQ... (sans préfixe)
+      base64Data = base64;
+    }
+
+    // Décoder le base64
+    const bstr = atob(base64Data);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+
+    return new File([u8arr], filename, { type: mimeType });
+  } catch (error) {
+    console.error('Erreur lors de la conversion base64 vers File:', error);
+    // Retourner un fichier vide en cas d'erreur
+    return new File([], filename, { type: 'image/jpeg' });
+  }
+}
+base64ToFile1(base64: string, filename: string): File {
   const arr = base64.split(',');
   const mime = arr[0].match(/:(.*?);/)![1];
   const bstr = atob(arr[1]);
@@ -1114,86 +894,6 @@ base64ToFile(base64: string, filename: string): File {
   return new File([u8arr], filename, { type: mime });
 }
 
-/**
- * Lire complètement le document et extraire les données
- */
-async lireEtExtraireDocument(): Promise<void> {
-  const status = this.regulaService.getCurrentStatus();
-  
-  if (!status.connected || !status.ready) {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Lecteur non disponible',
-      detail: 'Le lecteur Regula n\'est pas connecté',
-      life: 4000
-    });
-    return;
-  }
-
-  try {
-    this.isScanning.set(true);
-    
-    // Vérifier la présence d'un document
-    const hasDocument = await this.regulaService.checkDocumentPresence();
-    
-    if (!hasDocument) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Document absent',
-        detail: 'Veuillez insérer un document dans le lecteur',
-        life: 4000
-      });
-      this.isScanning.set(false);
-      return;
-    }
-
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Lecture en cours',
-      detail: 'Analyse du document...',
-      life: 2000
-    });
-
-    // Lire le document (retourne un Observable)
-    this.regulaService.readDocument().subscribe({
-      next: (data) => {
-        console.log('✅ Données extraites:', data);
-        
-        // Les données sont automatiquement remplies via l'observable
-        // mais vous pouvez aussi les utiliser directement ici
-        
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Document lu',
-          detail: `${data.firstName} ${data.lastName} - ${data.documentNumber}`,
-          life: 5000
-        });
-        
-        this.isScanning.set(false);
-      },
-      error: (err) => {
-        console.error('❌ Erreur lecture:', err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur de lecture',
-          detail: err.message || 'Impossible de lire le document',
-          life: 5000
-        });
-        this.isScanning.set(false);
-      }
-    });
-
-  } catch (error) {
-    console.error('Erreur:', error);
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erreur',
-      detail: (error as Error).message || 'Une erreur est survenue',
-      life: 5000
-    });
-    this.isScanning.set(false);
-  }
-}
 
 /**
  * Remplit le formulaire avec les données extraites du document
@@ -1231,7 +931,7 @@ private remplirFormulaireAvecDonnees(data: IdentityData): void {
   // Sélectionner la nationalité dans le dropdown
   if (data.nationality) {
     const nat = this.nationalites.find(n => 
-      n.nationalite.toLowerCase().includes(data.nationality!.toLowerCase())
+      n.name.toLowerCase().includes(data.nationality!.toLowerCase())
     );
     if (nat) {
       this.selectedNationalite = nat;
@@ -1259,11 +959,14 @@ private mapDocumentType(docType?: string): TypeDocument | undefined {
 /**
  * Parse une date depuis le format Regula
  */
-private parseDate(dateStr?: string): string | undefined {
+/**
+ * Parse une date depuis le format Regula et retourne un objet Date
+ */
+private parseDate(dateStr?: string): Date | string | undefined {
   if (!dateStr) return undefined;
   
   try {
-    // Regula retourne souvent DDMMYYYY ou DD/MM/YYYY
+    // Regula retourne souvent DD/MM/YYYY ou DDMMYYYY
     const cleaned = dateStr.replace(/[\/\-\.]/g, '');
     
     if (cleaned.length === 8) {
@@ -1271,8 +974,31 @@ private parseDate(dateStr?: string): string | undefined {
       const month = cleaned.substring(2, 4);
       const year = cleaned.substring(4, 8);
       
-      // Format ISO pour Angular calendar: YYYY-MM-DD
-      return `${year}-${month}-${day}`;
+      // Créer un objet Date pour p-calendar
+      const dateObj = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      
+      // Vérifier que la date est valide
+      if (!isNaN(dateObj.getTime())) {
+        console.log(`📅 Date parsée: ${dateStr} → ${dateObj.toLocaleDateString()}`);
+        return dateObj;
+      }
+    }
+    
+    // Si le format est déjà YYYY-MM-DD
+    if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      const dateObj = new Date(dateStr);
+      if (!isNaN(dateObj.getTime())) {
+        return dateObj;
+      }
+    }
+    
+    // Si le format est DD/MM/YYYY
+    if (dateStr.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+      const parts = dateStr.split('/');
+      const dateObj = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+      if (!isNaN(dateObj.getTime())) {
+        return dateObj;
+      }
     }
     
     return dateStr;

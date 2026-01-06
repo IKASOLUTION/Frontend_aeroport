@@ -14,7 +14,7 @@
 </div>
 
 <form (ngSubmit)="submitEnregistrement()" #enregistrementForm="ngForm" novalidate>
-  
+
   <!-- Section 1: Documents et Photos -->
   <p-card styleClass="shadow-2 mb-4">
     <ng-template pTemplate="header">
@@ -28,7 +28,6 @@
     </ng-template>
 
     <div class="grid">
-      <!-- Capture Document Recto -->
       <div class="col-12 md:col-4">
         <div class="surface-border border-1 border-round p-4 hover:surface-hover transition-duration-150">
           <div class="flex align-items-center justify-content-between mb-3">
@@ -36,54 +35,40 @@
               Document Recto
               <span class="text-red-500 ml-1">*</span>
             </label>
-            <p-tag 
-              [value]="formData().imageRecto ? 'Capturé' : 'En attente'" 
-              [severity]="formData().imageRecto ? 'success' : 'warning'"
-              [rounded]="true">
+            <p-tag [value]="rectoPreview() ? 'Capturé' : 'En attente'"
+              [severity]="rectoPreview() ? 'success' : 'warning'" [rounded]="true">
             </p-tag>
           </div>
 
-          <div class="w-full border-round overflow-hidden mb-3" 
-               [ngClass]="formData().imageRecto ? 'border-2 border-green-500' : 'border-2 border-300'">
+          <div class="w-full border-round overflow-hidden mb-3"
+            [ngClass]="rectoPreview() ? 'border-2 border-green-500' : 'border-2 border-300'">
             <div class="relative" style="padding-top: 66.67%;">
-              <div class="absolute top-0 left-0 w-full h-full flex align-items-center justify-content-center bg-gray-50">
-                @if (formData().imageRecto) {
-                  <img [src]="formData().imageRecto" 
-                       alt="Document recto" 
-                       class="w-full h-full object-fit-cover">
+              <div
+                class="absolute top-0 left-0 w-full h-full flex align-items-center justify-content-center bg-gray-50">
+                @if (rectoPreview()) {
+                <img [src]="rectoPreview()" alt="Document recto" class="w-full h-full object-fit-cover">
                 } @else {
-                  <i class="pi pi-id-card text-6xl text-400"></i>
+                <i class="pi pi-id-card text-6xl text-400"></i>
                 }
               </div>
             </div>
           </div>
 
           <div class="flex flex-column gap-2">
-            <p-button 
-              label="Scanner Regula" 
-              icon="pi pi-qrcode" 
-              [outlined]="true"
-              [disabled]="isScanning()"
-              [loading]="isScanning()"
-              (onClick)="scannerDocumentAvecRegula('recto')"
-              styleClass="w-full">
+            <p-button label="Scanner Regula" icon="pi pi-qrcode" [outlined]="true" [disabled]="isScanning()"
+              [loading]="isScanning()" (onClick)="scannerDocumentAvecRegula('recto')" styleClass="w-full">
             </p-button>
-            
-            <p-button 
-              label="Webcam" 
-              icon="pi pi-camera" 
-              severity="secondary"
-              [outlined]="true"
-              (onClick)="demarrerCamera('recto')"
-              styleClass="w-full">
-            </p-button>
-          </div>
+
+           <!--  <p-button label="Webcam" icon="pi pi-camera" severity="secondary" [outlined]="true"
+              (onClick)="demarrerCamera('recto')" styleClass="w-full">
+            </p-button> -->
+          </div> 
 
           @if (formErrors()['imageRecto']) {
-            <small class="p-error block mt-2">
-              <i class="pi pi-exclamation-circle mr-1"></i>
-              {{ formErrors()['imageRecto'] }}
-            </small>
+          <small class="p-error block mt-2">
+            <i class="pi pi-exclamation-circle mr-1"></i>
+            {{ formErrors()['imageRecto'] }}
+          </small>
           }
         </div>
       </div>
@@ -96,54 +81,45 @@
               Document Verso
               <span class="text-red-500 ml-1">*</span>
             </label>
-            <p-tag 
-              [value]="formData().imageVerso ? 'Capturé' : 'En attente'" 
-              [severity]="formData().imageVerso ? 'success' : 'warning'"
-              [rounded]="true">
+            <p-tag [value]="versoPreview() ? 'Capturé' : 'En attente'"
+              [severity]="versoPreview() ? 'success' : 'warning'" [rounded]="true">
             </p-tag>
           </div>
 
-          <div class="w-full border-round overflow-hidden mb-3" 
-               [ngClass]="formData().imageVerso ? 'border-2 border-green-500' : 'border-2 border-300'">
+          <div class="w-full border-round overflow-hidden mb-3"
+            [ngClass]="versoPreview() ? 'border-2 border-green-500' : 'border-2 border-300'">
             <div class="relative" style="padding-top: 66.67%;">
-              <div class="absolute top-0 left-0 w-full h-full flex align-items-center justify-content-center bg-gray-50">
-                @if (formData().imageVerso) {
-                  <img [src]="formData().imageVerso" 
-                       alt="Document verso" 
-                       class="w-full h-full object-fit-cover">
+              <div
+                class="absolute top-0 left-0 w-full h-full flex align-items-center justify-content-center bg-gray-50">
+                @if (versoPreview()) {
+                <img [src]="versoPreview()" alt="Document verso" class="w-full h-full object-fit-cover">
                 } @else {
-                  <i class="pi pi-book text-6xl text-400"></i>
+                <i class="pi pi-book text-6xl text-400"></i>
                 }
               </div>
             </div>
           </div>
 
           <div class="flex flex-column gap-2">
-            <p-button 
-              label="Scanner Regula" 
-              icon="pi pi-qrcode" 
-              [outlined]="true"
-              [disabled]="isScanning()"
-              [loading]="isScanning()"
-              (onClick)="scannerDocumentAvecRegula('verso')"
-              styleClass="w-full">
+            <p-button label="Scanner Regula" icon="pi pi-qrcode" [outlined]="true" [disabled]="isScanning()"
+              [loading]="isScanning()" (onClick)="scannerDocumentAvecRegula('verso')" styleClass="w-full">
             </p-button>
-            
-            <p-button 
-              label="Webcam" 
-              icon="pi pi-camera" 
-              severity="secondary"
-              [outlined]="true"
-              (onClick)="demarrerCamera('verso')"
-              styleClass="w-full">
-            </p-button>
+
+            <!--  <p-button 
+          label="Webcam" 
+          icon="pi pi-camera" 
+          severity="secondary"
+          [outlined]="true"
+          (onClick)="demarrerCamera('verso')"
+          styleClass="w-full">
+        </p-button> -->
           </div>
 
           @if (formErrors()['imageVerso']) {
-            <small class="p-error block mt-2">
-              <i class="pi pi-exclamation-circle mr-1"></i>
-              {{ formErrors()['imageVerso'] }}
-            </small>
+          <small class="p-error block mt-2">
+            <i class="pi pi-exclamation-circle mr-1"></i>
+            {{ formErrors()['imageVerso'] }}
+          </small>
           }
         </div>
       </div>
@@ -156,44 +132,40 @@
               Photo de Profil
               <span class="text-red-500 ml-1">*</span>
             </label>
-            <p-tag 
-              [value]="formData().photoProfil ? 'Capturé' : 'En attente'" 
-              [severity]="formData().photoProfil ? 'success' : 'warning'"
-              [rounded]="true">
+            <p-tag [value]="profilPreview() ? 'Capturé' : 'En attente'"
+              [severity]="profilPreview() ? 'success' : 'warning'" [rounded]="true">
             </p-tag>
           </div>
 
           <div class="flex justify-content-center mb-3">
             <div class="relative" style="width: 160px; height: 160px;">
               <div class="w-full h-full border-circle overflow-hidden"
-                   [ngClass]="formData().photoProfil ? 'border-3 border-green-500' : 'border-3 border-300'">
+                [ngClass]="profilPreview() ? 'border-3 border-green-500' : 'border-3 border-300'">
                 <div class="w-full h-full flex align-items-center justify-content-center bg-gray-50">
-                  @if (formData().photoProfil) {
-                    <img [src]="formData().photoProfil" 
-                         alt="Photo de profil" 
-                         class="w-full h-full object-fit-cover">
+                  @if (profilPreview()) {
+                  <img [src]="profilPreview()" alt="Photo de profil" class="w-full h-full object-fit-cover">
                   } @else {
-                    <i class="pi pi-user text-6xl text-400"></i>
+                  <i class="pi pi-user text-6xl text-400"></i>
                   }
                 </div>
               </div>
             </div>
           </div>
 
-          <p-button 
+          <!-- <p-button 
             label="Prendre la Photo" 
             icon="pi pi-camera" 
             severity="success"
             [outlined]="true"
             (onClick)="demarrerCamera('profil')"
             styleClass="w-full">
-          </p-button>
+          </p-button> -->
 
           @if (formErrors()['photoProfil']) {
-            <small class="p-error block text-center mt-2">
-              <i class="pi pi-exclamation-circle mr-1"></i>
-              {{ formErrors()['photoProfil'] }}
-            </small>
+          <small class="p-error block text-center mt-2">
+            <i class="pi pi-exclamation-circle mr-1"></i>
+            {{ formErrors()['photoProfil'] }}
+          </small>
           }
         </div>
       </div>
@@ -207,17 +179,12 @@
         <label for="typeDocument" class="block text-900 font-semibold mb-2">
           Type de document <span class="text-red-500">*</span>
         </label>
-        <p-dropdown 
-          id="typeDocument" 
-          name="typeDocument" 
-          [options]="typesDocument" 
-          [(ngModel)]="formData().typeDocument"
-          placeholder="Sélectionner"
-          [class]="formErrors()['typeDocument'] ? 'ng-invalid ng-dirty' : ''"
-          styleClass="w-full">
+        <p-dropdown id="typeDocument" name="typeDocument" [options]="typesDocument"
+          [(ngModel)]="formData().typeDocument" placeholder="Sélectionner"
+          [class]="formErrors()['typeDocument'] ? 'ng-invalid ng-dirty' : ''" styleClass="w-full">
         </p-dropdown>
         @if (formErrors()['typeDocument']) {
-          <small class="p-error block mt-1">{{ formErrors()['typeDocument'] }}</small>
+        <small class="p-error block mt-1">{{ formErrors()['typeDocument'] }}</small>
         }
       </div>
 
@@ -225,16 +192,11 @@
         <label for="numeroDocument" class="block text-900 font-semibold mb-2">
           N° de document <span class="text-red-500">*</span>
         </label>
-        <input 
-          pInputText 
-          id="numeroDocument" 
-          name="numeroDocument" 
-          [(ngModel)]="formData().numeroDocument"
-          placeholder="Entrez le numéro"
-          [class]="formErrors()['numeroDocument'] ? 'ng-invalid ng-dirty' : ''" 
+        <input pInputText id="numeroDocument" name="numeroDocument" [(ngModel)]="formData().numeroDocument"
+          placeholder="Entrez le numéro" [class]="formErrors()['numeroDocument'] ? 'ng-invalid ng-dirty' : ''"
           class="w-full">
         @if (formErrors()['numeroDocument']) {
-          <small class="p-error block mt-1">{{ formErrors()['numeroDocument'] }}</small>
+        <small class="p-error block mt-1">{{ formErrors()['numeroDocument'] }}</small>
         }
       </div>
 
@@ -243,12 +205,7 @@
           Numéro NIP
           <span class="text-500 text-sm font-normal ml-1">(Optionnel)</span>
         </label>
-        <input 
-          pInputText 
-          id="numeroNip" 
-          name="numeroNip" 
-          [(ngModel)]="formData().numeroNip"
-          placeholder="Entrez le NIP"
+        <input pInputText id="numeroNip" name="numeroNip" [(ngModel)]="formData().numeroNip" placeholder="Entrez le NIP"
           class="w-full">
       </div>
 
@@ -256,19 +213,12 @@
         <label for="dateDelivrance" class="block text-900 font-semibold mb-2">
           Date de délivrance <span class="text-red-500">*</span>
         </label>
-        <p-calendar 
-          id="dateDelivrance" 
-          name="dateDelivrance" 
-          [(ngModel)]="formData().dateDelivrance" 
-          dateFormat="dd/mm/yy" 
-          [showIcon]="true"
-          [iconDisplay]="'input'"
-          placeholder="jj/mm/aaaa"
-          [class]="formErrors()['dateDelivrance'] ? 'ng-invalid ng-dirty' : ''"
-          styleClass="w-full">
+        <p-calendar id="dateDelivrance" name="dateDelivrance" [(ngModel)]="formData().dateDelivrance"
+          dateFormat="dd/mm/yy" [showIcon]="true" [iconDisplay]="'input'" placeholder="jj/mm/aaaa"
+          [class]="formErrors()['dateDelivrance'] ? 'ng-invalid ng-dirty' : ''" styleClass="w-full">
         </p-calendar>
         @if (formErrors()['dateDelivrance']) {
-          <small class="p-error block mt-1">{{ formErrors()['dateDelivrance'] }}</small>
+        <small class="p-error block mt-1">{{ formErrors()['dateDelivrance'] }}</small>
         }
       </div>
 
@@ -276,16 +226,11 @@
         <label for="lieuDelivrance" class="block text-900 font-semibold mb-2">
           Lieu de délivrance <span class="text-red-500">*</span>
         </label>
-        <input 
-          pInputText 
-          id="lieuDelivrance" 
-          name="lieuDelivrance" 
-          [(ngModel)]="formData().lieuDelivrance"
-          placeholder="Ville de délivrance"
-          [class]="formErrors()['lieuDelivrance'] ? 'ng-invalid ng-dirty' : ''" 
+        <input pInputText id="lieuDelivrance" name="lieuDelivrance" [(ngModel)]="formData().lieuDelivrance"
+          placeholder="Ville de délivrance" [class]="formErrors()['lieuDelivrance'] ? 'ng-invalid ng-dirty' : ''"
           class="w-full">
         @if (formErrors()['lieuDelivrance']) {
-          <small class="p-error block mt-1">{{ formErrors()['lieuDelivrance'] }}</small>
+        <small class="p-error block mt-1">{{ formErrors()['lieuDelivrance'] }}</small>
         }
       </div>
     </div>
@@ -305,56 +250,39 @@
 
     <div class="grid">
       <div class="col-12 md:col-4">
-        <label for="prenom" class="block text-900 font-semibold mb-2">
-          Prénom <span class="text-red-500">*</span>
-        </label>
-        <input 
-          pInputText 
-          id="prenom" 
-          name="prenom" 
-          [(ngModel)]="formData().prenom"
-          placeholder="Prénom du passager"
-          [class]="formErrors()['prenom'] ? 'ng-invalid ng-dirty' : ''" 
-          class="w-full">
-        @if (formErrors()['prenom']) {
-          <small class="p-error block mt-1">{{ formErrors()['prenom'] }}</small>
-        }
-      </div>
-
-      <div class="col-12 md:col-4">
         <label for="nomFamille" class="block text-900 font-semibold mb-2">
           Nom de famille <span class="text-red-500">*</span>
         </label>
-        <input 
-          pInputText 
-          id="nomFamille" 
-          name="nomFamille" 
-          [(ngModel)]="formData().nomFamille"
-          placeholder="Nom de famille"
-          [class]="formErrors()['nomFamille'] ? 'ng-invalid ng-dirty' : ''" 
-          class="w-full">
+        <input pInputText id="nomFamille" name="nomFamille" [(ngModel)]="formData().nomFamille"
+          placeholder="Nom de famille" [class]="formErrors()['nomFamille'] ? 'ng-invalid ng-dirty' : ''" class="w-full">
         @if (formErrors()['nomFamille']) {
-          <small class="p-error block mt-1">{{ formErrors()['nomFamille'] }}</small>
+        <small class="p-error block mt-1">{{ formErrors()['nomFamille'] }}</small>
         }
       </div>
+      
+      <div class="col-12 md:col-4">
+        <label for="prenom" class="block text-900 font-semibold mb-2">
+          Prénom <span class="text-red-500">*</span>
+        </label>
+        <input pInputText id="prenom" name="prenom" [(ngModel)]="formData().prenom" placeholder="Prénom du passager"
+          [class]="formErrors()['prenom'] ? 'ng-invalid ng-dirty' : ''" class="w-full">
+        @if (formErrors()['prenom']) {
+        <small class="p-error block mt-1">{{ formErrors()['prenom'] }}</small>
+        }
+      </div>
+
+      
 
       <div class="col-12 md:col-4">
         <label for="dateNaissance" class="block text-900 font-semibold mb-2">
           Date de naissance <span class="text-red-500">*</span>
         </label>
-        <p-calendar 
-          id="dateNaissance" 
-          name="dateNaissance" 
-          [(ngModel)]="formData().dateNaissance" 
-          dateFormat="dd/mm/yy" 
-          [showIcon]="true"
-          [iconDisplay]="'input'"
-          placeholder="jj/mm/aaaa"
-          [class]="formErrors()['dateNaissance'] ? 'ng-invalid ng-dirty' : ''"
-          styleClass="w-full">
+        <p-calendar id="dateNaissance" name="dateNaissance" [(ngModel)]="formData().dateNaissance" dateFormat="dd/mm/yy"
+          [showIcon]="true" [iconDisplay]="'input'" placeholder="jj/mm/aaaa"
+          [class]="formErrors()['dateNaissance'] ? 'ng-invalid ng-dirty' : ''" styleClass="w-full">
         </p-calendar>
         @if (formErrors()['dateNaissance']) {
-          <small class="p-error block mt-1">{{ formErrors()['dateNaissance'] }}</small>
+        <small class="p-error block mt-1">{{ formErrors()['dateNaissance'] }}</small>
         }
       </div>
 
@@ -362,16 +290,11 @@
         <label for="lieuNaissance" class="block text-900 font-semibold mb-2">
           Lieu de naissance <span class="text-red-500">*</span>
         </label>
-        <input 
-          pInputText 
-          id="lieuNaissance" 
-          name="lieuNaissance" 
-          [(ngModel)]="formData().lieuNaissance"
-          placeholder="Ville de naissance"
-          [class]="formErrors()['lieuNaissance'] ? 'ng-invalid ng-dirty' : ''" 
+        <input pInputText id="lieuNaissance" name="lieuNaissance" [(ngModel)]="formData().lieuNaissance"
+          placeholder="Ville de naissance" [class]="formErrors()['lieuNaissance'] ? 'ng-invalid ng-dirty' : ''"
           class="w-full">
         @if (formErrors()['lieuNaissance']) {
-          <small class="p-error block mt-1">{{ formErrors()['lieuNaissance'] }}</small>
+        <small class="p-error block mt-1">{{ formErrors()['lieuNaissance'] }}</small>
         }
       </div>
 
@@ -379,25 +302,14 @@
         <label for="nationalite" class="block text-900 font-semibold mb-2">
           Nationalité <span class="text-red-500">*</span>
         </label>
-        <p-dropdown
-          id="nationalite"
-          [options]="nationalites"
-          [ngModelOptions]="{standalone: true}"
-          [(ngModel)]="selectedNationalite"
-          [showClear]="true"
-          [filter]="true"
-          (onChange)="findNationalite(selectedNationalite)"
-          filterBy="nationalite"
-          placeholder="Sélectionnez une nationalité"
-          optionLabel="nationalite"
-          appendTo="body"
-          styleClass="w-full">
+        <p-dropdown id="nationalite" [options]="nationalites" [ngModelOptions]="{standalone: true}"
+          [(ngModel)]="selectedNationalite" [showClear]="true" [filter]="true"
+          (onChange)="findNationalite(selectedNationalite)" filterBy="nationalite"
+          placeholder="Sélectionnez une nationalité" optionLabel="nationalite" appendTo="body" styleClass="w-full">
           <ng-template let-nationalite pTemplate="item">
             <div class="flex align-items-center gap-2">
-              <img 
-                src="assets/demo/images/flag/flag_placeholder.png"
-                [class]="'flag flag-' + nationalite.code.toLowerCase()" 
-                style="width:21px" />
+              <img src="assets/demo/images/flag/flag_placeholder.png"
+                [class]="'flag flag-' + nationalite.code.toLowerCase()" style="width:21px" />
               <span>{{nationalite.nationalite}}</span>
             </div>
           </ng-template>
@@ -408,16 +320,10 @@
         <label for="profession" class="block text-900 font-semibold mb-2">
           Profession <span class="text-red-500">*</span>
         </label>
-        <input 
-          pInputText 
-          id="profession" 
-          name="profession" 
-          [(ngModel)]="formData().profession"
-          placeholder="Profession"
-          [class]="formErrors()['profession'] ? 'ng-invalid ng-dirty' : ''" 
-          class="w-full">
+        <input pInputText id="profession" name="profession" [(ngModel)]="formData().profession" placeholder="Profession"
+          [class]="formErrors()['profession'] ? 'ng-invalid ng-dirty' : ''" class="w-full">
         @if (formErrors()['profession']) {
-          <small class="p-error block mt-1">{{ formErrors()['profession'] }}</small>
+        <small class="p-error block mt-1">{{ formErrors()['profession'] }}</small>
         }
       </div>
     </div>
@@ -440,25 +346,13 @@
         <label for="pays" class="block text-900 font-semibold mb-2">
           Pays de résidence <span class="text-red-500">*</span>
         </label>
-        <p-dropdown
-          id="pays"
-          [options]="countries"
-          [ngModelOptions]="{standalone: true}"
-          [(ngModel)]="selectedCountry"
-          [showClear]="true"
-          [filter]="true"
-          (onChange)="findPays(selectedCountry)"
-          filterBy="name"
-          placeholder="Sélectionnez un pays"
-          optionLabel="name"
-          appendTo="body"
-          styleClass="w-full">
+        <p-dropdown id="pays" [options]="countries" [ngModelOptions]="{standalone: true}" [(ngModel)]="selectedCountry"
+          [showClear]="true" [filter]="true" (onChange)="findPays(selectedCountry)" filterBy="name"
+          placeholder="Sélectionnez un pays" optionLabel="name" appendTo="body" styleClass="w-full">
           <ng-template let-country pTemplate="item">
             <div class="flex align-items-center gap-2">
-              <img 
-                src="assets/demo/images/flag/flag_placeholder.png"
-                [class]="'flag flag-' + country.code.toLowerCase()" 
-                style="width:21px" />
+              <img src="assets/demo/images/flag/flag_placeholder.png"
+                [class]="'flag flag-' + country.code.toLowerCase()" style="width:21px" />
               <span>{{country.name}}</span>
             </div>
           </ng-template>
@@ -474,14 +368,8 @@
           <span class="p-inputgroup-addon">
             <i class="pi pi-envelope"></i>
           </span>
-          <input 
-            pInputText 
-            type="email" 
-            id="emailContact" 
-            name="emailContact" 
-            [(ngModel)]="formData().emailContact"
-            placeholder="exemple@email.com"
-            [class]="formErrors()['emailContact'] ? 'ng-invalid ng-dirty' : ''">
+          <input pInputText type="email" id="emailContact" name="emailContact" [(ngModel)]="formData().emailContact"
+            placeholder="exemple@email.com" [class]="formErrors()['emailContact'] ? 'ng-invalid ng-dirty' : ''">
         </div>
       </div>
 
@@ -494,13 +382,8 @@
           <span class="p-inputgroup-addon">
             <i class="pi pi-phone"></i>
           </span>
-          <p-inputMask 
-            id="telephoneBurkina" 
-             styleClass="w-full"
-            name="telephoneBurkina" 
-            [(ngModel)]="formData().telephoneBurkina" 
-            mask="+226 99999999" 
-            placeholder="+226 XXXXXXXX" 
+          <p-inputMask id="telephoneBurkina" styleClass="w-full" name="telephoneBurkina"
+            [(ngModel)]="formData().telephoneBurkina" mask="+226 99999999" placeholder="+226 XXXXXXXX"
             [class]="formErrors()['telephoneBurkina'] ? 'ng-invalid ng-dirty' : ''">
           </p-inputMask>
         </div>
@@ -515,13 +398,8 @@
           <span class="p-inputgroup-addon">
             <i class="pi pi-phone"></i>
           </span>
-          <input 
-            pInputText 
-            type="tel" 
-            id="telephoneEtranger" 
-            name="telephoneEtranger" 
-            [(ngModel)]="formData().telephoneEtranger"
-            placeholder="+XXX XXXXXXXXX">
+          <input pInputText type="tel" id="telephoneEtranger" name="telephoneEtranger"
+            [(ngModel)]="formData().telephoneEtranger" placeholder="+XXX XXXXXXXXX">
         </div>
       </div>
 
@@ -529,18 +407,12 @@
         <label for="adresseBurkina" class="block text-900 font-semibold mb-2">
           Adresse au Burkina <span class="text-red-500">*</span>
         </label>
-        <textarea 
-          pInputTextarea 
-          id="adresseBurkina" 
-          name="adresseBurkina" 
-          [(ngModel)]="formData().adresseBurkina" 
-          rows="3"
-          placeholder="Adresse complète au Burkina Faso"
-          [class]="formErrors()['adresseBurkina'] ? 'ng-invalid ng-dirty' : ''" 
-          class="w-full">
+        <textarea pInputTextarea id="adresseBurkina" name="adresseBurkina" [(ngModel)]="formData().adresseBurkina"
+          rows="3" placeholder="Adresse complète au Burkina Faso"
+          [class]="formErrors()['adresseBurkina'] ? 'ng-invalid ng-dirty' : ''" class="w-full">
         </textarea>
         @if (formErrors()['adresseBurkina']) {
-          <small class="p-error block mt-1">{{ formErrors()['adresseBurkina'] }}</small>
+        <small class="p-error block mt-1">{{ formErrors()['adresseBurkina'] }}</small>
         }
       </div>
 
@@ -548,18 +420,12 @@
         <label for="adresseEtranger" class="block text-900 font-semibold mb-2">
           Adresse à l'étranger <span class="text-red-500">*</span>
         </label>
-        <textarea 
-          pInputTextarea 
-          id="adresseEtranger" 
-          name="adresseEtranger" 
-          [(ngModel)]="formData().adresseEtranger" 
-          rows="3"
-          placeholder="Adresse complète à l'étranger"
-          [class]="formErrors()['adresseEtranger'] ? 'ng-invalid ng-dirty' : ''" 
-          class="w-full">
+        <textarea pInputTextarea id="adresseEtranger" name="adresseEtranger" [(ngModel)]="formData().adresseEtranger"
+          rows="3" placeholder="Adresse complète à l'étranger"
+          [class]="formErrors()['adresseEtranger'] ? 'ng-invalid ng-dirty' : ''" class="w-full">
         </textarea>
         @if (formErrors()['adresseEtranger']) {
-          <small class="p-error block mt-1">{{ formErrors()['adresseEtranger'] }}</small>
+        <small class="p-error block mt-1">{{ formErrors()['adresseEtranger'] }}</small>
         }
       </div>
     </div>
@@ -582,18 +448,9 @@
         <label for="volId" class="block text-900 font-semibold mb-2">
           Vol <span class="text-red-500">*</span>
         </label>
-        <p-dropdown 
-          id="volId"
-          name="volId"
-          [options]="volList()" 
-          [(ngModel)]="formData().volId" 
-          optionLabel="numero" 
-          optionValue="id" 
-          placeholder="Sélectionner un vol" 
-          (onChange)="onVolSelectionChange($event.value)" 
-          [class]="formErrors()['volId'] ? 'ng-invalid ng-dirty' : ''"
-          [filter]="true"
-          filterBy="numero"
+        <p-dropdown id="volId" name="volId" [options]="volList()" [(ngModel)]="formData().volId" optionLabel="numero"
+          optionValue="id" placeholder="Sélectionner un vol" (onChange)="onVolSelectionChange($event.value)"
+          [class]="formErrors()['volId'] ? 'ng-invalid ng-dirty' : ''" [filter]="true" filterBy="numero"
           styleClass="w-full">
           <ng-template pTemplate="selectedItem">
             <ng-container *ngIf="selectedVolInfo() as vol">
@@ -603,9 +460,9 @@
                 <span class="text-500">|</span>
                 <span class="text-sm">
                   @if (vol.typeVol === type) {
-                    {{ vol.aeroport?.nomAeroport }} → {{ vol.nomAgentConnecteAeroport }}
+                  {{ vol.aeroport?.nomAeroport }} → {{ vol.nomAgentConnecteAeroport }}
                   } @else {
-                    {{ vol.nomAgentConnecteAeroport }} → {{ vol.aeroport?.nomAeroport }}
+                  {{ vol.nomAgentConnecteAeroport }} → {{ vol.aeroport?.nomAeroport }}
                   }
                 </span>
               </div>
@@ -619,16 +476,16 @@
               <span class="text-500">|</span>
               <span class="text-sm">
                 @if (vol.typeVol === type) {
-                  {{ vol.aeroport?.nomAeroport }} → {{ vol.nomAgentConnecteAeroport }}
+                {{ vol.aeroport?.nomAeroport }} → {{ vol.nomAgentConnecteAeroport }}
                 } @else {
-                  {{ vol.nomAgentConnecteAeroport }} → {{ vol.aeroport?.nomAeroport }}
+                {{ vol.nomAgentConnecteAeroport }} → {{ vol.aeroport?.nomAeroport }}
                 }
               </span>
             </div>
           </ng-template>
         </p-dropdown>
         @if (formErrors()['volId']) {
-          <small class="p-error block mt-1">{{ formErrors()['volId'] }}</small>
+        <small class="p-error block mt-1">{{ formErrors()['volId'] }}</small>
         }
       </div>
 
@@ -636,19 +493,12 @@
         <label for="motifVoyage" class="block text-900 font-semibold mb-2">
           Motif du voyage <span class="text-red-500">*</span>
         </label>
-        <p-dropdown 
-          id="motifVoyage" 
-          name="motifVoyage" 
-          [options]="motifs()" 
-          [(ngModel)]="formData().motifVoyage" 
-          optionLabel="libelle" 
-          optionValue="value" 
-          placeholder="Sélectionner" 
-          [class]="formErrors()['motifVoyage'] ? 'ng-invalid ng-dirty' : ''"
-          styleClass="w-full">
+        <p-dropdown id="motifVoyage" name="motifVoyage" [options]="motifs()" [(ngModel)]="formData().motifVoyage"
+          optionLabel="libelle" optionValue="value" placeholder="Sélectionner"
+          [class]="formErrors()['motifVoyage'] ? 'ng-invalid ng-dirty' : ''" styleClass="w-full">
         </p-dropdown>
         @if (formErrors()['motifVoyage']) {
-          <small class="p-error block mt-1">{{ formErrors()['motifVoyage'] }}</small>
+        <small class="p-error block mt-1">{{ formErrors()['motifVoyage'] }}</small>
         }
       </div>
 
@@ -656,13 +506,8 @@
         <label for="etatVoyage" class="block text-900 font-semibold mb-2">
           État du voyage <span class="text-red-500">*</span>
         </label>
-        <p-dropdown 
-          id="etatVoyage" 
-          name="etatVoyage" 
-          [options]="etatsVoyage" 
-          [(ngModel)]="formData().etatVoyage" 
-          placeholder="Sélectionner"
-          styleClass="w-full">
+        <p-dropdown id="etatVoyage" name="etatVoyage" [options]="etatsVoyage" [(ngModel)]="formData().etatVoyage"
+          placeholder="Sélectionner" styleClass="w-full">
         </p-dropdown>
       </div>
 
@@ -670,20 +515,12 @@
         <label for="dureeSejour" class="block text-900 font-semibold mb-2">
           Durée du séjour <span class="text-red-500">*</span>
         </label>
-        <p-inputNumber 
-          id="dureeSejour" 
-          name="dureeSejour" 
-          [(ngModel)]="formData().dureeSejour" 
-          [min]="1"
-          [max]="365"
-          [showButtons]="true"
-          suffix=" jours"
-          placeholder="Nombre de jours"
-          [class]="formErrors()['dureeSejour'] ? 'ng-invalid ng-dirty' : ''"
-          styleClass="w-full">
+        <p-inputNumber id="dureeSejour" name="dureeSejour" [(ngModel)]="formData().dureeSejour" [min]="1" [max]="365"
+          [showButtons]="true" suffix=" jours" placeholder="Nombre de jours"
+          [class]="formErrors()['dureeSejour'] ? 'ng-invalid ng-dirty' : ''" styleClass="w-full">
         </p-inputNumber>
         @if (formErrors()['dureeSejour']) {
-          <small class="p-error block mt-1">{{ formErrors()['dureeSejour'] }}</small>
+        <small class="p-error block mt-1">{{ formErrors()['dureeSejour'] }}</small>
         }
       </div>
     </div>
@@ -692,27 +529,15 @@
   <!-- Boutons d'action -->
   <div class="surface-card p-4 shadow-2 border-round">
     <div class="flex justify-content-between align-items-center">
-      <p-button 
-        label="Réinitialiser" 
-        icon="pi pi-refresh" 
-        severity="secondary"
-        [outlined]="true"
+      <p-button label="Réinitialiser" icon="pi pi-refresh" severity="secondary" [outlined]="true"
         (onClick)="resetForm()">
       </p-button>
-      
+
       <div class="flex gap-2">
-        <p-button 
-          label="Sauvegarder en brouillon" 
-          icon="pi pi-save" 
-          severity="secondary"
-          [outlined]="true">
+        <p-button label="Sauvegarder en brouillon" icon="pi pi-save" severity="secondary" [outlined]="true">
         </p-button>
-        
-        <p-button 
-          type="submit" 
-          label="Soumettre l'Enregistrement" 
-          icon="pi pi-check" 
-          [loading]="isSaving()"
+
+        <p-button type="submit" label="Soumettre l'Enregistrement" icon="pi pi-check" [loading]="isSaving()"
           iconPos="right">
         </p-button>
       </div>
@@ -724,16 +549,10 @@
 <!-- Reste des modales identiques mais avec un style amélioré -->
 
 <!-- Modale de Capture Biométrique -->
-<p-dialog 
-  [visible]="isCaptureBiometriqueModalOpen()" 
-  (onHide)="isCaptureBiometriqueModalOpen.set(false)"
-  [modal]="true" 
-  [closable]="true"
-  [style]="{width: '70rem'}"
-  [breakpoints]="{'960px': '90vw'}"
-  [draggable]="false"
+<p-dialog [visible]="isCaptureBiometriqueModalOpen()" (onHide)="isCaptureBiometriqueModalOpen.set(false)" [modal]="true"
+  [closable]="true" [style]="{width: '70rem'}" [breakpoints]="{'960px': '90vw'}" [draggable]="false"
   [resizable]="false">
-  
+
   <ng-template pTemplate="header">
     <div class="flex align-items-center gap-3">
       <i class="pi pi-fingerprint text-4xl text-primary"></i>
@@ -745,220 +564,181 @@
   </ng-template>
 
   @if (passagerPourBiometrie(); as passager) {
-    <div class="surface-100 border-round p-3 mb-4">
-      <div class="flex align-items-center gap-3">
-        <p-avatar 
-          [label]="passager.nom_complet?.charAt(0)" 
-          size="large" 
-          shape="circle"
-          styleClass="bg-primary">
-        </p-avatar>
-        <div>
-          <p class="font-semibold text-900 m-0">{{ passager.nom_complet }}</p>
-          <p class="text-600 text-sm m-0">Document: {{ passager.numeroDocument }}</p>
-        </div>
+  <div class="surface-100 border-round p-3 mb-4">
+    <div class="flex align-items-center gap-3">
+      <p-avatar [label]="passager.nom_complet?.charAt(0)" size="large" shape="circle" styleClass="bg-primary">
+      </p-avatar>
+      <div>
+        <p class="font-semibold text-900 m-0">{{ passager.nom_complet }}</p>
+        <p class="text-600 text-sm m-0">Document: {{ passager.numeroDocument }}</p>
       </div>
     </div>
+  </div>
 
-    <div class="grid">
-      <!-- Main Gauche -->
-      <div class="col-12 md:col-6">
-        <div class="surface-card border-1 surface-border border-round p-4">
-          <div class="flex align-items-center justify-content-between mb-3">
-            <div class="flex align-items-center gap-2">
-              <i class="pi pi-hand-pointer text-2xl text-cyan-500"></i>
-              <div>
-                <p class="font-semibold text-900 m-0">4 doigts main gauche</p>
-                <p class="text-xs m-0 mt-1" 
-                   [class]="empreinteGauche().capturee ? 'text-green-600' : 'text-500'">
-                  {{ empreinteGauche().capturee ? '✓ Capturé' : 'En attente' }}
-                </p>
-              </div>
-            </div>
-            <p-button 
-              [label]="empreinteGauche().capturee ? 'Recapturer' : 'Capturer'" 
-              [icon]="empreinteGauche().capturee ? 'pi pi-refresh' : 'pi pi-plus'"
-              size="small"
-              [outlined]="!empreinteGauche().capturee"
-              (onClick)="capturerEmpreinte('empreinteGauche')">
-            </p-button>
-          </div>
-
-          <div class="border-round overflow-hidden"
-               [ngClass]="empreinteGauche().image ? 'border-2 border-green-500' : 'border-2 border-300'">
-            <div class="relative" style="padding-top: 75%;">
-              <div class="absolute top-0 left-0 w-full h-full flex align-items-center justify-content-center bg-gray-50">
-                @if (empreinteGauche().image) {
-                  <img [src]="empreinteGauche().image" 
-                       alt="Empreinte main gauche" 
-                       class="w-full h-full object-fit-contain">
-                } @else {
-                  <i class="pi pi-image text-6xl text-400"></i>
-                }
-              </div>
+  <div class="grid">
+    <!-- Main Gauche -->
+    <div class="col-12 md:col-6">
+      <div class="surface-card border-1 surface-border border-round p-4">
+        <div class="flex align-items-center justify-content-between mb-3">
+          <div class="flex align-items-center gap-2">
+            <i class="pi pi-hand-pointer text-2xl text-cyan-500"></i>
+            <div>
+              <p class="font-semibold text-900 m-0">4 doigts main gauche</p>
+              <p class="text-xs m-0 mt-1" [class]="empreinteGauche().capturee ? 'text-green-600' : 'text-500'">
+                {{ empreinteGauche().capturee ? '✓ Capturé' : 'En attente' }}
+              </p>
             </div>
           </div>
+          <p-button [label]="empreinteGauche().capturee ? 'Recapturer' : 'Capturer'"
+            [icon]="empreinteGauche().capturee ? 'pi pi-refresh' : 'pi pi-plus'" size="small"
+            [outlined]="!empreinteGauche().capturee" (onClick)="capturerEmpreinte('empreinteGauche')">
+          </p-button>
         </div>
-      </div>
 
-      <!-- Main Droite -->
-      <div class="col-12 md:col-6">
-        <div class="surface-card border-1 surface-border border-round p-4">
-          <div class="flex align-items-center justify-content-between mb-3">
-            <div class="flex align-items-center gap-2">
-              <i class="pi pi-hand-pointer text-2xl text-cyan-500"></i>
-              <div>
-                <p class="font-semibold text-900 m-0">4 doigts main droite</p>
-                <p class="text-xs m-0 mt-1" 
-                   [class]="empreinteDroite().capturee ? 'text-green-600' : 'text-500'">
-                  {{ empreinteDroite().capturee ? '✓ Capturé' : 'En attente' }}
-                </p>
-              </div>
-            </div>
-            <p-button 
-              [label]="empreinteDroite().capturee ? 'Recapturer' : 'Capturer'" 
-              [icon]="empreinteDroite().capturee ? 'pi pi-refresh' : 'pi pi-plus'"
-              size="small"
-              [outlined]="!empreinteDroite().capturee"
-              (onClick)="capturerEmpreinte('empreinteDroite')">
-            </p-button>
-          </div>
-
-          <div class="border-round overflow-hidden"
-               [ngClass]="empreinteDroite().image ? 'border-2 border-green-500' : 'border-2 border-300'">
-            <div class="relative" style="padding-top: 75%;">
-              <div class="absolute top-0 left-0 w-full h-full flex align-items-center justify-content-center bg-gray-50">
-                @if (empreinteDroite().image) {
-                  <img [src]="empreinteDroite().image" 
-                       alt="Empreinte main droite" 
-                       class="w-full h-full object-fit-contain">
-                } @else {
-                  <i class="pi pi-image text-6xl text-400"></i>
-                }
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Pouces -->
-      <div class="col-12 md:col-6">
-        <div class="surface-card border-1 surface-border border-round p-4">
-          <div class="flex align-items-center justify-content-between mb-3">
-            <div class="flex align-items-center gap-2">
-              <i class="pi pi-thumbs-up text-2xl text-purple-500"></i>
-              <div>
-                <p class="font-semibold text-900 m-0">Les deux pouces</p>
-                <p class="text-xs m-0 mt-1" 
-                   [class]="empreintePouces().capturee ? 'text-green-600' : 'text-500'">
-                  {{ empreintePouces().capturee ? '✓ Capturé' : 'En attente' }}
-                </p>
-              </div>
-            </div>
-            <p-button 
-              [label]="empreintePouces().capturee ? 'Recapturer' : 'Capturer'" 
-              [icon]="empreintePouces().capturee ? 'pi pi-refresh' : 'pi pi-plus'"
-              severity="help"
-              size="small"
-              [outlined]="!empreintePouces().capturee"
-              (onClick)="capturerEmpreinte('empreintePouces')">
-            </p-button>
-          </div>
-
-          <div class="border-round overflow-hidden"
-               [ngClass]="empreintePouces().image ? 'border-2 border-green-500' : 'border-2 border-300'">
-            <div class="relative" style="padding-top: 75%;">
-              <div class="absolute top-0 left-0 w-full h-full flex align-items-center justify-content-center bg-gray-50">
-                @if (empreintePouces().image) {
-                  <img [src]="empreintePouces().image" 
-                       alt="Empreinte pouces" 
-                       class="w-full h-full object-fit-contain">
-                } @else {
-                  <i class="pi pi-image text-6xl text-400"></i>
-                }
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Photo d'identité -->
-      <div class="col-12 md:col-6">
-        <div class="surface-card border-1 surface-border border-round p-4">
-          <div class="flex align-items-center justify-content-between mb-3">
-            <div class="flex align-items-center gap-2">
-              <i class="pi pi-camera text-2xl text-green-500"></i>
-              <div>
-                <p class="font-semibold text-900 m-0">Photo d'identité</p>
-                <p class="text-xs m-0 mt-1" 
-                   [class]="capturedPhotoPourBiometrie() ? 'text-green-600' : 'text-500'">
-                  {{ capturedPhotoPourBiometrie() ? '✓ Capturé' : 'En attente' }}
-                </p>
-              </div>
-            </div>
-            <p-button 
-              [label]="capturedPhotoPourBiometrie() ? 'Reprendre' : 'Prendre'" 
-              [icon]="capturedPhotoPourBiometrie() ? 'pi pi-refresh' : 'pi pi-camera'"
-              severity="success"
-              size="small"
-              [outlined]="!capturedPhotoPourBiometrie()"
-              (onClick)="demarrerCamera('biometrique')">
-            </p-button>
-          </div>
-
-          <div class="border-round overflow-hidden"
-               [ngClass]="capturedPhotoPourBiometrie() ? 'border-2 border-green-500' : 'border-2 border-300'">
-            <div class="relative" style="padding-top: 75%;">
-              <div class="absolute top-0 left-0 w-full h-full flex align-items-center justify-content-center bg-gray-50">
-                @if (capturedPhotoPourBiometrie(); as photo) {
-                  <img [src]="photo" 
-                       alt="Photo biométrique" 
-                       class="w-full h-full object-fit-cover">
-                } @else {
-                  <i class="pi pi-user text-6xl text-400"></i>
-                }
-              </div>
+        <div class="border-round overflow-hidden"
+          [ngClass]="empreinteGauche().image ? 'border-2 border-green-500' : 'border-2 border-300'">
+          <div class="relative" style="padding-top: 75%;">
+            <div class="absolute top-0 left-0 w-full h-full flex align-items-center justify-content-center bg-gray-50">
+              @if (empreinteGauche().image) {
+              <img [src]="empreinteGauche().image" alt="Empreinte main gauche" class="w-full h-full object-fit-contain">
+              } @else {
+              <i class="pi pi-image text-6xl text-400"></i>
+              }
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Barre de progression -->
-    <div class="mt-4 p-3 surface-100 border-round">
-      <div class="flex align-items-center justify-content-between mb-2">
-        <span class="text-sm font-semibold text-900">Progression de la capture</span>
-        <span class="text-sm text-600">
-          {{ (empreinteGauche().capturee ? 1 : 0) + 
-             (empreinteDroite().capturee ? 1 : 0) + 
-             (empreintePouces().capturee ? 1 : 0) + 
-             (capturedPhotoPourBiometrie() ? 1 : 0) }} / 4
-        </span>
+    <!-- Main Droite -->
+    <div class="col-12 md:col-6">
+      <div class="surface-card border-1 surface-border border-round p-4">
+        <div class="flex align-items-center justify-content-between mb-3">
+          <div class="flex align-items-center gap-2">
+            <i class="pi pi-hand-pointer text-2xl text-cyan-500"></i>
+            <div>
+              <p class="font-semibold text-900 m-0">4 doigts main droite</p>
+              <p class="text-xs m-0 mt-1" [class]="empreinteDroite().capturee ? 'text-green-600' : 'text-500'">
+                {{ empreinteDroite().capturee ? '✓ Capturé' : 'En attente' }}
+              </p>
+            </div>
+          </div>
+          <p-button [label]="empreinteDroite().capturee ? 'Recapturer' : 'Capturer'"
+            [icon]="empreinteDroite().capturee ? 'pi pi-refresh' : 'pi pi-plus'" size="small"
+            [outlined]="!empreinteDroite().capturee" (onClick)="capturerEmpreinte('empreinteDroite')">
+          </p-button>
+        </div>
+
+        <div class="border-round overflow-hidden"
+          [ngClass]="empreinteDroite().image ? 'border-2 border-green-500' : 'border-2 border-300'">
+          <div class="relative" style="padding-top: 75%;">
+            <div class="absolute top-0 left-0 w-full h-full flex align-items-center justify-content-center bg-gray-50">
+              @if (empreinteDroite().image) {
+              <img [src]="empreinteDroite().image" alt="Empreinte main droite" class="w-full h-full object-fit-contain">
+              } @else {
+              <i class="pi pi-image text-6xl text-400"></i>
+              }
+            </div>
+          </div>
+        </div>
       </div>
-      <p-progressBar 
-        [value]="((empreinteGauche().capturee ? 1 : 0) + 
+    </div>
+
+    <!-- Pouces -->
+    <div class="col-12 md:col-6">
+      <div class="surface-card border-1 surface-border border-round p-4">
+        <div class="flex align-items-center justify-content-between mb-3">
+          <div class="flex align-items-center gap-2">
+            <i class="pi pi-thumbs-up text-2xl text-purple-500"></i>
+            <div>
+              <p class="font-semibold text-900 m-0">Les deux pouces</p>
+              <p class="text-xs m-0 mt-1" [class]="empreintePouces().capturee ? 'text-green-600' : 'text-500'">
+                {{ empreintePouces().capturee ? '✓ Capturé' : 'En attente' }}
+              </p>
+            </div>
+          </div>
+          <p-button [label]="empreintePouces().capturee ? 'Recapturer' : 'Capturer'"
+            [icon]="empreintePouces().capturee ? 'pi pi-refresh' : 'pi pi-plus'" severity="help" size="small"
+            [outlined]="!empreintePouces().capturee" (onClick)="capturerEmpreinte('empreintePouces')">
+          </p-button>
+        </div>
+
+        <div class="border-round overflow-hidden"
+          [ngClass]="empreintePouces().image ? 'border-2 border-green-500' : 'border-2 border-300'">
+          <div class="relative" style="padding-top: 75%;">
+            <div class="absolute top-0 left-0 w-full h-full flex align-items-center justify-content-center bg-gray-50">
+              @if (empreintePouces().image) {
+              <img [src]="empreintePouces().image" alt="Empreinte pouces" class="w-full h-full object-fit-contain">
+              } @else {
+              <i class="pi pi-image text-6xl text-400"></i>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Photo d'identité -->
+    <div class="col-12 md:col-6">
+      <div class="surface-card border-1 surface-border border-round p-4">
+        <div class="flex align-items-center justify-content-between mb-3">
+          <div class="flex align-items-center gap-2">
+            <i class="pi pi-camera text-2xl text-green-500"></i>
+            <div>
+              <p class="font-semibold text-900 m-0">Photo d'identité</p>
+              <p class="text-xs m-0 mt-1" [class]="capturedPhotoPourBiometrie() ? 'text-green-600' : 'text-500'">
+                {{ capturedPhotoPourBiometrie() ? '✓ Capturé' : 'En attente' }}
+              </p>
+            </div>
+          </div>
+          <p-button [label]="capturedPhotoPourBiometrie() ? 'Reprendre' : 'Prendre'"
+            [icon]="capturedPhotoPourBiometrie() ? 'pi pi-refresh' : 'pi pi-camera'" severity="success" size="small"
+            [outlined]="!capturedPhotoPourBiometrie()" (onClick)="demarrerCamera('biometrique')">
+          </p-button>
+        </div>
+
+        <div class="border-round overflow-hidden"
+          [ngClass]="capturedPhotoPourBiometrie() ? 'border-2 border-green-500' : 'border-2 border-300'">
+          <div class="relative" style="padding-top: 75%;">
+            <div class="absolute top-0 left-0 w-full h-full flex align-items-center justify-content-center bg-gray-50">
+              @if (capturedPhotoPourBiometrie(); as photo) {
+              <img [src]="photo" alt="Photo biométrique" class="w-full h-full object-fit-cover">
+              } @else {
+              <i class="pi pi-user text-6xl text-400"></i>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barre de progression -->
+  <div class="mt-4 p-3 surface-100 border-round">
+    <div class="flex align-items-center justify-content-between mb-2">
+      <span class="text-sm font-semibold text-900">Progression de la capture</span>
+      <span class="text-sm text-600">
+        {{ (empreinteGauche().capturee ? 1 : 0) +
+        (empreinteDroite().capturee ? 1 : 0) +
+        (empreintePouces().capturee ? 1 : 0) +
+        (capturedPhotoPourBiometrie() ? 1 : 0) }} / 4
+      </span>
+    </div>
+    <p-progressBar [value]="((empreinteGauche().capturee ? 1 : 0) + 
                   (empreinteDroite().capturee ? 1 : 0) + 
                   (empreintePouces().capturee ? 1 : 0) + 
-                  (capturedPhotoPourBiometrie() ? 1 : 0)) * 25"
-        [showValue]="false">
-      </p-progressBar>
-    </div>
+                  (capturedPhotoPourBiometrie() ? 1 : 0)) * 25" [showValue]="false">
+    </p-progressBar>
+  </div>
   }
 
   <ng-template pTemplate="footer">
     <div class="flex justify-content-between align-items-center w-full">
-      <p-button 
-        label="Annuler" 
-        icon="pi pi-times"
-        severity="secondary"
-        [outlined]="true"
+      <p-button label="Annuler" icon="pi pi-times" severity="secondary" [outlined]="true"
         (onClick)="closeBiometricModal()">
       </p-button>
-      
-      <p-button 
-        label="Sauvegarder et Valider" 
-        icon="pi pi-check"
-        [loading]="isSaving()"
+
+      <p-button label="Sauvegarder et Valider" icon="pi pi-check" [loading]="isSaving()"
         [disabled]="!empreinteGauche().capturee || !empreinteDroite().capturee || !empreintePouces().capturee || !capturedPhotoPourBiometrie()"
         (onClick)="validerAvecBiometrie()">
       </p-button>
@@ -967,16 +747,9 @@
 </p-dialog>
 
 <!-- Modale de capture Webcam -->
-<p-dialog 
-  [visible]="isCameraModalOpen()" 
-  (onHide)="isCameraModalOpen.set(false)"
-  [modal]="true" 
-  [closable]="true"
-  [style]="{width: '50rem'}"
-  [breakpoints]="{'960px': '75vw', '640px': '90vw'}"
-  [draggable]="false"
-  [resizable]="false">
-  
+<p-dialog [visible]="isCameraModalOpen()" (onHide)="isCameraModalOpen.set(false)" [modal]="true" [closable]="true"
+  [style]="{width: '50rem'}" [breakpoints]="{'960px': '75vw', '640px': '90vw'}" [draggable]="false" [resizable]="false">
+
   <ng-template pTemplate="header">
     <div class="flex align-items-center gap-3">
       <i class="pi pi-camera text-3xl text-primary"></i>
@@ -986,16 +759,14 @@
       </div>
     </div>
   </ng-template>
-  
+
   <div class="border-round overflow-hidden" style="background: #000;">
     <div class="relative" style="padding-top: 75%;">
       <div class="absolute top-0 left-0 w-full h-full">
         @if (!capturedPhotoBase64()) {
-          <video #videoElement playsinline autoplay class="w-full h-full object-fit-cover"></video>
+        <video #videoElement playsinline autoplay class="w-full h-full object-fit-cover"></video>
         } @else {
-          <img [src]="capturedPhotoBase64()" 
-               alt="Aperçu de la capture" 
-               class="w-full h-full object-fit-contain bg-black">
+        <img [src]="capturedPhotoBase64()" alt="Aperçu de la capture" class="w-full h-full object-fit-contain bg-black">
         }
       </div>
     </div>
@@ -1005,24 +776,13 @@
   <ng-template pTemplate="footer">
     <div class="flex justify-content-center gap-2 w-full">
       @if (!capturedPhotoBase64()) {
-        <p-button 
-          label="Capturer" 
-          icon="pi pi-camera"
-          size="large"
-          (onClick)="capturerPhoto()">
-        </p-button>
+      <p-button label="Capturer" icon="pi pi-camera" size="large" (onClick)="capturerPhoto()">
+      </p-button>
       } @else {
-        <p-button 
-          label="Reprendre" 
-          icon="pi pi-refresh"
-          severity="secondary"
-          (onClick)="reprendrePhoto()">
-        </p-button>
-        <p-button 
-          label="Confirmer" 
-          icon="pi pi-check"
-          (onClick)="confirmerPhoto()">
-        </p-button>
+      <p-button label="Reprendre" icon="pi pi-refresh" severity="secondary" (onClick)="reprendrePhoto()">
+      </p-button>
+      <p-button label="Confirmer" icon="pi pi-check" (onClick)="confirmerPhoto()">
+      </p-button>
       }
     </div>
   </ng-template>
