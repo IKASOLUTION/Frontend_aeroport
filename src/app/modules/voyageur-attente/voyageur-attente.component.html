@@ -22,12 +22,12 @@
     <ng-template pTemplate="caption">
         <div class="flex justify-content-between flex-column sm:flex-row">
             <div class="flex gap-2">
-                <p-button 
+                <!-- <p-button 
                     label="Nouvel enregistrement" 
                     [routerLink]="['/admin/gestion-enregistrements']"
                     severity="success"
                     icon="pi pi-plus">
-                </p-button>
+                </p-button> -->
                 <p-button 
                     label="Filtrer par période" 
                     severity="info"
@@ -209,6 +209,20 @@
                 </p-tag>
             </td>
             <td class="text-center">
+                 
+
+
+              <p-button 
+                     icon="pi pi-check" 
+                    [rounded]="true"
+                    [text]="true"
+                    severity="prim"
+                    pTooltip="VALIDER" 
+                    tooltipPosition="top" 
+                    (click)="saveEnregistrementValid()">
+                </p-button>
+
+
                 <p-button 
                     icon="pi pi-eye" 
                     [rounded]="true"
