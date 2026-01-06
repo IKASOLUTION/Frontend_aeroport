@@ -55,7 +55,7 @@
           </div>
 
           <div class="flex flex-column gap-2">
-            <p-button label="Scanner Regula" icon="pi pi-qrcode" [outlined]="true" [disabled]="isScanning()"
+            <p-button label="Scanner" icon="pi pi-qrcode" [outlined]="true" [disabled]="isScanning()"
               [loading]="isScanning()" (onClick)="scannerDocumentAvecRegula('recto')" styleClass="w-full">
             </p-button>
 
@@ -101,7 +101,7 @@
           </div>
 
           <div class="flex flex-column gap-2">
-            <p-button label="Scanner Regula" icon="pi pi-qrcode" [outlined]="true" [disabled]="isScanning()"
+            <p-button label="Scanner" icon="pi pi-qrcode" [outlined]="true" [disabled]="isScanning()"
               [loading]="isScanning()" (onClick)="scannerDocumentAvecRegula('verso')" styleClass="w-full">
             </p-button>
 
@@ -259,7 +259,7 @@
         <small class="p-error block mt-1">{{ formErrors()['nomFamille'] }}</small>
         }
       </div>
-      
+
       <div class="col-12 md:col-4">
         <label for="prenom" class="block text-900 font-semibold mb-2">
           Prénom <span class="text-red-500">*</span>
