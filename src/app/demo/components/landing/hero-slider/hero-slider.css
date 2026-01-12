@@ -1,0 +1,172 @@
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
+
+.hero-container {
+  font-family: 'Montserrat', sans-serif;
+  position: relative;
+  overflow: hidden;
+  height: 100vh;
+  min-height: 500px;
+}
+
+/* Gradient Overlay for better text readability */
+.hero-container::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom,
+      rgba(0, 0, 0, 0.3) 0%,
+      rgba(0, 0, 0, 0.1) 50%,
+      rgba(0, 0, 0, 0.6) 100%);
+  z-index: 5;
+  pointer-events: none;
+}
+
+.hero-overlay-container {
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0 5%;
+  display: flex;
+  align-items: center;
+  /* Centering logically */
+  justify-content: flex-start;
+}
+
+@media (min-width: 1280px) {
+  .hero-overlay-container {
+    padding: 0 10%;
+  }
+}
+
+.hero-text-wrapper {
+  max-width: 48rem;
+  /* approx 800px */
+  color: white;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.5s forwards;
+}
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-title {
+  font-size: 2.75rem;
+  /* ~44px */
+  line-height: 1.2;
+  font-weight: 800;
+  /* Extra bold */
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.02em;
+  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+@media (min-width: 768px) {
+  .hero-title {
+    font-size: 3.75rem;
+    /* ~60px */
+    font-weight: 800;
+  }
+}
+
+.hero-description {
+  font-size: 1.125rem;
+  /* 18px */
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+  font-weight: 500;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  max-width: 90%;
+}
+
+@media (min-width: 768px) {
+  .hero-description {
+    font-size: 1.35rem;
+    /* ~22px */
+    max-width: 80%;
+  }
+}
+
+/* Button Styling */
+.hero-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #009e49;
+  /* Government Green */
+  color: white;
+  padding: 1rem 2.5rem;
+  border-radius: 9999px;
+  /* Pill shape */
+  font-size: 1.125rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 2px solid transparent;
+}
+
+.hero-btn:hover {
+  background-color: #008037;
+  /* Darker Green */
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
+}
+
+.hero-btn:active {
+  transform: translateY(0);
+}
+
+/* Slider Track */
+.hero-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hero-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transform: scale(1.05);
+  /* Slight zoom start */
+  transition: opacity 1s ease-in-out, transform 6s ease-out;
+  /* Pan effect */
+  z-index: 1;
+}
+
+.hero-slide.active {
+  opacity: 1;
+  transform: scale(1);
+  z-index: 2;
+}
+
+.hero-slide-bg {
+  position: absolute;
+  inset: 0;
+  background-color: #111827;
+  /* Fallback dark bg */
+}
+
+.hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.85;
+  /* Slightly less opaque for text readability if no gradient */
+}

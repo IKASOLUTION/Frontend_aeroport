@@ -1,0 +1,72 @@
+<div class="steps-container" #target [class.visible]="isVisible" class="reveal">
+  <h1 class="steps-title">Comment ça marche ?</h1>
+
+  <div class="road-map-main">
+
+    <!-- Step 1 -->
+    <div class="road-map-wrapper">
+      <div class="step-circle">1</div>
+      <div class="step-card">
+        <h3 class="card-title">Accès à la Plateforme</h3>
+        <div class="card-text">
+          <p class="mb-2"><strong>Nouvel Utilisateur :</strong> Créez votre compte sur <a
+              href="https://burkinaimmigration.bf/register" class="card-link">burkinaimmigration.bf</a></p>
+          <p><strong>Utilisateur Existant :</strong> Connectez-vous via <a href="https://burkinaimmigration.bf/login"
+              class="card-link">burkinaimmigration.bf</a></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="road-map-wrapper">
+      <div class="step-circle">2</div>
+      <div class="step-card">
+        <h3 class="card-title">Formulaire de Demande</h3>
+        <p class="card-text">Complétez le formulaire avec vos informations exactes :</p>
+        <ul class="list-disc pl-5 text-gray-600 mt-2 space-y-1">
+          <li>Informations personnelles (Nom, passeport...)</li>
+          <li>Détails du voyage (Dates, provenance...)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="road-map-wrapper">
+      <div class="step-circle">3</div>
+      <div class="step-card">
+        <h3 class="card-title">Documents Justificatifs</h3>
+        <p class="card-text">
+          Téléversez vos documents (Visa, passeport, billet d'avion) au format PDF.
+          La photo doit être au format image standard.
+        </p>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="road-map-wrapper">
+      <div class="step-circle">4</div>
+      <div class="step-card">
+        <h3 class="card-title">Vérification & Soumission</h3>
+        <p class="card-text">
+          Vérifiez attentivement toutes vos informations et la lisibilité des documents avant de soumettre
+          définitivement votre demande.
+        </p>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="road-map-wrapper">
+      <div class="step-circle">5</div>
+      <div class="step-card">
+        <h3 class="card-title">Suivi du Statut</h3>
+        <p class="card-text">
+          Connectez-vous à votre compte pour suivre l'avancement :
+          <span class="inline-block px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-bold">En attente</span>
+          <span class="inline-block px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-bold">Accepté</span>
+          <span class="inline-block px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-bold">Rejeté</span>
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>

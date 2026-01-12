@@ -1,0 +1,242 @@
+/* Google Fonts Import for Professional Typography */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+.navbar {
+    font-family: 'Montserrat', sans-serif;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    z-index: 100;
+    /* High z-index to stay on top */
+    margin-left: auto;
+    margin-right: auto;
+    width: 95%;
+    /* Default width for floating effect */
+    max-width: 1280px;
+
+    /* Initial State: Transparent-ish, larger padding */
+    background-color: rgba(255, 255, 255, 0.85);
+    /* Glass effect */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 1rem;
+    /* Rounded corners for floating look */
+
+    padding: 1rem 1.5rem;
+
+    /* Smooth Transition for Scroll Effect */
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Subtle initial shadow */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+
+    /* Initial top spacing */
+    top: 1.5rem;
+}
+
+/* Scrolled State: Compact, Solid, distinct shadow */
+.navbar.scrolled {
+    top: 0.5rem;
+    /* Moves up slightly */
+    padding: 0.75rem 1.5rem;
+    /* Reduces height */
+    background-color: rgba(255, 255, 255, 0.98);
+    /* Less transparent */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    /* Deeper shadow */
+    border-color: rgba(0, 0, 0, 0.05);
+    width: 98%;
+    /* Slightly wider or keep defined, stylistic choice */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .navbar {
+        width: 100%;
+        top: 0;
+        border-radius: 0;
+        border: none;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 0.75rem 1rem;
+    }
+
+    .navbar.scrolled {
+        top: 0;
+        padding: 0.5rem 1rem;
+    }
+}
+
+.navbar-container {
+    width: 100%;
+}
+
+.navbar-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Brand Styling */
+.navbar-brand {
+    display: flex;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+}
+
+.navbar-brand:hover {
+    transform: translateY(-1px);
+}
+
+.brand-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    gap: 1rem;
+}
+
+.brand-logo {
+    height: 2.5rem;
+    /* Slightly larger */
+    width: auto;
+    transition: transform 0.3s ease;
+}
+
+.navbar.scrolled .brand-logo {
+    height: 2rem;
+    /* Shrink logo on scroll */
+}
+
+.brand-text {
+    font-weight: 700;
+    font-size: 1.25rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    display: flex;
+    gap: 2px;
+}
+
+/* Burkina Flag Colors Text */
+.text-color-red {
+    color: #ce1126;
+}
+
+.text-color-yellow {
+    color: #fcd116;
+}
+
+.text-color-green {
+    color: #009e49;
+}
+
+/* Navigation Links */
+.navbar-links {
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    .navbar-links {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+    }
+}
+
+.nav-link {
+    position: relative;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #374151;
+    /* Gray-700 */
+    text-decoration: none;
+    padding: 0.5rem 0;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #111827;
+    /* Gray-900 */
+}
+
+/* Underline Animation for Links */
+.nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 50%;
+    background-color: #ce1126;
+    /* Logo Red */
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+/* Action Buttons */
+.navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.btn-secondary {
+    display: none;
+    padding: 0.5rem 1.25rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #374151;
+    background-color: transparent;
+    border: 1px solid #d1d5db;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+@media (min-width: 640px) {
+    .btn-secondary {
+        display: inline-block;
+    }
+}
+
+.btn-secondary:hover {
+    border-color: #9ca3af;
+    background-color: #f9fafb;
+    transform: translateY(-1px);
+}
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1.5rem;
+    border-radius: 9999px;
+    /* Pill shape */
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: white;
+    background: linear-gradient(135deg, #009e49 0%, #008037 100%);
+    /* Green gradient */
+    text-decoration: none;
+    border: none;
+    box-shadow: 0 4px 6px -1px rgba(0, 158, 73, 0.3);
+    /* Colored shadow */
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    /* Lift effect */
+    box-shadow: 0 10px 15px -3px rgba(0, 158, 73, 0.4);
+    background: linear-gradient(135deg, #00b352 0%, #00913f 100%);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
