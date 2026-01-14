@@ -554,6 +554,23 @@
   [resizable]="false">
 
   <ng-template pTemplate="header">
+    <div class="surface-100 border-round p-2 mb-3">
+  <div class="flex align-items-center justify-content-between">
+    <div class="flex align-items-center gap-2">
+      <i [class]="ibscanAvailable() ? 'pi pi-check-circle text-green-500' : 'pi pi-exclamation-triangle text-orange-500'"></i>
+      <span class="text-sm font-semibold">
+        {{ ibscanAvailable() ? 'Scanner IBScan connecté' : 'Scanner non disponible - Mode webcam' }}
+      </span>
+    </div>
+    @if (ibscanAvailable() && ibscanDevices().length > 0) {
+      <p-tag 
+        [value]="ibscanDevices()[selectedIBScanDevice()].name" 
+        severity="success"
+        icon="pi pi-fingerprint">
+      </p-tag>
+    }
+  </div>
+</div>
     <div class="flex align-items-center gap-3">
       <i class="pi pi-fingerprint text-4xl text-primary"></i>
       <div>
@@ -578,105 +595,192 @@
   <div class="grid">
     <!-- Main Gauche -->
     <div class="col-12 md:col-6">
-      <div class="surface-card border-1 surface-border border-round p-4">
-        <div class="flex align-items-center justify-content-between mb-3">
-          <div class="flex align-items-center gap-2">
-            <i class="pi pi-hand-pointer text-2xl text-cyan-500"></i>
-            <div>
-              <p class="font-semibold text-900 m-0">4 doigts main gauche</p>
-              <p class="text-xs m-0 mt-1" [class]="empreinteGauche().capturee ? 'text-green-600' : 'text-500'">
-                {{ empreinteGauche().capturee ? '✓ Capturé' : 'En attente' }}
-              </p>
-            </div>
-          </div>
-          <p-button [label]="empreinteGauche().capturee ? 'Recapturer' : 'Capturer'"
-            [icon]="empreinteGauche().capturee ? 'pi pi-refresh' : 'pi pi-plus'" size="small"
-            [outlined]="!empreinteGauche().capturee" (onClick)="capturerEmpreinte('empreinteGauche')">
-          </p-button>
+  <div class="surface-card border-1 surface-border border-round p-4">
+    <div class="flex align-items-center justify-content-between mb-3">
+      <div class="flex align-items-center gap-2">
+        <i class="pi pi-hand-pointer text-2xl text-cyan-500"></i>
+        <div>
+          <p class="font-semibold text-900 m-0">4 doigts main gauche</p>
+          <p class="text-xs m-0 mt-1" [class]="empreinteGauche().capturee ? 'text-green-600' : 'text-500'">
+            {{ empreinteGauche().capturee ? '✓ Capturé' : 'En attente' }}
+          </p>
         </div>
+      </div>
+      
+      <!-- Afficher le bouton IBScan si disponible, sinon webcam -->
+      <div class="flex gap-2">
+        @if (ibscanAvailable()) {
+          <p-button 
+            [label]="empreinteGauche().capturee ? 'Recapturer' : 'Scanner'"
+            icon="pi pi-fingerprint" 
+            size="small"
+            [outlined]="!empreinteGauche().capturee" 
+            [loading]="isCapturingFingerprint()"
+            (onClick)="capturerEmpreinte('empreinteGauche')">
+          </p-button>
+        } @else {
+          <p-button 
+            [label]="empreinteGauche().capturee ? 'Recapturer' : 'Webcam'"
+            icon="pi pi-camera" 
+            size="small"
+            severity="secondary"
+            [outlined]="!empreinteGauche().capturee" 
+            (onClick)="capturerEmpreinte('empreinteGauche')">
+          </p-button>
+        }
+      </div>
+    </div>
 
-        <div class="border-round overflow-hidden"
-          [ngClass]="empreinteGauche().image ? 'border-2 border-green-500' : 'border-2 border-300'">
-          <div class="relative" style="padding-top: 75%;">
-            <div class="absolute top-0 left-0 w-full h-full flex align-items-center justify-content-center bg-gray-50">
-              @if (empreinteGauche().image) {
-              <img [src]="empreinteGauche().image" alt="Empreinte main gauche" class="w-full h-full object-fit-contain">
-              } @else {
-              <i class="pi pi-image text-6xl text-400"></i>
-              }
-            </div>
-          </div>
+    <div class="border-round overflow-hidden"
+      [ngClass]="empreinteGauche().image ? 'border-2 border-green-500' : 'border-2 border-300'">
+      <div class="relative" style="padding-top: 75%;">
+        <div class="absolute top-0 left-0 w-full h-full flex align-items-center justify-content-center bg-gray-50">
+          @if (empreinteGauche().image) {
+            <img [src]="empreinteGauche().image" alt="Empreinte main gauche" class="w-full h-full object-fit-contain">
+          } @else {
+            <i class="pi pi-image text-6xl text-400"></i>
+          }
         </div>
       </div>
     </div>
+    
+    <!-- Badge indiquant le mode de capture -->
+    @if (empreinteGauche().capturee) {
+      <div class="mt-2 flex justify-content-center">
+        <p-tag 
+          [value]="ibscanAvailable() ? 'Capturé avec IBScan' : 'Capturé avec Webcam'" 
+          [severity]="ibscanAvailable() ? 'success' : 'info'"
+          [icon]="ibscanAvailable() ? 'pi pi-fingerprint' : 'pi pi-camera'">
+        </p-tag>
+      </div>
+    }
+  </div>
+</div>
 
     <!-- Main Droite -->
     <div class="col-12 md:col-6">
-      <div class="surface-card border-1 surface-border border-round p-4">
-        <div class="flex align-items-center justify-content-between mb-3">
-          <div class="flex align-items-center gap-2">
-            <i class="pi pi-hand-pointer text-2xl text-cyan-500"></i>
-            <div>
-              <p class="font-semibold text-900 m-0">4 doigts main droite</p>
-              <p class="text-xs m-0 mt-1" [class]="empreinteDroite().capturee ? 'text-green-600' : 'text-500'">
-                {{ empreinteDroite().capturee ? '✓ Capturé' : 'En attente' }}
-              </p>
-            </div>
-          </div>
-          <p-button [label]="empreinteDroite().capturee ? 'Recapturer' : 'Capturer'"
-            [icon]="empreinteDroite().capturee ? 'pi pi-refresh' : 'pi pi-plus'" size="small"
-            [outlined]="!empreinteDroite().capturee" (onClick)="capturerEmpreinte('empreinteDroite')">
+  <div class="surface-card border-1 surface-border border-round p-4">
+    <div class="flex align-items-center justify-content-between mb-3">
+      <div class="flex align-items-center gap-2">
+        <i class="pi pi-hand-pointer text-2xl text-cyan-500"></i>
+        <div>
+          <p class="font-semibold text-900 m-0">4 doigts main droite</p>
+          <p class="text-xs m-0 mt-1" [class]="empreinteDroite().capturee ? 'text-green-600' : 'text-500'">
+            {{ empreinteDroite().capturee ? '✓ Capturé' : 'En attente' }}
+          </p>
+        </div>
+      </div>
+      
+      <div class="flex gap-2">
+        @if (ibscanAvailable()) {
+          <p-button 
+            [label]="empreinteDroite().capturee ? 'Recapturer' : 'Scanner'"
+            icon="pi pi-fingerprint" 
+            size="small"
+            [outlined]="!empreinteDroite().capturee" 
+            [loading]="isCapturingFingerprint()"
+            (onClick)="capturerEmpreinte('empreinteDroite')">
           </p-button>
-        </div>
-
-        <div class="border-round overflow-hidden"
-          [ngClass]="empreinteDroite().image ? 'border-2 border-green-500' : 'border-2 border-300'">
-          <div class="relative" style="padding-top: 75%;">
-            <div class="absolute top-0 left-0 w-full h-full flex align-items-center justify-content-center bg-gray-50">
-              @if (empreinteDroite().image) {
-              <img [src]="empreinteDroite().image" alt="Empreinte main droite" class="w-full h-full object-fit-contain">
-              } @else {
-              <i class="pi pi-image text-6xl text-400"></i>
-              }
-            </div>
-          </div>
-        </div>
+        } @else {
+          <p-button 
+            [label]="empreinteDroite().capturee ? 'Recapturer' : 'Webcam'"
+            icon="pi pi-camera" 
+            size="small"
+            severity="secondary"
+            [outlined]="!empreinteDroite().capturee" 
+            (onClick)="capturerEmpreinte('empreinteDroite')">
+          </p-button>
+        }
       </div>
     </div>
 
-    <!-- Pouces -->
-    <div class="col-12 md:col-6">
-      <div class="surface-card border-1 surface-border border-round p-4">
-        <div class="flex align-items-center justify-content-between mb-3">
-          <div class="flex align-items-center gap-2">
-            <i class="pi pi-thumbs-up text-2xl text-purple-500"></i>
-            <div>
-              <p class="font-semibold text-900 m-0">Les deux pouces</p>
-              <p class="text-xs m-0 mt-1" [class]="empreintePouces().capturee ? 'text-green-600' : 'text-500'">
-                {{ empreintePouces().capturee ? '✓ Capturé' : 'En attente' }}
-              </p>
-            </div>
-          </div>
-          <p-button [label]="empreintePouces().capturee ? 'Recapturer' : 'Capturer'"
-            [icon]="empreintePouces().capturee ? 'pi pi-refresh' : 'pi pi-plus'" severity="help" size="small"
-            [outlined]="!empreintePouces().capturee" (onClick)="capturerEmpreinte('empreintePouces')">
-          </p-button>
-        </div>
-
-        <div class="border-round overflow-hidden"
-          [ngClass]="empreintePouces().image ? 'border-2 border-green-500' : 'border-2 border-300'">
-          <div class="relative" style="padding-top: 75%;">
-            <div class="absolute top-0 left-0 w-full h-full flex align-items-center justify-content-center bg-gray-50">
-              @if (empreintePouces().image) {
-              <img [src]="empreintePouces().image" alt="Empreinte pouces" class="w-full h-full object-fit-contain">
-              } @else {
-              <i class="pi pi-image text-6xl text-400"></i>
-              }
-            </div>
-          </div>
+    <div class="border-round overflow-hidden"
+      [ngClass]="empreinteDroite().image ? 'border-2 border-green-500' : 'border-2 border-300'">
+      <div class="relative" style="padding-top: 75%;">
+        <div class="absolute top-0 left-0 w-full h-full flex align-items-center justify-content-center bg-gray-50">
+          @if (empreinteDroite().image) {
+            <img [src]="empreinteDroite().image" alt="Empreinte main droite" class="w-full h-full object-fit-contain">
+          } @else {
+            <i class="pi pi-image text-6xl text-400"></i>
+          }
         </div>
       </div>
     </div>
+    
+    @if (empreinteDroite().capturee) {
+      <div class="mt-2 flex justify-content-center">
+        <p-tag 
+          [value]="ibscanAvailable() ? 'Capturé avec IBScan' : 'Capturé avec Webcam'" 
+          [severity]="ibscanAvailable() ? 'success' : 'info'"
+          [icon]="ibscanAvailable() ? 'pi pi-fingerprint' : 'pi pi-camera'">
+        </p-tag>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Pouces - Même structure -->
+<div class="col-12 md:col-6">
+  <div class="surface-card border-1 surface-border border-round p-4">
+    <div class="flex align-items-center justify-content-between mb-3">
+      <div class="flex align-items-center gap-2">
+        <i class="pi pi-thumbs-up text-2xl text-purple-500"></i>
+        <div>
+          <p class="font-semibold text-900 m-0">Les deux pouces</p>
+          <p class="text-xs m-0 mt-1" [class]="empreintePouces().capturee ? 'text-green-600' : 'text-500'">
+            {{ empreintePouces().capturee ? '✓ Capturé' : 'En attente' }}
+          </p>
+        </div>
+      </div>
+      
+      <div class="flex gap-2">
+        @if (ibscanAvailable()) {
+          <p-button 
+            [label]="empreintePouces().capturee ? 'Recapturer' : 'Scanner'"
+            icon="pi pi-fingerprint" 
+            severity="help"
+            size="small"
+            [outlined]="!empreintePouces().capturee" 
+            [loading]="isCapturingFingerprint()"
+            (onClick)="capturerEmpreinte('empreintePouces')">
+          </p-button>
+        } @else {
+          <p-button 
+            [label]="empreintePouces().capturee ? 'Recapturer' : 'Webcam'"
+            icon="pi pi-camera" 
+            severity="secondary"
+            size="small"
+            [outlined]="!empreintePouces().capturee" 
+            (onClick)="capturerEmpreinte('empreintePouces')">
+          </p-button>
+        }
+      </div>
+    </div>
+
+    <div class="border-round overflow-hidden"
+      [ngClass]="empreintePouces().image ? 'border-2 border-green-500' : 'border-2 border-300'">
+      <div class="relative" style="padding-top: 75%;">
+        <div class="absolute top-0 left-0 w-full h-full flex align-items-center justify-content-center bg-gray-50">
+          @if (empreintePouces().image) {
+            <img [src]="empreintePouces().image" alt="Empreinte pouces" class="w-full h-full object-fit-contain">
+          } @else {
+            <i class="pi pi-image text-6xl text-400"></i>
+          }
+        </div>
+      </div>
+    </div>
+    
+    @if (empreintePouces().capturee) {
+      <div class="mt-2 flex justify-content-center">
+        <p-tag 
+          [value]="ibscanAvailable() ? 'Capturé avec IBScan' : 'Capturé avec Webcam'" 
+          [severity]="ibscanAvailable() ? 'success' : 'info'"
+          [icon]="ibscanAvailable() ? 'pi pi-fingerprint' : 'pi pi-camera'">
+        </p-tag>
+      </div>
+    }
+  </div>
+</div>
 
     <!-- Photo d'identité -->
     <div class="col-12 md:col-6">

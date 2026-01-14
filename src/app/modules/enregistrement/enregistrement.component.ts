@@ -42,6 +42,7 @@ import { DividerModule } from 'primeng/divider';
 import { TagModule } from 'primeng/tag';
 import { DocumentReaderWebComponent } from '@regulaforensics/vp-frontend-document-components';
 import { co } from '@fullcalendar/core/internal-common';
+import { IBScanDevice, IBScanService } from 'src/app/service-util/auth/ibscan.service';
 
 interface Passager {
   id: number;
@@ -146,6 +147,11 @@ profilPreview = signal<string | null>(null);
   regulaService = inject(RegulaDocumentReaderService);
   identityData:  IdentityData | null = null;
   
+  private ibscanService = inject(IBScanService);
+  ibscanAvailable = signal<boolean>(false);
+  ibscanDevices = signal<IBScanDevice[]>([]);
+  selectedIBScanDevice = signal<number>(0);
+  isCapturingFingerprint = signal<boolean>(false);
 
   
   // État local
@@ -154,6 +160,7 @@ profilPreview = signal<string | null>(null);
 
   async ngOnInit(): Promise<void> {
   this.initializeFormData();
+   await this.checkIBScanAvailability();
 
    /* if (!this.reader) return;
 
@@ -178,6 +185,150 @@ profilPreview = signal<string | null>(null);
 }
 
 
+private async checkIBScanAvailability(): Promise<void> {
+    try {
+      
+      // Initialiser le SDK
+     // await this.ibscanService.initializeSDK().toPromise();
+      
+      // Récupérer les appareils disponibles
+      const devices = await this.ibscanService.getDevices().toPromise();
+      this.ibscanDevices.set(devices || []);
+      
+      if (devices && devices.length > 0) {
+        this.ibscanAvailable.set(true);
+        
+        // Ouvrir le premier appareil par défaut
+        await this.ibscanService.openDevice(0).toPromise();
+        this.selectedIBScanDevice.set(0);
+        
+        this.messageService.add({
+          severity: 'success',
+          summary: 'IBScan prêt',
+          detail: `Scanner ${devices[0].name} connecté`,
+          life: 3000
+        });
+      } else {
+        this.ibscanAvailable.set(false);
+        console.warn('Aucun scanner IBScan détecté');
+      }
+    } catch (error) {
+      console.error('IBScan non disponible:', error);
+      this.ibscanAvailable.set(false);
+      
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'IBScan non disponible',
+        detail: 'Le scanner d\'empreintes n\'est pas connecté. Utilisez la webcam.',
+        life: 5000
+      });
+    }
+  }
+
+  /**
+   * Capture une empreinte avec IBScan
+   * @param type - Type d'empreinte à capturer
+   */
+  async capturerEmpreinteIBScan(
+    type: 'empreinteGauche' | 'empreinteDroite' | 'empreintePouces'
+  ): Promise<void> {
+    if (!this.ibscanAvailable()) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Scanner non disponible',
+        detail: 'Veuillez connecter le scanner IBScan',
+        life: 3000
+      });
+      return;
+    }
+
+    // Mapper le type vers la position IBScan
+    const positionMap: Record<string, string> = {
+      'empreinteGauche': 'LEFT_FOUR_FINGERS',
+      'empreinteDroite': 'RIGHT_FOUR_FINGERS',
+      'empreintePouces': 'THUMBS'
+    };
+
+    const fingerPosition = positionMap[type];
+
+    try {
+      this.isCapturingFingerprint.set(true);
+      
+      this.messageService.add({
+        severity: 'info',
+        summary: 'Capture en cours',
+        detail: 'Placez vos doigts sur le scanner...',
+        life: 0 // Reste affiché jusqu'à fermeture manuelle
+      });
+
+      // Capturer l'empreinte
+      const imageBase64 = await this.ibscanService.captureFingerprint(fingerPosition);
+
+      // Mettre à jour le signal correspondant
+      if (type === 'empreinteGauche') {
+        this.empreinteGauche.set({ image: imageBase64, capturee: true });
+      } else if (type === 'empreinteDroite') {
+        this.empreinteDroite.set({ image: imageBase64, capturee: true });
+      } else if (type === 'empreintePouces') {
+        this.empreintePouces.set({ image: imageBase64, capturee: true });
+      }
+
+      this.messageService.clear();
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Capture réussie',
+        detail: 'Empreinte enregistrée avec succès',
+        life: 3000
+      });
+
+    } catch (error) {
+      console.error('Erreur capture IBScan:', error);
+      
+      this.messageService.clear();
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur de capture',
+        detail: 'Impossible de capturer l\'empreinte. Réessayez.',
+        life: 5000
+      });
+    } finally {
+      this.isCapturingFingerprint.set(false);
+    }
+  }
+async capturerEmpreinte(
+    type: 'empreinteGauche' | 'empreinteDroite' | 'empreintePouces'
+  ): Promise<void> {
+    if (this.ibscanAvailable()) {
+      // Utiliser IBScan si disponible
+      await this.capturerEmpreinteIBScan(type);
+    } else {
+      // Fallback sur la webcam
+      this.currentCameraTarget.set(type);
+      this.capturedPhotoBase64.set(null);
+      this.isCameraModalOpen.set(true);
+
+      try {
+        await this.waitForView();
+
+        this.mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user', width: 1280, height: 720 }
+        });
+
+        if (this.videoElement && this.videoElement.nativeElement) {
+          this.videoElement.nativeElement.srcObject = this.mediaStream;
+        }
+      } catch (error) {
+        console.error('Erreur d\'accès à la caméra:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur caméra',
+          detail: 'Impossible d\'accéder à la caméra',
+          life: 3000
+        });
+        this.isCameraModalOpen.set(false);
+      }
+    }
+  }
 
   findPays(country: any) {
         if (country && country.name) {
@@ -383,7 +534,7 @@ profilPreview = signal<string | null>(null);
   }
 
   submitEnregistrement(): void {
-    if (!this.validateForm()) {
+   /* if (!this.validateForm()) {
       this.messageService.add({
         severity: 'error',
         summary: 'Erreur de validation',
@@ -391,7 +542,7 @@ profilPreview = signal<string | null>(null);
         life: 5000
       });
       return;
-    }
+    }*/
     const enregistrementData = this.prepareEnregistrementData();
     console.log('Données à soumettre suite:', enregistrementData);
     this.store.dispatch(enregistrementAction.createEnregistrement(enregistrementData));
@@ -445,7 +596,7 @@ profilPreview = signal<string | null>(null);
     });
   }
 
-  // Gestion de la caméra pour empreintes
+  /* // Gestion de la caméra pour empreintes
   async capturerEmpreinte(type: 'empreinteGauche' | 'empreinteDroite' | 'empreintePouces'): Promise<void> {
     this.currentCameraTarget.set(type);
     this.capturedPhotoBase64.set(null);
@@ -471,7 +622,7 @@ profilPreview = signal<string | null>(null);
       });
       this.isCameraModalOpen.set(false);
     }
-  }
+  } */
 
   async demarrerCameraRegula(target: 'recto' | 'verso' | 'profil' | 'biometrique'): Promise<void> {
   this.currentCameraTarget.set(target);
@@ -1010,6 +1161,11 @@ private parseDate(dateStr?: string): Date | string | undefined {
 
 
   ngOnDestroy(): void {
+     if (this.ibscanAvailable()) {
+      this.ibscanService.closeDevice().subscribe();
+    }
+    
+    
     this.arreterCamera();
     this.destroy$.next();
     this.destroy$.complete();

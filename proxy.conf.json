@@ -9,5 +9,16 @@
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
+  },
+
+  "/ibscan-api": {
+    "target": "http://localhost:5020",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+    "^/ibscan-api": ""
+    },
+    "logLevel": "debug"
   }
+  
 }
