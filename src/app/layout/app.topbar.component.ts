@@ -15,6 +15,24 @@ import * as NotificationAction from '../store/notification/action';
 import { Notification } from 'src/app/store/notification/model';
 import { User } from '../store/user/model';
 
+/**
+ * Interface pour les notifications formatées pour l'affichage
+ */
+interface DisplayNotification {
+    id: string | number;
+    title: string;
+    message: string;
+    time: string;
+    icon: string;
+    type: 'info' | 'warning' | 'success' | 'error' | 'danger';
+    isRead?: boolean;
+    data: Notification;
+}
+
+/**
+ * Composant Topbar optimisé
+ * Gère l'affichage de la barre supérieure avec notifications et profil utilisateur
+ */
 @Component({
     selector: 'app-topbar',
     templateUrl: './app.topbar.component.html',
@@ -28,14 +46,18 @@ export class AppTopbarComponent implements OnInit, OnDestroy {
     @ViewChild('searchInput') searchInput!: ElementRef;
     
     // Gestion des notifications
-    destroy$ = new Subject<boolean>();
+    private destroy$ = new Subject<boolean>();
     notificationList$!: Observable<Array<Notification>>;
     notifications: Notification[] = [];
-    notificationCount: number = 0;
-    recentNotifications: any[] = []; // Pour l'affichage dans le dropdown
+    notificationCount = 0;
+    recentNotifications: DisplayNotification[] = [];
     loading = true;
     activeItem!: number;
     user: User | null = null;
+
+    // Limite de notifications affichées dans le dropdown
+    private readonly MAX_DISPLAYED_NOTIFICATIONS = 5;
+
     model: MegaMenuItem[] = [
         {
             label: 'UI KIT',
@@ -104,49 +126,167 @@ export class AppTopbarComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit(): void {
-        
-        //this.loadRecentNotifications();
         this.loadUser();
+        this.initializeNotifications();
+    }
 
+    ngOnDestroy(): void {
+        this.destroy$.next(true);
+        this.destroy$.complete();
+    }
+
+    // ============================================================================
+    // INITIALISATION
+    // ============================================================================
+
+    /**
+     * Initialise le système de notifications
+     */
+    private initializeNotifications(): void {
         this.store.dispatch(NotificationAction.loadNotification());
 
-        this.store.pipe(select(notificationSelector.notificationList), takeUntil(this.destroy$)).subscribe(data => {
-              this.notifications = data || [];
-                this.notificationCount = data.length;
-              this.loading = false;
-                 // Préparer les notifications pour l'affichage (max 5 dernières)
-                    this.recentNotifications = this.formatNotificationsForDisplay(
-                        data.slice(0, 5)
-                    );
-            });        
+        this.store.pipe(
+            select(notificationSelector.notificationList),
+            takeUntil(this.destroy$)
+        ).subscribe({
+            next: (data) => {
+                this.notifications = data || [];
+                this.notificationCount = data?.length || 0;
+                this.recentNotifications = this.formatNotificationsForDisplay(
+                    data?.slice(0, this.MAX_DISPLAYED_NOTIFICATIONS) || []
+                );
+                this.loading = false;
+            },
+            error: (error) => {
+                console.error('Erreur lors du chargement des notifications:', error);
+                this.loading = false;
+            }
+        });
     }
 
     /**
-     * Charger les notifications récentes (dernières 24h)
+     * Charge les données de l'utilisateur connecté
      */
-    loadRecentNotifications(): void {
-        const dateDebut = new Date();
-        dateDebut.setHours(dateDebut.getHours() - 24); // Dernières 24 heures
-        const dateFin = new Date();
-
-        const searchDto = {
-            dateDebut: dateDebut,
-            dateFin: dateFin,
-            page: 0,
-            size: 10, // Limiter à 10 notifications
-            sortBy: 'date,desc'
-        };
-
-        this.store.dispatch(NotificationAction.loadNotification());
-    }
-    loadUser(): void {
+    private loadUser(): void {
         this.user = this.loginService.getStoredUser();
     }
-     getUserFullName(): string {
+
+    // ============================================================================
+    // GESTION DES NOTIFICATIONS
+    // ============================================================================
+
+    /**
+     * Formate les notifications pour l'affichage dans le dropdown
+     * @param notifications - Liste des notifications à formater
+     * @returns Liste des notifications formatées
+     */
+    private formatNotificationsForDisplay(notifications: Notification[]): DisplayNotification[] {
+        if (!notifications || notifications.length === 0) {
+            return [];
+        }
+
+        return notifications.map(notif => {
+            const nomComplet = this.formatFullName(notif.nom, notif.prenom);
+            const timeAgo = this.getTimeAgo(notif.dateNotification);
+            const aeroport = notif.aeroport?.nomAeroport || 'Aéroport inconnu';
+            
+            return {
+                id: notif.id || Date.now(),
+                title: 'Alerte Liste Noire',
+                message: `${nomComplet} - ${aeroport}`,
+                time: timeAgo,
+                icon: 'pi-exclamation-triangle',
+                type: 'danger',
+                isRead:   false,
+                data: notif
+            };
+        });
+    }
+
+    /**
+     * Formate le nom complet à partir du nom et prénom
+     */
+    private formatFullName(nom?: string, prenom?: string): string {
+        const fullName = `${prenom || ''} ${nom || ''}`.trim();
+        return fullName || 'Utilisateur inconnu';
+    }
+
+    /**
+     * Calcule le temps écoulé depuis la notification
+     * @param date - Date de la notification
+     * @returns Chaîne formatée du temps écoulé
+     */
+    private getTimeAgo(date: Date | undefined): string {
+        if (!date) return 'Date inconnue';
+        
+        try {
+            const notifDate = new Date(date);
+            const now = new Date();
+            const diffMs = now.getTime() - notifDate.getTime();
+
+            // Vérifier que la date est valide
+            if (isNaN(diffMs)) return 'Date invalide';
+            
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'À l\'instant';
+            if (diffMins < 60) return `Il y a ${diffMins} min`;
+            if (diffHours < 24) return `Il y a ${diffHours}h`;
+            if (diffDays < 7) return `Il y a ${diffDays}j`;
+            
+            return notifDate.toLocaleDateString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        } catch (error) {
+            console.error('Erreur lors du calcul du temps écoulé:', error);
+            return 'Date invalide';
+        }
+    }
+
+    /**
+     * Gère le clic sur une notification
+     * @param notification - Notification cliquée
+     */
+    onNotificationClick(notification: DisplayNotification): void {
+        // TODO: Marquer la notification comme lue si nécessaire
+        // this.store.dispatch(NotificationAction.markAsRead({ id: notification.id }));
+
+        // Navigation vers la page des notifications avec le détail
+        this.router.navigate(['/admin/notification'], {
+            queryParams: { id: notification.data?.id }
+        });
+    }
+
+    /**
+     * Navigation vers la page complète des notifications
+     */
+    viewAllNotifications(): void {
+        this.router.navigate(['/admin/notification']);
+    }
+
+    /**
+     * TrackBy pour optimiser le rendu de la liste de notifications
+     */
+    trackByNotificationId(index: number, notification: DisplayNotification): string | number {
+        return notification.id;
+    }
+
+    // ============================================================================
+    // GESTION DU PROFIL UTILISATEUR
+    // ============================================================================
+
+    /**
+     * Retourne le nom complet de l'utilisateur
+     */
+    getUserFullName(): string {
         if (!this.user) return 'Utilisateur';
         
-        const nom = this.user.nom || '';
-        const prenom = this.user.prenom || '';
+        const nom = this.user.nom?.trim() || '';
+        const prenom = this.user.prenom?.trim() || '';
         
         if (nom && prenom) {
             return `${prenom} ${nom}`;
@@ -155,115 +295,79 @@ export class AppTopbarComponent implements OnInit, OnDestroy {
         return nom || prenom || this.user.login || 'Utilisateur';
     }
 
-
-
-     getUserInitials(): string {
+    /**
+     * Retourne les initiales de l'utilisateur
+     */
+    getUserInitials(): string {
         if (!this.user) return 'U';
         
-        const nom = this.user.nom || '';
-        const prenom = this.user.prenom || '';
+        const nom = this.user.nom?.trim() || '';
+        const prenom = this.user.prenom?.trim() || '';
         
         if (nom && prenom) {
             return `${prenom.charAt(0)}${nom.charAt(0)}`.toUpperCase();
         }
         
-        if (nom) return nom.charAt(0).toUpperCase();
         if (prenom) return prenom.charAt(0).toUpperCase();
+        if (nom) return nom.charAt(0).toUpperCase();
         if (this.user.login) return this.user.login.charAt(0).toUpperCase();
         
         return 'U';
     }
 
-     viewProfile(): void {
+    /**
+     * Navigation vers le profil utilisateur
+     */
+    viewProfile(): void {
         this.router.navigate(['/admin/profile']);
     }
 
     /**
-     * Formater les notifications pour l'affichage dans le dropdown
+     * Déconnexion de l'utilisateur
      */
-    formatNotificationsForDisplay(notifications: Notification[]): any[] {
-        return notifications.map(notif => {
-            const nomComplet = `${notif.nom || ''} ${notif.prenom || ''}`.trim();
-            const timeAgo = this.getTimeAgo(notif.dateNotification);
-            
-            return {
-                title: 'Alerte Liste Noire',
-                message: `${nomComplet} - ${notif.aeroport?.nomAeroport || 'Aéroport inconnu'}`,
-                time: timeAgo,
-                icon: 'pi-exclamation-triangle',
-                type: 'danger',
-                data: notif // Garder les données complètes
-            };
-        });
-    }
-
-    /**
-     * Calculer le temps écoulé depuis la notification
-     */
-    getTimeAgo(date: Date | undefined): string {
-        if (!date) return 'Date inconnue';
-        
-        const notifDate = new Date(date);
-        const now = new Date();
-        const diffMs = now.getTime() - notifDate.getTime();
-        const diffMins = Math.floor(diffMs / 60000);
-        const diffHours = Math.floor(diffMs / 3600000);
-        const diffDays = Math.floor(diffMs / 86400000);
-
-        if (diffMins < 1) return 'À l\'instant';
-        if (diffMins < 60) return `Il y a ${diffMins} min`;
-        if (diffHours < 24) return `Il y a ${diffHours}h`;
-        if (diffDays < 7) return `Il y a ${diffDays}j`;
-        
-        return notifDate.toLocaleDateString('fr-FR');
-    }
-
-    /**
-     * Naviguer vers la page complète des notifications
-     */
-  viewAllNotifications(): void {
-    this.router.navigate(['/admin/notification']);  // ✅ Maintenant cohérent avec le menu
-}
-
-    /**
-     * Gérer le clic sur une notification
-     */
-    onNotificationClick(notification: any): void {
-        // Naviguer vers la page des notifications avec le détail
-        this.router.navigate(['/notifications'], {
-            queryParams: { id: notification.data?.id }
-        });
-    }
-
-    get mobileTopbarActive(): boolean {
-        return this.layoutService.state.topbarMenuActive;
-    }
-
-    onMenuButtonClick() {
-        this.layoutService.onMenuToggle();
-    }
-
-    onRightMenuButtonClick() {
-        // this.layoutService.openRightSidebar();
-    }
-
-    onMobileTopbarMenuButtonClick() {
-        this.layoutService.onTopbarMenuToggle();
-    }
-
-    focusSearchInput(){
-       setTimeout(() => {
-         this.searchInput.nativeElement.focus()
-       }, 0);
-    }
-
-    logout() {
+    logout(): void {
         this.loginService.logout();
         this.router.navigate(['/admin/login']);
     }
 
-    ngOnDestroy(): void {
-        this.destroy$.next(true);
-        this.destroy$.unsubscribe();
+    // ============================================================================
+    // GESTION DU LAYOUT
+    // ============================================================================
+
+    /**
+     * Getter pour l'état du menu mobile
+     */
+    get mobileTopbarActive(): boolean {
+        return this.layoutService.state.topbarMenuActive;
+    }
+
+    /**
+     * Gère le clic sur le bouton menu
+     */
+    onMenuButtonClick(): void {
+        this.layoutService.onMenuToggle();
+    }
+
+    /**
+     * Gère le clic sur le bouton menu mobile
+     */
+    onMobileTopbarMenuButtonClick(): void {
+        this.layoutService.onTopbarMenuToggle();
+    }
+
+    /**
+     * Gère le clic sur le bouton du menu de droite
+     */
+    onRightMenuButtonClick(): void {
+        // this.layoutService.openRightSidebar();
+    }
+
+    /**
+     * Focus l'input de recherche
+     */
+    focusSearchInput(): void {
+        setTimeout(() => {
+            this.searchInput?.nativeElement?.focus();
+        }, 0);
     }
 }

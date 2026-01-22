@@ -166,18 +166,28 @@ export class AuthServerProvider {
   logout(): void {
     console.log('Déconnexion en cours...====================');
       // Optionnel : appeler l'API de déconnexion
-      const refreshToken = this.getRefreshToken();
+     /*  const refreshToken = this.getRefreshToken();
       if (refreshToken) {
           this.http.post('api/users/logout', { refreshToken: refreshToken })
               .subscribe({
                   next: () => console.log('Déconnexion réussie côté serveur'),
                   error: (error) => console.error('Erreur lors de la déconnexion côté serveur:', error)
               });
-      }
+      } */
 
       this.clearTokens();
       this.isAuthenticatedSubject.next(false);
       this.router.navigate(['/admin/login']);
+  }
+
+   logoutSite(): void {
+    console.log('Déconnexion en cours...====================');
+      // Optionnel : appeler l'API de déconnexion
+     
+
+      this.clearTokens();
+      this.isAuthenticatedSubject.next(false);
+      this.router.navigate(['/site-aeroport/auth']);
   }
 
   /**

@@ -54,6 +54,7 @@ export class LoginService {
                 console.error('Erreur lors de la connexion:', error);
                 if (credentials.type =="PASSAGER") {
                     console.error('Identifiants invalides');
+                    this.logoutSite();
                 } else {
                 this.logout();
                 }
@@ -63,13 +64,32 @@ export class LoginService {
         );
     }
 
+   
     logout(): void {
         try {
             // Déconnexion via AuthServerProvider (gère tout le nettoyage)
-            this.authServerProvider.logout();
+            //this.authServerProvider.logout();
 
             // Réinitialiser l'état d'authentification dans AccountService
             this.accountService.authenticate(null);
+            this.accountService.logout();
+
+
+            console.log('Déconnexion effectuée avec succès');
+        } catch (error) {
+            console.error('Erreur lors de la déconnexion:', error);
+        }
+    }
+
+    logoutSite(): void {
+        try {
+            // Déconnexion via AuthServerProvider (gère tout le nettoyage)
+            this.authServerProvider.logoutSite();
+
+            // Réinitialiser l'état d'authentification dans AccountService
+            this.accountService.authenticate(null);
+            this.accountService.logoutSite();
+
 
             console.log('Déconnexion effectuée avec succès');
         } catch (error) {

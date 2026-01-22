@@ -1,7 +1,8 @@
+
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable, Subject, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { map, catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { Account } from 'src/app/demo/components/model/account.model';
 
@@ -12,38 +13,119 @@ export class AccountService {
     private authorities: string[] = [];
     private authenticationState = new Subject<Account | null>();
 
-    constructor(private http: HttpClient, private router: Router) {}
+    // Clés pour le localStorage
+    private readonly USER_KEY = 'currentUser';
+    private readonly AUTH_KEY = 'isAuthenticated';
 
-    // Correction de la faute de frappe "autorities" -> "authorities"
-    findAuthorities(): Observable<HttpResponse<string[]>> {
-    return this.http.get<string[]>('/api/account/authorities', { observe: 'response' });
+    constructor(private http: HttpClient, private router: Router) {
+        // Restaurer l'état lors de l'initialisation
+        this.restoreAuthenticationState();
     }
 
+    /* findAuthorities(): Observable<HttpResponse<string[]>> {
+        return this.http.get<string[]>('api/account/authorities', { observe: 'response' });
+    } */
+
     fetch(): Observable<HttpResponse<Account>> {
-    return this.http.get<Account>('/api/users/account', { observe: 'response' });
+        return this.http.get<Account>('api/users/account', { observe: 'response' }).pipe(
+            tap(response => {
+                if(response)
+                console.log("=================this.response======111==================",response)
+                if (response.body) {
+
+                    this.authenticate(response.body);
+                }
+            })
+        );
     }
     
     updatePassword(newPassword: string, currentPassword: string): Observable<any> {
         console.log('Updating password...');
-    return this.http.post('/api/users/account/change-password', { currentPassword, newPassword });
+        return this.http.post('api/users/account/change-password', { currentPassword, newPassword });
     }
 
-    // Correction de la faute de frappe "reunitialise" -> "reinitialize"
-    reinitialize(email: string, newPassword: string): Observable<any> {
-        console.log('Reinitializing password...'+ email+ ' ' + newPassword );
-        
-    return this.http.post('/api/users/account/reunitialiser', { email, newPassword });
+    reinitialize(email: string, currentPassword: string): Observable<any> {
+        return this.http.post('api/users/account/reinitialize', { email, currentPassword });
     }
 
     save(account: Account): Observable<HttpResponse<any>> {
-    return this.http.post('/api/account', account, { observe: 'response' });
+        return this.http.post('api/account', account, { observe: 'response' });
     }
 
     authenticate(identity: Account | null): void {
+        // console.log("=================this.userIdentity======22==================",this.userIdentity)
         this.userIdentity = identity;
         this.authenticated = identity !== null;
         this.authorities = identity?.authorities || [];
         this.authenticationState.next(this.userIdentity);
+        
+        // Sauvegarder dans le localStorage
+        if (identity) {
+            this.saveAuthenticationState(identity);
+        } else {
+            this.clearAuthenticationState();
+        }
+    }
+
+    // Sauvegarder l'état dans le localStorage
+    private saveAuthenticationState(account: Account): void {
+        localStorage.setItem(this.USER_KEY, JSON.stringify(account));
+        localStorage.setItem(this.AUTH_KEY, 'true');
+    }
+
+    // Restaurer l'état depuis le localStorage et rafraîchir depuis le serveur
+    private restoreAuthenticationState(): void {
+        const storedUser = localStorage.getItem(this.USER_KEY);
+        const isAuth = localStorage.getItem(this.AUTH_KEY);
+
+        if (storedUser && isAuth === 'true') {
+            try {
+                // Restaurer temporairement depuis le localStorage
+                this.userIdentity = JSON.parse(storedUser);
+               
+                this.authenticated = true;
+                this.authorities = this.userIdentity?.authorities || [];
+                this.authenticationState.next(this.userIdentity);
+
+                // Rafraîchir immédiatement depuis le serveur pour avoir les données à jour
+                this.refreshUserData();
+            } catch (error) {
+                console.error('Error restoring authentication state:', error);
+                this.clearAuthenticationState();
+            }
+        }
+    }
+
+    // Méthode pour rafraîchir les données utilisateur depuis le serveur
+    private refreshUserData(): void {
+        this.fetch().pipe(
+            catchError(error => {
+                console.error('Error refreshing user data:', error);
+                // En cas d'erreur, garder les données en cache
+                return of(null);
+            })
+        ).subscribe(response => {
+            if (response?.body) {
+                console.log('User data refreshed with updated authorities');
+            }
+        });
+    }
+
+    // Méthode publique pour forcer le refresh des données utilisateur
+    public forceRefreshUserData(): Observable<Account | null> {
+        return this.fetch().pipe(
+            map(response => response?.body || null),
+            catchError(error => {
+                console.error('Error forcing refresh user data:', error);
+                return of(null);
+            })
+        );
+    }
+
+    // Nettoyer le localStorage
+    private clearAuthenticationState(): void {
+        localStorage.removeItem(this.USER_KEY);
+        localStorage.removeItem(this.AUTH_KEY);
     }
 
     hasAnyAuthority(authorities: string[]): boolean {
@@ -63,7 +145,6 @@ export class AccountService {
         );
     }
 
-    // Méthode corrigée pour vérifier les rôles
     hasRole(authority: string): boolean {
         if (!this.authenticated || !this.userIdentity) {
             return false;
@@ -71,7 +152,6 @@ export class AccountService {
         return this.userIdentity.authorities?.includes(authority) || false;
     }
 
-    // Méthode Observable pour vérifier l'authentification
     checkAuthentication(): Observable<boolean> {
         return this.identity().pipe(
             map(identity => identity !== null),
@@ -82,49 +162,56 @@ export class AccountService {
     identity(force?: boolean): Observable<Account | null> {
         if (force) {
             this.userIdentity = null;
+            this.clearAuthenticationState();
         }
 
         // Retourner l'identité en cache si elle existe
         if (this.userIdentity && !force) {
-            return new Observable(observer => {
-                observer.next(this.userIdentity);
-                observer.complete();
-            });
+            return of(this.userIdentity);
         }
 
-        return new Observable(observer => {
-            this.fetch().subscribe({
-                next: (response) => {
-                    const account = response?.body;
-                    
-                    if (account) {
-                        this.userIdentity = account;
-                        this.authenticated = true;
-                        this.authorities = account.authorities || [];
-                    } else {
-                        this.resetAuthenticationState();
-                    }
-                    
-                    this.authenticationState.next(this.userIdentity);
-                    observer.next(this.userIdentity);
-                    observer.complete();
-                },
-                error: (error) => {
-                    console.error('Error fetching user identity:', error);
+        // Si on a des données en localStorage, les utiliser temporairement
+        const storedUser = localStorage.getItem(this.USER_KEY);
+        if (storedUser && !force) {
+            try {
+                this.userIdentity = JSON.parse(storedUser);
+                this.authenticated = true;
+                this.authorities = this.userIdentity?.authorities || [];
+                
+                // Rafraîchir les données en arrière-plan
+                this.refreshUserData();
+                
+                return of(this.userIdentity);
+            } catch (error) {
+                console.error('Error parsing stored user:', error);
+            }
+        }
+
+        // Sinon, fetch depuis le serveur
+        return this.fetch().pipe(
+            map(response => {
+                if (!response?.body) {
                     this.resetAuthenticationState();
-                    this.router.navigate(['/connexion']);
-                    observer.next(null);
-                    observer.complete();
                 }
-            });
-        });
+                return this.userIdentity;
+            }),
+            catchError(error => {
+                console.error('Error fetching user identity:', error);
+                this.resetAuthenticationState();
+                this.router.navigate(['/admin/login']);
+                return of(null);
+            })
+        );
     }
+
+    
 
     private resetAuthenticationState(): void {
         this.userIdentity = null;
         this.authenticated = false;
         this.authorities = [];
         this.authenticationState.next(null);
+        this.clearAuthenticationState();
     }
 
     isAuthenticated(): boolean {
@@ -143,7 +230,6 @@ export class AccountService {
         return this.userIdentity?.imageUrl || '';
     }
 
-    // Méthodes utilitaires supplémentaires
     getCurrentUser(): Account | null {
         return this.userIdentity;
     }
@@ -159,6 +245,7 @@ export class AccountService {
 
     logoutSite(): void {
         this.resetAuthenticationState();
-        this.router.navigate(['/site-aeroport/accueil']);
+        this.router.navigate(['/site-aeroport/auth']);
     }
 }
+

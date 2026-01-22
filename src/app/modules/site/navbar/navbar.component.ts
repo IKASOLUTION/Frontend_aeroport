@@ -44,13 +44,28 @@ export class NavbarComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(isAuth => {
         this.isAuthenticated.set(isAuth);
+       /*  if(!isAuth){
+           console.log("==========NavbarComponent ngOnInit==2================",this.isAuthenticated());
+          this.router.navigate(['/site-aeroport/accueil']);
+        } */
+        
+
       });
   }
 
+
+  hasRole(role: string): boolean {
+    if (!this.isAuthenticated()) {
+      return false;
+    }
+
+    const userRole = localStorage.getItem('userRole');
+    return userRole === role;
+  }
   logout(): void {
-    this.loginService.logout();
+    this.loginService.logoutSite();
     this.isAuthenticated.set(false);
-    this.router.navigate(['/site-aeroport/accueil']);
+    //this.router.navigate(['/site-aeroport/accueil']);
   }
 }
 

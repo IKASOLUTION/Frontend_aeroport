@@ -14,99 +14,124 @@
         </a>
     </div>
 
+
     <div class="layout-topbar-end">
         <div class="layout-topbar-actions-start">
             <!-- <p-megaMenu [model]="model" styleClass="layout-megamenu"></p-megaMenu> -->
         </div>
+        
         <div class="layout-topbar-actions-end">
             <ul class="layout-topbar-items">
-
-                <!-- 🔔 ICÔNE D'ALERTE -->
+                <!-- 🔔 NOTIFICATIONS -->
                 <li class="notification-item">
-                    <a class="notification-button" 
-                       pStyleClass="@next" 
-                       enterFromClass="ng-hidden" 
-                       enterActiveClass="px-scalein" 
-                       leaveToClass="ng-hidden" 
-                       leaveActiveClass="px-fadeout" 
-                       [hideOnOutsideClick]="true" 
-                       pRipple>
-                        <i class="pi pi-bell notification-icon"></i>
-                        <!-- Badge avec nombre de notifications -->
-                        <span class="notification-badge" *ngIf="notificationCount > 0">
-                            {{notificationCount > 99 ? '99+' : notificationCount}}
+                    <button class="notification-button" 
+                            type="button"
+                            pStyleClass="@next" 
+                            enterFromClass="ng-hidden" 
+                            enterActiveClass="px-scalein" 
+                            leaveToClass="ng-hidden" 
+                            leaveActiveClass="px-fadeout" 
+                            [hideOnOutsideClick]="true"
+                            [attr.aria-label]="'Notifications (' + notificationCount + ')'"
+                            pRipple>
+                        <i class="pi pi-bell notification-icon" aria-hidden="true"></i>
+                        <span class="notification-badge" 
+                              *ngIf="notificationCount > 0"
+                              [attr.aria-label]="notificationCount + ' notifications non lues'">
+                            {{ notificationCount > 99 ? '99+' : notificationCount }}
                         </span>
-                    </a>
+                    </button>
                     
                     <!-- Dropdown des notifications -->
-                    <div class="ng-hidden notification-dropdown">
+                    <div class="ng-hidden notification-dropdown" role="menu">
                         <div class="notification-header">
-                            <h4>Notifications</h4>
-                            <span class="notification-count-text">{{notificationCount}} nouvelle(s)</span>
+                            <h4 class="notification-title">Notifications</h4>
+                            <span class="notification-count-text">
+                                {{ notificationCount }} nouvelle{{ notificationCount > 1 ? 's' : '' }}
+                            </span>
+                        </div>
+                        
+                        <!-- Loader -->
+                        <div class="notification-loading" *ngIf="loading">
+                            <i class="pi pi-spin pi-spinner" style="font-size: 2rem;"></i>
+                            <p>Chargement...</p>
                         </div>
                         
                         <!-- Liste des notifications -->
-                        <ul class="notification-list" *ngIf="recentNotifications.length > 0">
+                        <ul class="notification-list" 
+                            *ngIf="!loading && recentNotifications.length > 0" 
+                            role="list">
                             <li class="notification-item-detail" 
-                                *ngFor="let notification of recentNotifications"
-                                (click)="onNotificationClick(notification)">
+                                *ngFor="let notification of recentNotifications; trackBy: trackByNotificationId"
+                                (click)="onNotificationClick(notification)"
+                                [class.unread]="!notification.isRead"
+                                role="menuitem"
+                                tabindex="0"
+                                (keydown.enter)="onNotificationClick(notification)"
+                                (keydown.space)="$event.preventDefault(); onNotificationClick(notification)">
                                 <div class="notification-icon-wrapper" [ngClass]="notification.type">
-                                    <i [class]="'pi ' + notification.icon"></i>
+                                    <i [class]="'pi ' + notification.icon" aria-hidden="true"></i>
                                 </div>
                                 <div class="notification-content">
-                                    <h5>{{notification.title}}</h5>
-                                    <p>{{notification.message}}</p>
-                                    <span class="notification-time">{{notification.time}}</span>
+                                    <h5 class="notification-item-title">{{ notification.title }}</h5>
+                                    <p class="notification-item-message">{{ notification.message }}</p>
+                                    <span class="notification-time">{{ notification.time }}</span>
                                 </div>
                             </li>
                         </ul>
                         
                         <!-- Message si aucune notification -->
-                        <div class="notification-empty" *ngIf="recentNotifications.length === 0">
-                            <i class="pi pi-bell-slash"></i>
+                        <div class="notification-empty" *ngIf="!loading && recentNotifications.length === 0">
+                            <i class="pi pi-bell-slash" aria-hidden="true"></i>
                             <p>Aucune notification récente</p>
                         </div>
                         
                         <!-- Footer -->
-                        <div class="notification-footer">
-                            <a (click)="viewAllNotifications()" class="view-all-link" style="cursor: pointer;">
+                        <div class="notification-footer" *ngIf="!loading && recentNotifications.length > 0">
+                            <button type="button"
+                                    (click)="viewAllNotifications()" 
+                                    class="view-all-link">
                                 Voir toutes les notifications
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </li>
 
                 <!-- 👤 PROFIL UTILISATEUR -->
                 <li class="user-profile-item">
-                    <a class="user-profile-button"
-                       pStyleClass="@next" 
-                       enterFromClass="ng-hidden" 
-                       enterActiveClass="px-scalein" 
-                       leaveToClass="ng-hidden" 
-                       leaveActiveClass="px-fadeout" 
-                       [hideOnOutsideClick]="true" 
-                       pRipple>
+                    <button class="user-profile-button"
+                            type="button"
+                            pStyleClass="@next" 
+                            enterFromClass="ng-hidden" 
+                            enterActiveClass="px-scalein" 
+                            leaveToClass="ng-hidden" 
+                            leaveActiveClass="px-fadeout" 
+                            [hideOnOutsideClick]="true"
+                            [attr.aria-label]="'Menu utilisateur de ' + getUserFullName()"
+                            pRipple>
                         <div class="flex align-items-center gap-2">
-                            <!-- Avatar avec initiales -->
-                            <div class="user-avatar">
-                                <span>{{ getUserInitials() }}</span>
+                            <div class="user-avatar" 
+                                 [attr.aria-label]="'Avatar de ' + getUserFullName()">
+                                <span aria-hidden="true">{{ getUserInitials() }}</span>
                             </div>
-                            <!-- Nom (caché sur mobile) -->
                             <span class="user-name hidden lg:inline-block">
                                 {{ getUserFullName() }}
                             </span>
-                            <i class="pi pi-chevron-down hidden lg:inline-block" style="font-size: 0.75rem; color: white;"></i>
+                            <i class="pi pi-chevron-down hidden lg:inline-block" 
+                               style="font-size: 0.75rem; color: white;" 
+                               aria-hidden="true"></i>
                         </div>
-                    </a>
+                    </button>
                     
                     <!-- Dropdown utilisateur -->
-                    <div class="ng-hidden user-dropdown">
+                    <div class="ng-hidden user-dropdown" role="menu">
                         <ul class="list-none p-0 m-0">
                             <!-- En-tête avec infos -->
                             <li class="user-dropdown-header">
                                 <div class="flex align-items-center gap-3 p-3">
-                                    <div class="user-avatar-large">
-                                        <span>{{ getUserInitials() }}</span>
+                                    <div class="user-avatar-large" 
+                                         [attr.aria-label]="'Avatar de ' + getUserFullName()">
+                                        <span aria-hidden="true">{{ getUserInitials() }}</span>
                                     </div>
                                     <div class="flex-1 overflow-hidden">
                                         <div class="font-semibold text-900 text-overflow-ellipsis overflow-hidden white-space-nowrap">
@@ -116,41 +141,46 @@
                                             {{ user?.email || 'N/A' }}
                                         </div>
                                         <div class="text-xs text-500 mt-1" *ngIf="user?.profil?.libelle">
-                                            <i class="pi pi-shield mr-1"></i>{{ user?.profil?.libelle }}
+                                            <i class="pi pi-shield mr-1" aria-hidden="true"></i>
+                                            {{ user?.profil?.libelle }}
                                         </div>
                                     </div>
                                 </div>
                             </li>
 
-                            <!-- Divider -->
-                            <li class="divider"></li>
+                            <li class="divider" role="separator"></li>
 
                             <!-- Menu Profil -->
                             <li>
-                                <a class="flex align-items-center p-3 cursor-pointer user-menu-item" 
-                                   (click)="viewProfile()">
-                                    <i class="pi pi-user mr-3 text-primary"></i>
+                                <button type="button"
+                                        class="flex align-items-center p-3 w-full cursor-pointer user-menu-item" 
+                                        (click)="viewProfile()"
+                                        role="menuitem">
+                                    <i class="pi pi-user mr-3 text-primary" aria-hidden="true"></i>
                                     <span>Mon profil</span>
-                                </a>
+                                </button>
                             </li>
 
-                           
-
-                            <!-- Divider -->
-                            <li class="divider"></li>
+                            <li class="divider" role="separator"></li>
 
                             <!-- Déconnexion -->
                             <li>
-                                <a class="flex align-items-center p-3 cursor-pointer user-menu-item logout-item" 
-                                   (click)="logout()">
-                                    <i class="pi pi-sign-out mr-3"></i>
+                                <button type="button"
+                                        class="flex align-items-center p-3 w-full cursor-pointer user-menu-item logout-item" 
+                                        (click)="logout()"
+                                        role="menuitem">
+                                    <i class="pi pi-sign-out mr-3" aria-hidden="true"></i>
                                     <span>Déconnexion</span>
-                                </a>
+                                </button>
                             </li>
                         </ul>
                     </div>
                 </li>
             </ul>
         </div>
+
+
     </div>
 </div>
+
+
